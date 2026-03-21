@@ -1,0 +1,250 @@
+export type MoodId = "neutral" | "good" | "great" | "creative";
+
+export type WhimReflection = {
+  whimTitle: string;
+  mood: MoodId | null;
+  note: string;
+  photoDataUrl: string | null;
+  savedAt: string;
+};
+
+/** Canonical stored reflection (WhimContext + localStorage v2). */
+export type WhimReflectionV2 = {
+  whimId: string;
+  whimText: string;
+  date: string;
+  feeling: MoodId | null;
+  feelingText: string;
+  note: string;
+  photoUrl: string | null;
+};
+
+const REFLECTIONS_LIST_KEY = "quest-whim-reflections";
+const LEGACY_SINGLE_KEY = "quest-whim-reflection";
+const REFLECTIONS_V2_KEY = "whim-v2-reflections";
+const RIPPLE_REACH_KEY = "whim-ripple-reach";
+const WHIM_APP_STATE_KEY = "whim-app-state-v1";
+const WHIM_PROFILE_KEY = "whim-profile-v1";
+
+export const PROFILE_AVATAR_KEY = "whim-profile-avatar";
+
+export function moodEmoji(mood: MoodId | null): string {
+  if (!mood) return "✨";
+  const map: Record<MoodId, string> = {
+    neutral: "😐",
+    good: "🙂",
+    great: "😁",
+    creative: "🎨",
+  };
+  return map[mood];
+}
+
+export function moodFeelingText(mood: MoodId | null): string {
+  if (!mood) return "Still taking it in.";
+  const map: Record<MoodId, string> = {
+    neutral: "It was okay.",
+    good: "Pretty good.",
+    great: "Freaking fantastic.",
+    creative: "So inspired.",
+  };
+  return map[mood];
+}
+
+function migrateLegacyToV2(): WhimReflectionV2[] {
+  const out: WhimReflectionV2[] = [];
+  try {
+    const listRaw = localStorage.getItem(REFLECTIONS_LIST_KEY);
+    if (listRaw) {
+      const arr = JSON.parse(listRaw) as WhimReflection[];
+      if (Array.isArray(arr)) {
+        for (const r of arr) {
+          if (!r?.savedAt) continue;
+          out.push({
+            whimId: "legacy",
+            whimText: r.whimTitle ?? "Whim",
+            date: r.savedAt,
+            feeling: r.mood ?? null,
+            feelingText: moodFeelingText(r.mood ?? null),
+            note: r.note ?? "",
+            photoUrl: r.photoDataUrl ?? null,
+          });
+        }
+      }
+    } else {
+      const oneRaw = localStorage.getItem(LEGACY_SINGLE_KEY);
+      if (oneRaw) {
+        const r = JSON.parse(oneRaw) as WhimReflection;
+        if (r?.savedAt) {
+          out.push({
+            whimId: "legacy",
+            whimText: r.whimTitle ?? "Whim",
+            date: r.savedAt,
+            feeling: r.mood ?? null,
+            feelingText: moodFeelingText(r.mood ?? null),
+            note: r.note ?? "",
+            photoUrl: r.photoDataUrl ?? null,
+          });
+        }
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return out;
+}
+
+export function loadReflectionsV2(): WhimReflectionV2[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(REFLECTIONS_V2_KEY);
+    if (raw) {
+      const arr = JSON.parse(raw) as WhimReflectionV2[];
+      if (Array.isArray(arr) && arr.length > 0) return arr;
+    }
+    const migrated = migrateLegacyToV2();
+    if (migrated.length > 0) {
+      localStorage.setItem(REFLECTIONS_V2_KEY, JSON.stringify(migrated));
+    }
+    return migrated;
+  } catch {
+    return [];
+  }
+}
+
+export function saveReflectionsV2(entries: WhimReflectionV2[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(REFLECTIONS_V2_KEY, JSON.stringify(entries));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function loadReflections(): WhimReflection[] {
+  return loadReflectionsV2().map((v) => ({
+    whimTitle: v.whimText,
+    mood: v.feeling,
+    note: v.note,
+    photoDataUrl: v.photoUrl,
+    savedAt: v.date,
+  }));
+}
+
+/** @deprecated Prefer WhimContext.saveReflection — kept for direct storage writes. */
+export function appendReflection(entry: WhimReflection): void {
+  if (typeof window === "undefined") return;
+  try {
+    const v2: WhimReflectionV2 = {
+      whimId: "legacy",
+      whimText: entry.whimTitle,
+      date: entry.savedAt,
+      feeling: entry.mood,
+      feelingText: moodFeelingText(entry.mood),
+      note: entry.note,
+      photoUrl: entry.photoDataUrl,
+    };
+    const next = [...loadReflectionsV2(), v2];
+    saveReflectionsV2(next);
+    localStorage.removeItem(LEGACY_SINGLE_KEY);
+    localStorage.removeItem(REFLECTIONS_LIST_KEY);
+    incrementRippleReach();
+  } catch {
+    /* quota / private mode */
+  }
+}
+
+/** Rough “people reached” counter; bumps a bit on each saved reflection. */
+export function incrementRippleReach(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(RIPPLE_REACH_KEY);
+    const prev = raw ? parseInt(raw, 10) : NaN;
+    const base = Number.isFinite(prev) && prev > 0 ? prev : 248;
+    const add = 9 + Math.floor(Math.random() * 14);
+    localStorage.setItem(RIPPLE_REACH_KEY, String(base + add));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getRippleReach(): number {
+  if (typeof window === "undefined") return 248;
+  try {
+    const v = parseInt(localStorage.getItem(RIPPLE_REACH_KEY) || "", 10);
+    if (Number.isFinite(v) && v > 0) return v;
+  } catch {
+    /* ignore */
+  }
+  const n = loadReflections().length;
+  return 248 + n * 17;
+}
+
+export function computeStreak(reflections: WhimReflection[]): number {
+  if (reflections.length === 0) return 0;
+  const days = new Set(reflections.map((r) => reflectionDateKey(r.savedAt)));
+  const hasDay = (d: Date) => days.has(reflectionDateKey(d.toISOString()));
+  const cursor = new Date();
+  cursor.setHours(12, 0, 0, 0);
+  if (!hasDay(cursor)) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  if (!hasDay(cursor)) return 0;
+  let streak = 0;
+  while (hasDay(cursor)) {
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+export function favoriteMoodEmoji(reflections: WhimReflection[]): string {
+  const counts = new Map<MoodId, number>();
+  for (const r of reflections) {
+    if (!r.mood) continue;
+    counts.set(r.mood, (counts.get(r.mood) ?? 0) + 1);
+  }
+  let best: MoodId | null = null;
+  let max = 0;
+  for (const [m, c] of counts) {
+    if (c > max) {
+      max = c;
+      best = m;
+    }
+  }
+  return best ? moodEmoji(best) : "—";
+}
+
+export function clearAllWhimLocalData(): void {
+  if (typeof window === "undefined") return;
+  [
+    REFLECTIONS_LIST_KEY,
+    LEGACY_SINGLE_KEY,
+    REFLECTIONS_V2_KEY,
+    RIPPLE_REACH_KEY,
+    PROFILE_AVATAR_KEY,
+    WHIM_APP_STATE_KEY,
+    WHIM_PROFILE_KEY,
+  ].forEach((k) => localStorage.removeItem(k));
+}
+
+/** Local calendar date key (YYYY-MM-DD) for grouping. */
+export function reflectionDateKey(iso: string): string {
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export function formatReflectionWeekday(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(
+    new Date(iso),
+  );
+}
+
+export function formatReflectionDateLong(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+  }).format(new Date(iso));
+}
