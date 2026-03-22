@@ -672,17 +672,17 @@ export function WhimHomeShell() {
                       layout: { duration: 0.45, ease: crossEase },
                     }}
                   >
-                    <span className="inline-flex flex-wrap items-center justify-start gap-x-3 gap-y-1 sm:gap-x-4">
-                      <span>Join</span>
-                      <span className="tabular-nums">{peopleCount}</span>
-                      <span className="inline-flex items-center gap-2 sm:gap-2.5">
-                        <span>others</span>
-                        <ArrowRight
-                          className="size-5 shrink-0 sm:size-[1.35rem]"
-                          strokeWidth={2.25}
-                          aria-hidden
-                        />
+                    <span className="inline-flex flex-wrap items-center gap-x-2 sm:gap-x-2.5">
+                      <span>
+                        Join{" "}
+                        <span className="tabular-nums">{peopleCount}</span>{" "}
+                        others
                       </span>
+                      <ArrowRight
+                        className="size-5 shrink-0 sm:size-[1.35rem]"
+                        strokeWidth={2.25}
+                        aria-hidden
+                      />
                     </span>
                   </motion.button>
                 </motion.div>

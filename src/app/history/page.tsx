@@ -207,14 +207,18 @@ function HistoryPageContent() {
               onSelectIndex={setActiveIndex}
             />
           ) : (
-            <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-whim-sky">
-              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-                <div className="flex w-full flex-col items-center justify-center px-2 pb-2 pt-[max(0.25rem,1.5dvh)] sm:px-3 sm:pb-2 sm:pt-[max(0.5rem,2dvh)]">
+            <div className="flex h-full min-h-0 w-full flex-col overflow-x-hidden overflow-y-hidden bg-whim-sky">
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-visible">
+                <div
+                  className={cn(
+                    HISTORY_HERO_BAND_CLASS,
+                    "min-h-0 flex-1 overflow-visible pb-2",
+                  )}
+                >
                   {active ? (
                     <HistoryReflectionHeroCluster
                       reflection={active}
                       isActive
-                      variant="calendar"
                     />
                   ) : null}
                 </div>
@@ -269,6 +273,14 @@ function HistoryPageContent() {
 
 /** ~85% width slides so previous/next whims peek on the sides. Leading/trailing spacers (½ remainder) let the first/last slide center exactly. */
 const CAROUSEL_SLIDE_WIDTH_FRAC = 0.85;
+
+/** Shared top/horizontal padding + vertical centering for Past Whims hero (carousel + calendar). */
+const HISTORY_HERO_BAND_CLASS =
+  "flex h-full min-h-0 w-full flex-col items-center justify-center px-2 pt-[max(0.75rem,3.5dvh)] sm:px-3 sm:pt-[max(1rem,4dvh)]";
+
+/** Carousel only: reserve space for docked drawer + nav so the hero centers in the same sky band as before. */
+const HISTORY_HERO_CAROUSEL_BOTTOM_PAD =
+  "pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(42dvh,520px)+1.5rem)] sm:pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(40dvh,540px)+1.5rem)]";
 
 function scrollToCarouselIndex(
   el: HTMLDivElement,
@@ -366,9 +378,9 @@ function HistorySnapCarousel({
           <section
             key={r.savedAt}
             className={cn(
-              "flex h-full min-h-0 shrink-0 snap-center snap-always flex-col items-center justify-center overflow-hidden px-2 pt-[max(0.75rem,3.5dvh)] sm:px-3 sm:pt-[max(1rem,4dvh)]",
-              /* Reserve docked drawer + bottom nav so the hero isn’t centered under the sheet */
-              "pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(42dvh,520px)+1.5rem)] sm:pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(40dvh,540px)+1.5rem)]",
+              HISTORY_HERO_BAND_CLASS,
+              "shrink-0 snap-center snap-always overflow-hidden",
+              HISTORY_HERO_CAROUSEL_BOTTOM_PAD,
               slidePx <= 0 && "w-[85%] min-w-[85%] max-w-[85%]",
             )}
             style={
@@ -385,7 +397,6 @@ function HistorySnapCarousel({
             <HistoryReflectionHeroCluster
               reflection={r}
               isActive={i === activeIndex}
-              variant="carousel"
             />
           </section>
         ))}
@@ -494,26 +505,16 @@ function CarouselSlideVisual({
   );
 }
 
-/** Polaroid / emoji / illustration / date for each carousel slide. */
+/** Polaroid / emoji / illustration / date — same layout in carousel and calendar; only the bottom panel differs. */
 function HistoryReflectionHeroCluster({
   reflection,
   isActive,
-  variant = "carousel",
 }: {
   reflection: WhimReflection;
   isActive: boolean;
-  /** Carousel: drawer docks over bottom — keep cluster high. Calendar: unchanged layout. */
-  variant?: "carousel" | "calendar";
 }) {
   return (
-    <div
-      className={cn(
-        "flex origin-top scale-[0.8] flex-col items-center",
-        variant === "carousel"
-          ? "translate-y-[22px] sm:translate-y-[26px]"
-          : "-translate-y-9 sm:-translate-y-12",
-      )}
-    >
+    <div className="flex origin-top translate-y-[22px] scale-[0.8] flex-col items-center sm:translate-y-[26px]">
       <CarouselSlideVisual reflection={reflection} isActive={isActive} />
     </div>
   );
