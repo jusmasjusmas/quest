@@ -96,7 +96,7 @@ export function ReflectionDrawer() {
         </DrawerDescription>
 
         <div className="flex h-full min-h-0 flex-col rounded-t-[1.75rem] border border-b-0 border-zinc-200/80 bg-[#f7f6f3] shadow-[0_-8px_40px_rgba(0,0,0,0.12)]">
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-4 pt-1">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-4 pt-8">
             <p className="font-serif text-base italic text-[#1A1A1A]">
               On a whim, I decided to...
             </p>
@@ -136,34 +136,45 @@ export function ReflectionDrawer() {
               className="mt-2 w-full resize-none bg-transparent font-serif text-base leading-relaxed text-[#1A1A1A] placeholder:text-zinc-400 focus:outline-none focus:ring-0"
             />
 
-            <div className="mt-8 flex gap-3">
-              <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-xl border border-white bg-white shadow-md ring-1 ring-black/5">
-                {photoDataUrl ? (
-                  <Image
-                    src={photoDataUrl}
-                    alt="Your upload"
-                    fill
-                    unoptimized
-                    className="object-cover"
-                    sizes="100px"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-zinc-100/80 font-serif text-xs text-zinc-400">
-                    No photo
+            <p className="mt-8 font-serif text-base italic text-[#1A1A1A]">
+              Add a photo
+            </p>
+            <div className="mt-2 flex gap-3">
+              {photoDataUrl ? (
+                <>
+                  <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-xl border border-white bg-white shadow-md ring-1 ring-black/5">
+                    <Image
+                      src={photoDataUrl}
+                      alt="Your upload"
+                      fill
+                      unoptimized
+                      className="object-cover"
+                      sizes="100px"
+                    />
                   </div>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex h-[100px] w-[100px] shrink-0 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-zinc-300 bg-zinc-100/60 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100"
-              >
-                <ImagePlus className="h-7 w-7 stroke-[1.25]" aria-hidden />
-                <span className="font-sans text-[0.7rem] font-medium">
-                  Select file
-                </span>
-              </button>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex h-[100px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-zinc-300 bg-zinc-100/60 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100"
+                  >
+                    <ImagePlus className="h-7 w-7 stroke-[1.25]" aria-hidden />
+                    <span className="font-sans text-[0.7rem] font-medium">
+                      Select file
+                    </span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex h-[100px] w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-zinc-300 bg-zinc-100/60 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100"
+                >
+                  <ImagePlus className="h-7 w-7 stroke-[1.25]" aria-hidden />
+                  <span className="font-sans text-[0.7rem] font-medium">
+                    Select file
+                  </span>
+                </button>
+              )}
               <input
                 ref={fileInputRef}
                 id={fileInputId}

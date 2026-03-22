@@ -23,8 +23,11 @@ import {
   useState,
 } from "react";
 
+import { WhimBottomNav } from "@/components/whim-bottom-nav";
+import { getWhimForDate } from "@/data/whims";
 import { cn } from "@/lib/utils";
 import { useWhim } from "@/context/WhimContext";
+import { mergeWithPlaceholderReflections } from "@/lib/history-placeholders";
 import {
   formatReflectionDateLong,
   formatReflectionWeekday,
@@ -44,27 +47,37 @@ export default function HistoryPage() {
   const { reflections: rawReflections } = useWhim();
 
   const reflections = useMemo(() => {
-    const list: WhimReflection[] = rawReflections.map((r) => ({
+    const merged = mergeWithPlaceholderReflections(rawReflections);
+    const list: WhimReflection[] = merged.map((r) => ({
       whimTitle: r.whimText,
       mood: r.feeling,
       note: r.note,
       photoDataUrl: r.photoUrl,
       savedAt: r.date,
+      whimId: r.whimId,
     }));
     return list.sort(
-      (a, b) => new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime(),
+      (a, b) => new Date(a.savedAt).getTime() - new Date(b.savedAt).getTime(),
     );
   }, [rawReflections]);
 
   const [view, setView] = useState<ViewMode>("carousel");
   const [activeIndex, setActiveIndex] = useState(0);
+  const hasSeededNewest = useRef(false);
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const d = new Date();
     return { y: d.getFullYear(), m: d.getMonth() };
   });
 
   useEffect(() => {
-    setActiveIndex((i) => clamp(i, 0, Math.max(0, reflections.length - 1)));
+    const n = reflections.length;
+    if (n === 0) return;
+    if (!hasSeededNewest.current) {
+      setActiveIndex(n - 1);
+      hasSeededNewest.current = true;
+      return;
+    }
+    setActiveIndex((i) => clamp(i, 0, n - 1));
   }, [reflections.length]);
 
   const active = reflections[activeIndex] ?? null;
@@ -89,7 +102,7 @@ export default function HistoryPage() {
   );
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-sm flex-col bg-[#D4E8E8]">
+    <div className="mx-auto flex min-h-[100dvh] max-w-sm flex-col overflow-hidden rounded-2xl bg-[#ECFAFF]">
       <header className="relative flex shrink-0 items-center justify-between px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <Link
           href="/"
@@ -134,7 +147,7 @@ export default function HistoryPage() {
       </header>
 
       {reflections.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 pb-32 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 pb-[max(8rem,calc(env(safe-area-inset-bottom)+6.5rem))] text-center">
           <p className="font-serif text-lg italic text-[#1A1A1A]/80">
             No past whims yet. Complete a whim and save a reflection to see it
             here.
@@ -191,6 +204,8 @@ export default function HistoryPage() {
       {reflections.length > 0 && active ? (
         <WhimDetailCard key={active.savedAt} reflection={active} />
       ) : null}
+
+      <WhimBottomNav active="history" />
     </div>
   );
 }
@@ -206,8 +221,8 @@ function WhimCarousel({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [cw, setCw] = useState(0);
-  const gap = 14;
-  const slideRatio = 0.72;
+  const gap = 8;
+  const slideRatio = 0.66;
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -227,6 +242,10 @@ function WhimCarousel({
 
   const x = useMotionValue(0);
   const xInitialized = useRef(false);
+
+  useEffect(() => {
+    xInitialized.current = false;
+  }, [n]);
 
   useEffect(() => {
     if (!cw || !n) return;
@@ -266,29 +285,31 @@ function WhimCarousel({
     <div ref={containerRef} className="relative w-full shrink-0 overflow-hidden py-4">
       {cw > 0 && slideW > 0 ? (
         <motion.div
-          className="flex cursor-grab touch-pan-y gap-3.5 active:cursor-grabbing"
-          style={{ x }}
+          className="flex cursor-grab select-none touch-none active:cursor-grabbing"
+          style={{ x, gap }}
           drag="x"
           dragConstraints={{ left: minX, right: maxX }}
-          dragElastic={0.1}
+          dragElastic={0.08}
           dragMomentum={false}
           onDragEnd={onDragEnd}
         >
           {reflections.map((r, i) => {
             const dist = Math.abs(i - activeIndex);
+            const dayWhim = getWhimForDate(new Date(r.savedAt));
+            const scale =
+              dist === 0 ? 1.06 : dist === 1 ? 0.9 : Math.max(0.78, 0.9 - dist * 0.04);
+            const opacity =
+              dist === 0 ? 1 : dist === 1 ? 0.82 : Math.max(0.55, 0.82 - dist * 0.1);
             return (
               <div
-                key={r.savedAt}
+                key={`${r.savedAt}-${i}`}
                 className="relative shrink-0 select-none"
                 style={{ width: slideW }}
               >
                 <motion.div
-                  className="relative mx-auto flex h-[220px] max-w-[220px] items-end justify-center"
-                  animate={{
-                    scale: dist === 0 ? 1 : 0.9,
-                    opacity: dist === 0 ? 1 : 0.72,
-                  }}
-                  transition={{ type: "spring", stiffness: 320, damping: 32 }}
+                  className="pointer-events-none relative mx-auto flex h-[220px] max-w-[220px] items-end justify-center"
+                  animate={{ scale, opacity }}
+                  transition={{ type: "spring", stiffness: 280, damping: 30 }}
                 >
                   {r.photoDataUrl ? (
                     <motion.div
@@ -306,7 +327,8 @@ function WhimCarousel({
                           alt=""
                           fill
                           unoptimized
-                          className="object-cover"
+                          draggable={false}
+                          className="pointer-events-none object-cover"
                           sizes="72px"
                         />
                       </div>
@@ -325,12 +347,13 @@ function WhimCarousel({
                     {moodEmoji(r.mood)}
                   </motion.div>
 
-                  <div className="relative h-[160px] w-[140px]">
+                  <div className="relative isolate h-[160px] w-[140px] bg-[#ECFAFF]">
                     <Image
-                      src="/illustrations/flower.png"
+                      src={dayWhim.illustration}
                       alt=""
                       fill
-                      className="object-contain object-bottom"
+                      draggable={false}
+                      className="pointer-events-none object-contain object-bottom mix-blend-screen drop-shadow-[0_6px_14px_rgba(0,0,0,0.07)]"
                       sizes="140px"
                     />
                   </div>
@@ -464,13 +487,14 @@ function CalendarPanel({
 function WhimDetailCard({ reflection }: { reflection: WhimReflection }) {
   const feeling = moodFeelingText(reflection.mood);
   const emoji = moodEmoji(reflection.mood);
+  const whimForDay = getWhimForDate(new Date(reflection.savedAt));
 
   return (
     <motion.div
       initial={{ y: 28, opacity: 0.92 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 320, damping: 34 }}
-      className="mt-auto rounded-t-[1.75rem] border border-b-0 border-zinc-200/80 bg-[#fdfcfa] px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_36px_rgba(0,0,0,0.1)]"
+      className="mt-auto rounded-t-[1.75rem] border border-b-0 border-zinc-200/80 bg-[#fdfcfa] px-6 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] pt-3 shadow-[0_-8px_36px_rgba(0,0,0,0.1)]"
     >
       <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-zinc-300/90" />
 
@@ -478,7 +502,7 @@ function WhimDetailCard({ reflection }: { reflection: WhimReflection }) {
         On a whim, I decided to...
       </p>
       <h2 className="mt-1 font-serif text-2xl font-bold leading-tight text-[#1A1A1A]">
-        {reflection.whimTitle}
+        {whimForDay.text}
       </h2>
 
       <p className="mt-6 font-serif text-sm italic text-[#1A1A1A]/85">

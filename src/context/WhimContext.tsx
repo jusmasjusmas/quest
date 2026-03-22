@@ -245,11 +245,11 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
   const passedToday = skippedDateKey === todayKey();
 
   const joinWhim = useCallback(() => {
-    if (passedToday) return;
+    setSkippedDateKey(null);
     const now = Date.now();
     setWhimState("joined");
     setJoinedAtMs(now);
-  }, [passedToday]);
+  }, []);
 
   useEffect(() => {
     if (whimState !== "joined" || joinedAtMs == null) {

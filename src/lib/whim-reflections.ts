@@ -6,6 +6,8 @@ export type WhimReflection = {
   note: string;
   photoDataUrl: string | null;
   savedAt: string;
+  /** Stored id; illustration for UI comes from `getWhimForDate(savedAt)` when possible. */
+  whimId?: string;
 };
 
 /** Canonical stored reflection (WhimContext + localStorage v2). */
@@ -127,6 +129,7 @@ export function loadReflections(): WhimReflection[] {
     note: v.note,
     photoDataUrl: v.photoUrl,
     savedAt: v.date,
+    whimId: v.whimId,
   }));
 }
 

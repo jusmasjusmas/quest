@@ -47,7 +47,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-sm flex-col bg-[#D4E8E8]">
+    <div className="mx-auto flex min-h-[100dvh] max-w-sm flex-col overflow-hidden rounded-2xl bg-[#ECFAFF]">
       <header className="flex shrink-0 items-center px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <Link
           href="/"
@@ -58,7 +58,7 @@ export default function ProfilePage() {
         </Link>
       </header>
 
-      <main className="min-h-0 flex-1 space-y-10 overflow-y-auto px-6 pb-6">
+      <main className="min-h-0 flex-1 space-y-10 overflow-y-auto px-6 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
         <section className="text-center">
           <h1 className="font-serif text-4xl italic leading-tight text-[#1A1A1A]">
             Hey, {profile.name}.
@@ -68,7 +68,7 @@ export default function ProfilePage() {
           </p>
           <button
             type="button"
-            className="mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-full bg-white text-5xl shadow-md ring-2 ring-white ring-offset-2 ring-offset-[#D4E8E8] transition-transform active:scale-95"
+            className="mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-full bg-white text-5xl shadow-md ring-2 ring-white ring-offset-2 ring-offset-[#ECFAFF] transition-transform active:scale-95"
             aria-label="Choose avatar emoji"
             onClick={() => {
               const i = AVATAR_OPTIONS.indexOf(profile.emoji);
@@ -87,7 +87,7 @@ export default function ProfilePage() {
                 className={cn(
                   "flex h-11 w-11 items-center justify-center rounded-full text-xl transition-transform",
                   e === profile.emoji
-                    ? "bg-white shadow-md ring-2 ring-[#1B6B1B] ring-offset-2 ring-offset-[#D4E8E8]"
+                    ? "bg-white shadow-md ring-2 ring-[#1B6B1B] ring-offset-2 ring-offset-[#ECFAFF]"
                     : "bg-white/80 hover:bg-white",
                 )}
                 aria-label={`Use ${e} avatar`}
@@ -201,9 +201,7 @@ export default function ProfilePage() {
         </section>
       </main>
 
-      <div className="shrink-0 bg-[#1B6B1B] px-6 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-        <WhimBottomNav active="profile" />
-      </div>
+      <WhimBottomNav active="profile" />
     </div>
   );
 }
