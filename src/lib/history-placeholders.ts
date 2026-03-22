@@ -1,4 +1,4 @@
-import { getWhimForDate } from "@/data/whims";
+import { getWhimForDate, WHIMS } from "@/data/whims";
 
 import {
   moodFeelingText,
@@ -16,6 +16,8 @@ type DemoDay = {
   mood: MoodId;
   /** Stable picsum seed → 480×480, or null for no photo */
   photoSeed: string | null;
+  /** Use this catalog whim instead of `getWhimForDate` (e.g. skip compliment on recent days). */
+  whimIdOverride?: number;
 };
 
 /** Demo Past Whims copy is chosen from the whim for that calendar day (`getWhimForDate`). */
@@ -31,8 +33,8 @@ const PLACEHOLDER_NOTE_BY_WHIM_ID: Record<number, string> = {
 };
 
 const DEMO_DAYS: DemoDay[] = [
-  { daysAgo: 1, mood: "good", photoSeed: "whimph-01" },
-  { daysAgo: 2, mood: "great", photoSeed: "whimph-02" },
+  { daysAgo: 1, mood: "good", photoSeed: "whimph-01", whimIdOverride: 2 },
+  { daysAgo: 2, mood: "great", photoSeed: "whimph-02", whimIdOverride: 4 },
   { daysAgo: 3, mood: "neutral", photoSeed: null },
   { daysAgo: 5, mood: "grateful", photoSeed: "whimph-03" },
   { daysAgo: 6, mood: "calm", photoSeed: null },
@@ -67,7 +69,10 @@ export function mergeWithPlaceholderReflections(
     if (seen.has(key)) continue;
     seen.add(key);
 
-    const whim = getWhimForDate(dt);
+    const whim =
+      slot.whimIdOverride != null
+        ? (WHIMS.find((w) => w.id === slot.whimIdOverride) ?? getWhimForDate(dt))
+        : getWhimForDate(dt);
     const photoUrl = slot.photoSeed
       ? `https://picsum.photos/seed/${slot.photoSeed}/480/480`
       : null;
