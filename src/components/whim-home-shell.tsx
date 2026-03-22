@@ -135,8 +135,8 @@ const HILL_CY = 828;
 const HILL_RX = 414.5;
 const HILL_RY = 226;
 
-/** Horizontal radius — slightly wider than half the viewBox; SVG uses overflow-visible so the arc reads fuller on device. */
-const HILL_RX_FIT = 206;
+/** Horizontal radius — wider than half the viewBox; SVG uses overflow-visible so the arc reads fuller on device. */
+const HILL_RX_FIT = 220;
 const HILL_X_SCALE = HILL_RX_FIT / HILL_RX;
 
 function hillSpaceX(localX: number) {
@@ -569,13 +569,12 @@ export function WhimHomeShell() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.45, ease: crossEase }}
               >
-                <div className="mt-2 flex min-w-0 items-start justify-between gap-3 sm:mt-3">
-                  <h1 className="min-w-0 flex-1 pr-2 font-serif text-[2.25rem] font-bold leading-[1.1] tracking-tight text-[#1A1A1A] sm:text-[2.5rem]">
+                <div className="mt-2 min-w-0 sm:mt-3">
+                  <h1 className="min-w-0 font-serif text-[2.25rem] font-bold leading-[1.1] tracking-tight text-[#1A1A1A] sm:text-[2.5rem]">
                     You and{" "}
                     <span className="tabular-nums">{peopleCount}</span> others
                     are on today&apos;s whim together.
                   </h1>
-                  <TodayCalendarChip />
                 </div>
                 <p
                   className={cn(
@@ -673,10 +672,17 @@ export function WhimHomeShell() {
                       layout: { duration: 0.45, ease: crossEase },
                     }}
                   >
-                    <span className="inline-flex flex-wrap items-baseline justify-start gap-x-1.5 gap-y-0.5">
+                    <span className="inline-flex flex-wrap items-center justify-start gap-x-3 gap-y-1 sm:gap-x-4">
                       <span>Join</span>
                       <span className="tabular-nums">{peopleCount}</span>
-                      <span>others →</span>
+                      <span className="inline-flex items-center gap-2 sm:gap-2.5">
+                        <span>others</span>
+                        <ArrowRight
+                          className="size-5 shrink-0 sm:size-[1.35rem]"
+                          strokeWidth={2.25}
+                          aria-hidden
+                        />
+                      </span>
                     </span>
                   </motion.button>
                 </motion.div>

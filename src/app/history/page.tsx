@@ -510,7 +510,7 @@ function HistoryReflectionHeroCluster({
       className={cn(
         "flex origin-top scale-[0.8] flex-col items-center",
         variant === "carousel"
-          ? "translate-y-1 sm:translate-y-1.5"
+          ? "translate-y-[22px] sm:translate-y-[26px]"
           : "-translate-y-9 sm:-translate-y-12",
       )}
     >
