@@ -26,6 +26,12 @@ export const metadata: Metadata = {
   description:
     "One small kindness idea every day — join in, reflect, and look back anytime.",
   colorScheme: "light",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "Whims",
+    statusBarStyle: "default",
+  },
 };
 
 /** Edge-to-edge on iOS; paint safe areas with app sky instead of default black. */
@@ -33,7 +39,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#E0F4FF",
+  themeColor: "#D4E8E8",
 };
 
 export default function RootLayout({

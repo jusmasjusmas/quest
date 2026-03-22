@@ -14,108 +14,39 @@ import {
 type DemoDay = {
   daysAgo: number;
   mood: MoodId;
-  note: string;
   /** Stable picsum seed → 480×480, or null for no photo */
   photoSeed: string | null;
 };
 
+/** Demo Past Whims copy is chosen from the whim for that calendar day (`getWhimForDate`). */
+const PLACEHOLDER_NOTE_BY_WHIM_ID: Record<number, string> = {
+  1: "Grabbed a small bouquet for a friend who’s been stressed. She put them by her laptop and said it shifted her whole afternoon.",
+  2: "Ten minutes down a side street I’d only ever driven past. Found a mural I never knew was there.",
+  3: "Texted someone I hadn’t talked to in weeks. We picked up like no time had passed—lots of exclamation points.",
+  4: "Made scrambled eggs with whatever was in the fridge. Ate them standing at the counter. Felt oddly accomplished.",
+  5: "Told my coworker I admire how calm they stay in messy meetings. They said nobody had put it that way before.",
+  6: "Complimented someone’s work on a small project. They lit up—I forget how rare it is to say it out loud.",
+  7: "Said something genuine about a stranger’s dog sweater. Got a laugh and a wave. Cheap joy, high return.",
+  8: "Jotted down one thing I learned about sleep this week—obvious in hindsight, but I needed it on paper.",
+};
+
 const DEMO_DAYS: DemoDay[] = [
-  {
-    daysAgo: 1,
-    mood: "good",
-    note: "Did it walking the dog. Felt less dramatic in my head once I actually started.",
-    photoSeed: "whimph-01",
-  },
-  {
-    daysAgo: 2,
-    mood: "great",
-    note: "Okay full honesty I rolled my eyes at the prompt then did it anyway and I’m glad??? Sent a dumb meme to my cousin and we talked for like 40 min.",
-    photoSeed: "whimph-02",
-  },
-  {
-    daysAgo: 3,
-    mood: "neutral",
-    note: "Fine.",
-    photoSeed: null,
-  },
-  {
-    daysAgo: 5,
-    mood: "grateful",
-    note: "Small thing but I needed it. Left a note on the counter for my roommate. Nothing poetic, just thanks for dealing with my dishes pile.",
-    photoSeed: "whimph-03",
-  },
-  {
-    daysAgo: 6,
-    mood: "calm",
-    note: "Rainy day. Sat on the porch with tea and didn’t touch my phone for twenty minutes. That counts for me today.",
-    photoSeed: null,
-  },
-  {
-    daysAgo: 7,
-    mood: "creative",
-    note: "Doodled instead of scrolling. Bad art, good brain.",
-    photoSeed: "whimph-04",
-  },
-  {
-    daysAgo: 9,
-    mood: "good",
-    note: "Short one: texted “thinking of you” to someone I keep meaning to check on. Got a heart emoji back. I’ll take it.",
-    photoSeed: null,
-  },
-  {
-    daysAgo: 10,
-    mood: "great",
-    note: "Bragged on a coworker in the group chat when nobody asked. Felt a little awkward for two seconds then didn’t care.",
-    photoSeed: "whimph-05",
-  },
-  {
-    daysAgo: 11,
-    mood: "neutral",
-    note: "Meh day overall. Still showed up. That’s the bar sometimes.",
-    photoSeed: null,
-  },
-  {
-    daysAgo: 12,
-    mood: "grateful",
-    note: "Called my mom while folding laundry. She talked my ear off about the neighbor’s dog and I realized I miss that noise.",
-    photoSeed: "whimph-06",
-  },
-  {
-    daysAgo: 14,
-    mood: "calm",
-    note: "Took the long way home. Saw three dogs. 10/10 detour.",
-    photoSeed: "whimph-07",
-  },
-  {
-    daysAgo: 15,
-    mood: "good",
-    note: "Yep.",
-    photoSeed: null,
-  },
-  {
-    daysAgo: 17,
-    mood: "creative",
-    note: "Rearranged one shelf. Sounds silly but the living room actually feels different. My brain is embarrassingly easy to trick sometimes.",
-    photoSeed: "whimph-08",
-  },
-  {
-    daysAgo: 18,
-    mood: "great",
-    note: "Volunteered to grab coffee for the table. Got a “you’re a legend” from someone I barely know. Cheap dopamine but I’ll claim it.",
-    photoSeed: null,
-  },
-  {
-    daysAgo: 20,
-    mood: "grateful",
-    note: "Wrote three sentences in a journal instead of a whole essay. Progress not perfection etc etc.",
-    photoSeed: "whimph-09",
-  },
-  {
-    daysAgo: 21,
-    mood: "calm",
-    note: "Almost skipped. Didn’t. Proud of past-me for that.",
-    photoSeed: null,
-  },
+  { daysAgo: 1, mood: "good", photoSeed: "whimph-01" },
+  { daysAgo: 2, mood: "great", photoSeed: "whimph-02" },
+  { daysAgo: 3, mood: "neutral", photoSeed: null },
+  { daysAgo: 5, mood: "grateful", photoSeed: "whimph-03" },
+  { daysAgo: 6, mood: "calm", photoSeed: null },
+  { daysAgo: 7, mood: "creative", photoSeed: "whimph-04" },
+  { daysAgo: 9, mood: "good", photoSeed: null },
+  { daysAgo: 10, mood: "great", photoSeed: "whimph-05" },
+  { daysAgo: 11, mood: "neutral", photoSeed: null },
+  { daysAgo: 12, mood: "grateful", photoSeed: "whimph-06" },
+  { daysAgo: 14, mood: "calm", photoSeed: "whimph-07" },
+  { daysAgo: 15, mood: "good", photoSeed: null },
+  { daysAgo: 17, mood: "creative", photoSeed: "whimph-08" },
+  { daysAgo: 18, mood: "great", photoSeed: null },
+  { daysAgo: 20, mood: "grateful", photoSeed: "whimph-09" },
+  { daysAgo: 21, mood: "calm", photoSeed: null },
 ];
 
 /**
@@ -140,6 +71,9 @@ export function mergeWithPlaceholderReflections(
     const photoUrl = slot.photoSeed
       ? `https://picsum.photos/seed/${slot.photoSeed}/480/480`
       : null;
+    const note =
+      PLACEHOLDER_NOTE_BY_WHIM_ID[whim.id] ??
+      "Showed up for today’s whim. Glad I did.";
 
     extras.push({
       whimId: String(whim.id),
@@ -147,7 +81,7 @@ export function mergeWithPlaceholderReflections(
       date: dt.toISOString(),
       feeling: slot.mood,
       feelingText: moodFeelingText(slot.mood),
-      note: slot.note,
+      note,
       photoUrl,
     });
   }

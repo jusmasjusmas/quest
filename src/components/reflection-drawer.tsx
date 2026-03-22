@@ -365,7 +365,7 @@ export function ReflectionDrawer() {
               id="reflection-notes"
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
-              placeholder="How did it go?"
+              placeholder={currentWhim.notesPlaceholder}
               rows={3}
               className="mt-1.5 w-full resize-none bg-transparent font-serif text-sm leading-relaxed text-[#1A1A1A] placeholder:text-zinc-400 focus:outline-none focus:ring-0 sm:text-base"
             />

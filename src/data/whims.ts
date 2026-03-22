@@ -6,6 +6,8 @@ export type Whim = {
   shortText: string;
   type: WhimType;
   illustration: string;
+  /** Reflection notes field placeholder; should match the whim’s activity. */
+  notesPlaceholder: string;
 };
 
 export const WHIMS: Whim[] = [
@@ -15,6 +17,8 @@ export const WHIMS: Whim[] = [
     shortText: "Flowers for a friend",
     type: "outward",
     illustration: "/illustrations/flower.png",
+    notesPlaceholder:
+      "e.g. Who got the flowers, how you gave them, and how it felt.",
   },
   {
     id: 2,
@@ -22,6 +26,8 @@ export const WHIMS: Whim[] = [
     shortText: "Walk somewhere new",
     type: "inward",
     illustration: "/illustrations/walk.png",
+    notesPlaceholder:
+      "e.g. Where you walked and anything new you noticed along the way.",
   },
   {
     id: 3,
@@ -29,6 +35,8 @@ export const WHIMS: Whim[] = [
     shortText: "Text someone missed",
     type: "outward",
     illustration: "/illustrations/phone.png",
+    notesPlaceholder:
+      "e.g. Who you texted, what you said, and how the chat felt.",
   },
   {
     id: 4,
@@ -36,6 +44,8 @@ export const WHIMS: Whim[] = [
     shortText: "Cook from scratch",
     type: "inward",
     illustration: "/illustrations/cook.png",
+    notesPlaceholder:
+      "e.g. What you cooked, whether it worked out, and how it tasted.",
   },
   {
     id: 5,
@@ -43,6 +53,8 @@ export const WHIMS: Whim[] = [
     shortText: "Name one admiration",
     type: "outward",
     illustration: "/illustrations/wave.png",
+    notesPlaceholder:
+      "e.g. What you admired, how you told them, and how they reacted.",
   },
   {
     id: 6,
@@ -50,6 +62,8 @@ export const WHIMS: Whim[] = [
     shortText: "Compliment someone",
     type: "outward",
     illustration: "/illustrations/wave.png",
+    notesPlaceholder:
+      "e.g. What you complimented, who it was for, and how it landed.",
   },
   {
     id: 7,
@@ -57,6 +71,8 @@ export const WHIMS: Whim[] = [
     shortText: "Compliment someone",
     type: "outward",
     illustration: "/illustrations/wave.png",
+    notesPlaceholder:
+      "e.g. What you complimented, who it was for, and how it landed.",
   },
   {
     id: 8,
@@ -64,6 +80,8 @@ export const WHIMS: Whim[] = [
     shortText: "One thing you learned",
     type: "inward",
     illustration: "/illustrations/writing.png",
+    notesPlaceholder:
+      "e.g. What you learned, where you heard it, and why it stuck with you.",
   },
 ];
 

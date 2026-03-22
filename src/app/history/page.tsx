@@ -214,6 +214,7 @@ function HistoryPageContent() {
                     <HistoryReflectionHeroCluster
                       reflection={active}
                       isActive
+                      variant="calendar"
                     />
                   ) : null}
                 </div>
@@ -365,7 +366,9 @@ function HistorySnapCarousel({
           <section
             key={r.savedAt}
             className={cn(
-              "flex h-full min-h-0 shrink-0 snap-center snap-always flex-col items-center justify-center overflow-hidden px-2 pb-3 pt-[max(0.5rem,2.5dvh)] sm:px-3 sm:pt-[max(0.75rem,3dvh)]",
+              "flex h-full min-h-0 shrink-0 snap-center snap-always flex-col items-center justify-center overflow-hidden px-2 pt-[max(0.5rem,2.5dvh)] sm:px-3 sm:pt-[max(0.75rem,3dvh)]",
+              /* Reserve docked drawer + bottom nav so the hero isn’t centered under the sheet */
+              "pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(42dvh,520px)+1.5rem)] sm:pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(40dvh,540px)+1.5rem)]",
               slidePx <= 0 && "w-[85%] min-w-[85%] max-w-[85%]",
             )}
             style={
@@ -382,6 +385,7 @@ function HistorySnapCarousel({
             <HistoryReflectionHeroCluster
               reflection={r}
               isActive={i === activeIndex}
+              variant="carousel"
             />
           </section>
         ))}
@@ -494,12 +498,22 @@ function CarouselSlideVisual({
 function HistoryReflectionHeroCluster({
   reflection,
   isActive,
+  variant = "carousel",
 }: {
   reflection: WhimReflection;
   isActive: boolean;
+  /** Carousel: drawer docks over bottom — keep cluster high. Calendar: unchanged layout. */
+  variant?: "carousel" | "calendar";
 }) {
   return (
-    <div className="flex origin-top -translate-y-9 scale-[0.8] flex-col items-center sm:-translate-y-12">
+    <div
+      className={cn(
+        "flex origin-top scale-[0.8] flex-col items-center",
+        variant === "carousel"
+          ? "-translate-y-4 sm:-translate-y-5"
+          : "-translate-y-9 sm:-translate-y-12",
+      )}
+    >
       <CarouselSlideVisual reflection={reflection} isActive={isActive} />
     </div>
   );

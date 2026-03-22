@@ -132,6 +132,14 @@ const HILL_CY = 828;
 const HILL_RX = 414.5;
 const HILL_RY = 226;
 
+/** Horizontal radius so the hill oval fits inside the 393-wide viewBox (was 414.5; edges were clipped). */
+const HILL_RX_FIT = 393 / 2;
+const HILL_X_SCALE = HILL_RX_FIT / HILL_RX;
+
+function hillSpaceX(localX: number) {
+  return HILL_CX + (localX - HILL_CX) * HILL_X_SCALE;
+}
+
 const hillWaveTransition = {
   duration: 11.2,
   repeat: Infinity,
@@ -201,7 +209,7 @@ function HomeHillEllipse({
     >
       <defs>
         <clipPath id={clipId}>
-          <ellipse cx={HILL_CX} cy={HILL_CY} rx={HILL_RX} ry={HILL_RY} />
+          <ellipse cx={HILL_CX} cy={HILL_CY} rx={HILL_RX_FIT} ry={HILL_RY} />
         </clipPath>
         <pattern
           id={grainId}
@@ -233,7 +241,7 @@ function HomeHillEllipse({
             <ellipse
               cx={HILL_CX}
               cy={HILL_CY}
-              rx={HILL_RX}
+              rx={HILL_RX_FIT}
               ry={HILL_RY}
               fill="#1B6B1B"
             />
@@ -247,23 +255,23 @@ function HomeHillEllipse({
                 opacity={0.26}
               />
               <ellipse
-                cx={HILL_CX - 120}
+                cx={HILL_CX - 120 * HILL_X_SCALE}
                 cy={HILL_CY - 118}
-                rx={140}
+                rx={140 * HILL_X_SCALE}
                 ry={48}
                 fill="rgba(255, 255, 255, 0.032)"
               />
               <ellipse
-                cx={HILL_CX + 160}
+                cx={HILL_CX + 160 * HILL_X_SCALE}
                 cy={HILL_CY - 78}
-                rx={110}
+                rx={110 * HILL_X_SCALE}
                 ry={38}
                 fill="rgba(255, 255, 255, 0.028)"
               />
               <ellipse
-                cx={HILL_CX + 40}
+                cx={HILL_CX + 40 * HILL_X_SCALE}
                 cy={HILL_CY - 132}
-                rx={95}
+                rx={95 * HILL_X_SCALE}
                 ry={32}
                 fill="rgba(0, 0, 0, 0.034)"
               />
@@ -271,7 +279,7 @@ function HomeHillEllipse({
             <ellipse
               cx={HILL_CX}
               cy={HILL_CY}
-              rx={HILL_RX}
+              rx={HILL_RX_FIT}
               ry={HILL_RY}
               fill="none"
               stroke="#1A1A1A"
@@ -280,21 +288,69 @@ function HomeHillEllipse({
             />
 
             <g opacity={0.9}>
-              <HillFlower x={88} y={718} scale={0.72} opacity={0.18} rotation={-8} />
-              <HillFlower x={168} y={688} scale={0.95} opacity={0.2} rotation={14} />
-              <HillFlower x={268} y={732} scale={0.78} opacity={0.16} rotation={-18} />
-              <HillFlower x={318} y={778} scale={0.55} opacity={0.14} rotation={22} />
-              <HillFlower x={132} y={758} scale={0.62} opacity={0.15} rotation={-4} />
+              <HillFlower
+                x={hillSpaceX(88)}
+                y={718}
+                scale={0.72}
+                opacity={0.18}
+                rotation={-8}
+              />
+              <HillFlower
+                x={hillSpaceX(168)}
+                y={688}
+                scale={0.95}
+                opacity={0.2}
+                rotation={14}
+              />
+              <HillFlower
+                x={hillSpaceX(268)}
+                y={732}
+                scale={0.78}
+                opacity={0.16}
+                rotation={-18}
+              />
+              <HillFlower
+                x={hillSpaceX(318)}
+                y={778}
+                scale={0.55}
+                opacity={0.14}
+                rotation={22}
+              />
+              <HillFlower
+                x={hillSpaceX(132)}
+                y={758}
+                scale={0.62}
+                opacity={0.15}
+                rotation={-4}
+              />
             </g>
 
             <g opacity={0.22} fill="rgba(255, 252, 245, 0.9)">
-              <ellipse cx={52} cy={752} rx={5.5} ry={3.2} transform="rotate(-32 52 752)" />
-              <ellipse cx={228} cy={702} rx={6} ry={3.4} transform="rotate(18 228 702)" />
-              <ellipse cx={340} cy={718} rx={4.8} ry={2.8} transform="rotate(48 340 718)" />
+              <ellipse
+                cx={hillSpaceX(52)}
+                cy={752}
+                rx={5.5 * HILL_X_SCALE}
+                ry={3.2}
+                transform={`rotate(-32 ${hillSpaceX(52)} 752)`}
+              />
+              <ellipse
+                cx={hillSpaceX(228)}
+                cy={702}
+                rx={6 * HILL_X_SCALE}
+                ry={3.4}
+                transform={`rotate(18 ${hillSpaceX(228)} 702)`}
+              />
+              <ellipse
+                cx={hillSpaceX(340)}
+                cy={718}
+                rx={4.8 * HILL_X_SCALE}
+                ry={2.8}
+                transform={`rotate(48 ${hillSpaceX(340)} 718)`}
+              />
             </g>
             <circle cx={196} cy={722} r={3.2} fill="rgba(255, 255, 255, 0.12)" />
-            <circle cx={250} cy={748} r={2.4} fill="rgba(255, 255, 255, 0.1)" />
-            <circle cx={118} cy={738} r={2.1} fill="rgba(255, 255, 255, 0.09)" />
+            <circle cx={hillSpaceX(250)} cy={748} r={2.4} fill="rgba(255, 255, 255, 0.1)" />
+            <circle cx={hillSpaceX(118)} cy={738} r={2.1} fill="rgba(255, 255, 255, 0.09)" />
           </g>
         </motion.g>
       </g>
@@ -714,7 +770,7 @@ export function WhimHomeShell() {
 
       <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pb-1 pt-4 sm:px-2 sm:pb-2 sm:pt-6">
         <motion.div
-          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,18rem)] shrink-0 -translate-y-8 sm:max-w-[min(100vw-1rem,20rem)] sm:-translate-y-9"
+          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,18rem)] shrink-0 -translate-y-6 sm:max-w-[min(100vw-1rem,20rem)] sm:-translate-y-7"
           initial={
             entrance.instant
               ? { opacity: 1, y: 0 }

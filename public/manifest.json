@@ -1,0 +1,11 @@
+{
+  "name": "Whims",
+  "short_name": "Whims",
+  "description": "One small kindness idea every day — join in, reflect, and look back anytime.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#D4E8E8",
+  "theme_color": "#D4E8E8",
+  "orientation": "portrait-primary"
+}
