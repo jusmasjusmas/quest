@@ -785,6 +785,7 @@ export function WhimHomeShell() {
       </header>
 
       <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pb-1 pt-4 sm:px-2 sm:pb-2 sm:pt-6">
+        <div className="relative z-[2] flex min-h-0 w-full flex-1 flex-col items-stretch justify-end -translate-y-3">
         <motion.div
           className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,19.5rem)] shrink-0 translate-y-1 sm:max-w-[min(100vw-1rem,21.5rem)] sm:translate-y-1.5"
           initial={
@@ -837,7 +838,6 @@ export function WhimHomeShell() {
             />
           </motion.div>
         </motion.div>
-      </div>
 
       <motion.p
         className="pointer-events-none relative z-[5] mt-1 shrink-0 px-6 text-center font-serif text-xl font-normal leading-snug text-white sm:mt-2 sm:px-8 sm:text-2xl"
@@ -850,6 +850,8 @@ export function WhimHomeShell() {
           ? "See you tomorrow for a new whim."
           : "Let's make a difference today."}
       </motion.p>
+        </div>
+      </div>
 
         </div>
       </div>

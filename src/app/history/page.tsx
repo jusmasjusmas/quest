@@ -628,7 +628,7 @@ function WhimDetailDrawer({
       animate={dockedVisible ? { y: 0 } : { y: "122%" }}
       transition={historyDrawerDockSpring}
       className={cn(
-        "absolute left-0 right-0 z-30 flex flex-col overflow-hidden rounded-t-[1.75rem] border border-b-0 border-zinc-200/70 bg-[#faf8f5] shadow-[0_-16px_48px_rgba(0,0,0,0.18)] transition-[height,max-height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
+        "fixed left-0 right-0 z-30 flex flex-col overflow-hidden rounded-t-[1.75rem] border border-b-0 border-zinc-200/70 bg-[#faf8f5] shadow-[0_-16px_48px_rgba(0,0,0,0.18)] transition-[height,max-height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
         drawerBottom,
         !dockedVisible && "pointer-events-none",
         expanded
