@@ -8,6 +8,13 @@ import { cn } from "@/lib/utils";
 
 const ACTIVE_ICON = "#2B621F";
 
+/**
+ * Bottom padding for `WhimHomeShell` main column: clears the fixed nav pill plus a 24px gap
+ * from the last line of home copy to the top of the bar (join / active / done states).
+ */
+export const whimHomeShellPaddingBottomClass =
+  "pb-[max(6.5rem,calc(1rem+env(safe-area-inset-bottom)+5.75rem+24px))]";
+
 export type WhimNavTab = "history" | "whim" | "profile";
 
 const iconStroke = "size-[22px] stroke-[1.75]";

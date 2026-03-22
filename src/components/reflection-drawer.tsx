@@ -292,7 +292,8 @@ export function ReflectionDrawer() {
       >
         <DrawerTitle className="sr-only">Reflect on your whim</DrawerTitle>
         <DrawerDescription className="sr-only">
-          Record how your whim felt, add notes and a photo, then save or share.
+          Record how your whim felt, add optional notes or a photo, then save or
+          share.
         </DrawerDescription>
 
         <div
@@ -371,9 +372,7 @@ export function ReflectionDrawer() {
             />
 
             <p className="mt-3 font-serif text-xs italic leading-snug text-[#1A1A1A]/85 sm:mt-4">
-              {selectedMood === "drawn"
-                ? "Add a photo (optional)"
-                : "Add a photo"}
+              Add a photo (Optional)
             </p>
             <div className="mt-1.5 w-full">
               {attachmentPhotoUrl ? (

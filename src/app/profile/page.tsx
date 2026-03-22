@@ -11,6 +11,7 @@ import {
   type ProfileStatsDetail,
 } from "@/components/profile-stats-modal";
 import { WhimBottomNav } from "@/components/whim-bottom-nav";
+import { WhimPaperCard } from "@/components/whim-paper-card";
 import { useWhim } from "@/context/WhimContext";
 import { cn } from "@/lib/utils";
 import { mergeWithPlaceholderReflections } from "@/lib/history-placeholders";
@@ -200,24 +201,32 @@ export default function ProfilePage() {
           stats={statsDetail}
         />
 
-        <section className="overflow-hidden rounded-3xl bg-white shadow-[0_8px_28px_rgba(0,0,0,0.06)] ring-1 ring-[#1A1A1A]/10">
-          <div className="border-b border-[#1A1A1A]/10 px-6 py-5">
-            <h2 className="font-serif text-2xl italic leading-tight text-[#1A1A1A]">
-              About Whims
-            </h2>
-          </div>
-          <div className="space-y-4 px-6 py-6">
-            <p className="font-sans text-[1.05rem] font-normal leading-relaxed tracking-[-0.02em] text-[#1A1A1A]/90">
-              Whims is built on a simple idea: the best thing for your head and
-              heart is often something small, for you or someone else. No
-              leaderboards, no selling your data. Just one shared whim a day and
-              a moment to reflect when you&apos;re done.
-            </p>
-            <p className="border-l-2 border-[#1B6B1B]/35 pl-4 font-sans text-[1.05rem] font-normal leading-relaxed tracking-[-0.02em] text-[#1A1A1A]/90">
-              We believe tiny, kind actions add up. Whims is here to make them
-              easy to notice and easy to remember.
-            </p>
-          </div>
+        <section aria-labelledby="profile-about-whims-heading">
+          <WhimPaperCard
+            edge="sheet"
+            innerClassName="overflow-hidden p-0"
+          >
+            <div className="border-b border-[#1A1A1A]/10 px-6 py-5">
+              <h2
+                id="profile-about-whims-heading"
+                className="font-serif text-2xl italic leading-tight text-[#1A1A1A]"
+              >
+                About Whims
+              </h2>
+            </div>
+            <div className="space-y-4 px-6 py-6">
+              <p className="font-sans text-[1.05rem] font-normal leading-relaxed tracking-[-0.02em] text-[#1A1A1A]/90">
+                Whims is built on a simple idea: the best thing for your head and
+                heart is often something small, for you or someone else. No
+                leaderboards, no selling your data. Just one shared whim a day and
+                a moment to reflect when you&apos;re done.
+              </p>
+              <p className="border-l-2 border-[#1B6B1B]/35 pl-4 font-sans text-[1.05rem] font-normal leading-relaxed tracking-[-0.02em] text-[#1A1A1A]/90">
+                We believe tiny, kind actions add up. Whims is here to make them
+                easy to notice and easy to remember.
+              </p>
+            </div>
+          </WhimPaperCard>
         </section>
 
         <section className="space-y-4 pb-2">

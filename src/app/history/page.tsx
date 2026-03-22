@@ -366,7 +366,7 @@ function HistorySnapCarousel({
           <section
             key={r.savedAt}
             className={cn(
-              "flex h-full min-h-0 shrink-0 snap-center snap-always flex-col items-center justify-center overflow-hidden px-2 pt-[max(0.5rem,2.5dvh)] sm:px-3 sm:pt-[max(0.75rem,3dvh)]",
+              "flex h-full min-h-0 shrink-0 snap-center snap-always flex-col items-center justify-center overflow-hidden px-2 pt-[max(0.75rem,3.5dvh)] sm:px-3 sm:pt-[max(1rem,4dvh)]",
               /* Reserve docked drawer + bottom nav so the hero isn’t centered under the sheet */
               "pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(42dvh,520px)+1.5rem)] sm:pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(40dvh,540px)+1.5rem)]",
               slidePx <= 0 && "w-[85%] min-w-[85%] max-w-[85%]",
@@ -483,10 +483,10 @@ function CarouselSlideVisual({
       </div>
 
       <div className="mt-2 w-full shrink-0 text-center">
-        <span className="block font-serif text-sm leading-snug text-[#1A1A1A]/80">
+        <span className="block font-serif text-base leading-snug text-[#1A1A1A]/80 sm:text-[1.0625rem]">
           {formatReflectionWeekday(reflection.savedAt)}
         </span>
-        <span className="mt-0.5 block font-serif text-xl font-semibold leading-tight text-[#1A1A1A]">
+        <span className="mt-0.5 block font-serif text-2xl font-semibold leading-tight text-[#1A1A1A] sm:text-[1.75rem]">
           {formatReflectionDateOrdinal(reflection.savedAt)}
         </span>
       </div>
@@ -510,7 +510,7 @@ function HistoryReflectionHeroCluster({
       className={cn(
         "flex origin-top scale-[0.8] flex-col items-center",
         variant === "carousel"
-          ? "-translate-y-4 sm:-translate-y-5"
+          ? "translate-y-1 sm:translate-y-1.5"
           : "-translate-y-9 sm:-translate-y-12",
       )}
     >

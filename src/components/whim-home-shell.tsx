@@ -11,7 +11,10 @@ import {
 import { ArrowRight, BookOpen, X } from "lucide-react";
 import { useEffect, useId, useLayoutEffect, useState } from "react";
 
-import { WhimBottomNav } from "@/components/whim-bottom-nav";
+import {
+  WhimBottomNav,
+  whimHomeShellPaddingBottomClass,
+} from "@/components/whim-bottom-nav";
 import { WhimGuideHelp } from "@/components/whim-guide-modal";
 import { WhimPaperCard } from "@/components/whim-paper-card";
 import { useWhim } from "@/context/WhimContext";
@@ -132,8 +135,8 @@ const HILL_CY = 828;
 const HILL_RX = 414.5;
 const HILL_RY = 226;
 
-/** Horizontal radius so the hill oval fits inside the 393-wide viewBox (was 414.5; edges were clipped). */
-const HILL_RX_FIT = 393 / 2;
+/** Horizontal radius — slightly wider than half the viewBox; SVG uses overflow-visible so the arc reads fuller on device. */
+const HILL_RX_FIT = 206;
 const HILL_X_SCALE = HILL_RX_FIT / HILL_RX;
 
 function hillSpaceX(localX: number) {
@@ -198,7 +201,7 @@ function HomeHillEllipse({
 
   return (
     <motion.svg
-      className="pointer-events-none absolute inset-0 z-0 h-full w-full -translate-y-[min(18dvh,148px)] sm:-translate-y-[min(19dvh,162px)]"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible -translate-y-[min(13dvh,112px)] sm:-translate-y-[min(14dvh,124px)]"
       viewBox="0 0 393 852"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden
@@ -462,10 +465,12 @@ export function WhimHomeShell() {
   };
 
   return (
-    <div className="relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-whim-sky text-[#1A1A1A]">
+    <div className="relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-y-hidden bg-whim-sky text-[#1A1A1A]">
       <HomeHillEllipse intro={entrance.hill} instant={entrance.instant} />
       <div className="relative z-[1] flex w-full flex-1 flex-col overflow-x-visible">
-        <div className="flex min-w-0 flex-col pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
+        <div
+          className={cn("flex min-w-0 flex-col", whimHomeShellPaddingBottomClass)}
+        >
           <FloatingEncouragementBubbles visible={copyMode === "doneToday"} />
 
       <header className="relative z-10 shrink-0 bg-transparent px-6 pb-6 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-7 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
@@ -770,7 +775,7 @@ export function WhimHomeShell() {
 
       <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pb-1 pt-4 sm:px-2 sm:pb-2 sm:pt-6">
         <motion.div
-          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,18rem)] shrink-0 -translate-y-6 sm:max-w-[min(100vw-1rem,20rem)] sm:-translate-y-7"
+          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,19.5rem)] shrink-0 translate-y-1 sm:max-w-[min(100vw-1rem,21.5rem)] sm:translate-y-1.5"
           initial={
             entrance.instant
               ? { opacity: 1, y: 0 }
@@ -783,7 +788,7 @@ export function WhimHomeShell() {
           }}
         >
           <motion.div
-            className="relative mx-auto h-[min(20dvh,168px)] w-full min-h-[min(12dvh,96px)] overflow-visible sm:h-[min(22dvh,188px)] sm:min-h-[min(13dvh,108px)]"
+            className="relative mx-auto h-[min(23dvh,186px)] w-full min-h-[min(14dvh,104px)] overflow-visible sm:h-[min(25dvh,204px)] sm:min-h-[min(15dvh,116px)]"
             animate={
               illusFloating && !reduceMotion
                 ? {
@@ -816,7 +821,7 @@ export function WhimHomeShell() {
               alt=""
               fill
               className="object-contain object-bottom drop-shadow-md"
-              sizes="(max-width: 640px) 50vw, 12rem"
+              sizes="(max-width: 640px) 56vw, 14rem"
               priority
             />
           </motion.div>
@@ -824,7 +829,7 @@ export function WhimHomeShell() {
       </div>
 
       <motion.p
-        className="pointer-events-none relative z-[5] mt-0 shrink-0 px-6 pb-1 text-center font-serif text-xl font-normal leading-snug text-white sm:mt-1 sm:px-8 sm:text-2xl"
+        className="pointer-events-none relative z-[5] mt-1 shrink-0 px-6 text-center font-serif text-xl font-normal leading-snug text-white sm:mt-2 sm:px-8 sm:text-2xl"
         style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
         initial={fadeUp(entrance.instant)}
         animate={{ opacity: 1, y: 0 }}

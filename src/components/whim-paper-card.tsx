@@ -11,32 +11,45 @@ type WhimPaperCardProps = {
   className?: string;
   /** Padding / radius overrides for the inner sheet (e.g. larger join card). */
   innerClassName?: string;
+  /**
+   * `tear` — jagged bottom (default). `sheet` — full rounded rectangle, stationery-style paper.
+   */
+  edge?: "tear" | "sheet";
 };
 
 export function WhimPaperCard({
   children,
   className,
   innerClassName,
+  edge = "tear",
 }: WhimPaperCardProps) {
+  const isSheet = edge === "sheet";
+
   return (
     <div className={cn("relative w-full", className)}>
       <div
         className={cn(
-          "relative z-[1] rounded-t-[1.15rem] bg-[#fdfcfa] px-5 pb-4 pt-4",
-          "shadow-[0_4px_28px_rgba(0,0,0,0.07)] ring-1 ring-[#1A1A1A]/8",
+          "relative z-[1] bg-[#fdfcfa] px-5 pb-4 pt-4",
+          isSheet
+            ? "rounded-[1.2rem] shadow-[0_1px_0_rgba(255,255,255,0.88)_inset,0_2px_14px_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.06)] ring-1 ring-[#1A1A1A]/10"
+            : "rounded-t-[1.15rem] shadow-[0_4px_28px_rgba(0,0,0,0.07)] ring-1 ring-[#1A1A1A]/8",
+          isSheet &&
+            "bg-[linear-gradient(180deg,#fefdfb_0%,#faf8f5_48%,#f7f5f2_100%)]",
           innerClassName,
         )}
       >
         {children}
       </div>
-      <svg
-        className="relative z-[2] -mt-px block h-[14px] w-full text-[#fdfcfa] drop-shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
-        viewBox="0 0 360 14"
-        preserveAspectRatio="none"
-        aria-hidden
-      >
-        <path fill="currentColor" d={TEAR_PATH} />
-      </svg>
+      {!isSheet ? (
+        <svg
+          className="relative z-[2] -mt-px block h-[14px] w-full text-[#fdfcfa] drop-shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+          viewBox="0 0 360 14"
+          preserveAspectRatio="none"
+          aria-hidden
+        >
+          <path fill="currentColor" d={TEAR_PATH} />
+        </svg>
+      ) : null}
     </div>
   );
 }
