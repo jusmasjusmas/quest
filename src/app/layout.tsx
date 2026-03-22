@@ -51,13 +51,13 @@ export default function RootLayout({
     >
       <body
         className={cn(
-          "flex min-h-dvh min-h-0 w-full max-w-[100vw] flex-col overflow-x-visible overflow-y-hidden bg-whim-sky font-sans antialiased",
+          "flex min-h-dvh min-h-0 w-full max-w-[100vw] flex-col overflow-x-visible overflow-y-auto overscroll-y-contain bg-whim-sky font-sans antialiased",
           instrumentSans.variable,
           instrumentSerif.variable,
         )}
       >
         <WhimProviders>
-          <div className="flex min-h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-x-visible bg-whim-sky">
+          <div className="flex min-h-safari-page-plus min-h-0 min-w-0 flex-1 flex-col overflow-x-visible bg-whim-sky">
             {children}
           </div>
         </WhimProviders>

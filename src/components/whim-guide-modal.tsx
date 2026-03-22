@@ -186,12 +186,9 @@ function StepOne() {
       </h3>
       <p className="mt-3 text-center font-sans text-[0.95rem] font-normal leading-relaxed text-black sm:text-base">
         <span className="font-semibold text-[#1A1A1A]">
-          Every day, one prompt—and we all get the exact same one.
+          One whim per day, same for everyone.
         </span>{" "}
-        Not different ideas for different people; the whole community is looking
-        at the same small kindness until the calendar flips, then we move on
-        together. It might be for you, for someone else, or a little of both.
-        Nothing dramatic—just a shared nudge that tends to feel pretty good.
+        Join when you want; it resets each morning.
       </p>
     </>
   );
@@ -206,12 +203,13 @@ function StepTwo() {
         </div>
       </div>
       <h3 className="text-center font-serif text-[1.35rem] font-bold leading-tight tracking-tight text-[#1A1A1A] sm:text-2xl">
-        Kind of a mood boost, honestly
+        Small wins add up
       </h3>
       <p className="mt-3 text-center font-sans text-[0.95rem] font-normal leading-relaxed text-black sm:text-base">
-        When you actually do the thing, even if it&apos;s small and a little
-        random, your brain tends to perk up. Not magic, just the nice side effect
-        of tiny wins piling up until the day feels a bit kinder.
+        When you actually complete the day&apos;s activity, even if it&apos;s
+        small and a little random, your brain tends to perk up. Not magic, just
+        the nice side effect of tiny wins piling up until the day feels a bit
+        kinder.
       </p>
     </>
   );

@@ -39,7 +39,7 @@ type ViewMode = "carousel" | "calendar";
 
 function HistoryPageFallback() {
   return (
-    <div className="flex h-dvh max-h-dvh w-full min-w-0 flex-col overflow-hidden bg-whim-sky">
+    <div className="flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-whim-sky">
       <div className="flex min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
         <div className="flex min-h-safari-scroll-slack w-full flex-1 flex-col items-center justify-center px-6">
           <p className="font-serif text-lg italic text-[#1A1A1A]/45">
@@ -138,7 +138,7 @@ function HistoryPageContent() {
   }, [focusFromSave, reflections, router]);
 
   return (
-    <div className="flex h-dvh max-h-dvh w-full min-w-0 flex-col overflow-hidden bg-whim-sky">
+    <div className="flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-whim-sky">
       <header className="flex shrink-0 items-center justify-between gap-3 px-6 pb-3 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-4 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
         <h1 className="min-w-0 flex-1 font-serif text-[1.2rem] italic leading-snug text-[#1A1A1A] sm:text-[1.35rem]">
           Past Whims
@@ -208,8 +208,8 @@ function HistoryPageContent() {
             />
           ) : (
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-whim-sky">
-              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain">
-                <div className="flex min-h-safari-scroll-slack w-full flex-col items-center justify-start px-2 pb-2 pt-[max(0.5rem,2.5dvh)] sm:px-3 sm:pb-2.5 sm:pt-[max(0.75rem,3dvh)]">
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+                <div className="flex w-full flex-col items-center justify-center px-2 pb-2 pt-[max(0.25rem,1.5dvh)] sm:px-3 sm:pb-2 sm:pt-[max(0.5rem,2dvh)]">
                   {active ? (
                     <HistoryReflectionHeroCluster
                       reflection={active}
@@ -365,7 +365,7 @@ function HistorySnapCarousel({
           <section
             key={r.savedAt}
             className={cn(
-              "flex h-full min-h-0 shrink-0 snap-center snap-always flex-col items-center justify-start overflow-y-auto overflow-x-hidden overscroll-y-contain px-2 pb-3 pt-[max(1.25rem,4dvh)] sm:px-3 sm:pt-[max(1.5rem,5dvh)]",
+              "flex h-full min-h-0 shrink-0 snap-center snap-always flex-col items-center justify-center overflow-hidden px-2 pb-3 pt-[max(0.5rem,2.5dvh)] sm:px-3 sm:pt-[max(0.75rem,3dvh)]",
               slidePx <= 0 && "w-[85%] min-w-[85%] max-w-[85%]",
             )}
             style={
@@ -379,12 +379,10 @@ function HistorySnapCarousel({
             }
             aria-current={i === activeIndex ? "true" : undefined}
           >
-            <div className="flex min-h-safari-scroll-slack w-full flex-col items-center">
-              <HistoryReflectionHeroCluster
-                reflection={r}
-                isActive={i === activeIndex}
-              />
-            </div>
+            <HistoryReflectionHeroCluster
+              reflection={r}
+              isActive={i === activeIndex}
+            />
           </section>
         ))}
         <div
@@ -501,7 +499,7 @@ function HistoryReflectionHeroCluster({
   isActive: boolean;
 }) {
   return (
-    <div className="flex -translate-y-9 flex-col items-center sm:-translate-y-12">
+    <div className="flex origin-top -translate-y-9 scale-[0.8] flex-col items-center sm:-translate-y-12">
       <CarouselSlideVisual reflection={reflection} isActive={isActive} />
     </div>
   );

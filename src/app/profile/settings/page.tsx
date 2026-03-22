@@ -53,7 +53,7 @@ export default function ProfileSettingsPage() {
   }, [customLines]);
 
   return (
-    <div className="flex h-dvh max-h-dvh w-full min-w-0 flex-col overflow-hidden bg-whim-sky">
+    <div className="flex min-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col bg-whim-sky">
       <header className="flex shrink-0 items-center justify-between px-4 pb-2 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
         <Link
           href="/profile"
@@ -68,8 +68,8 @@ export default function ProfileSettingsPage() {
         <span className="h-10 w-10 shrink-0" aria-hidden />
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 pt-2">
-        <div className="flex min-h-safari-scroll-slack flex-col space-y-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
+      <main className="px-6 pt-2">
+        <div className="flex flex-col space-y-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
         <section className="space-y-3">
           <h2 className="font-serif text-base italic text-[#1A1A1A]">Account</h2>
           <Link

@@ -139,6 +139,11 @@
   .min-h-safari-scroll-slack {
     min-height: calc(100% + 1.75rem);
   }
+
+  /** Route shell: slightly taller than the viewport so the document can scroll a little (iOS Safari chrome). */
+  .min-h-safari-page-plus {
+    min-height: calc(100dvh + 1.75rem);
+  }
 }
 
 /*
