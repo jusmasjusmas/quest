@@ -11,7 +11,7 @@ export default function Home() {
   const { whimState } = useWhim();
 
   return (
-    <div className="relative h-dvh max-h-dvh w-full min-w-0 overflow-x-visible overflow-y-visible bg-whim-sky">
+    <div className="relative flex h-dvh max-h-dvh w-full min-h-0 min-w-0 flex-col overflow-x-visible overflow-hidden bg-whim-sky">
       <WhimHomeShell />
       <AnimatePresence>
         {whimState === "joined" ? (

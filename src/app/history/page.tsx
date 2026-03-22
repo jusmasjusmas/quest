@@ -180,7 +180,7 @@ function HistoryPageContent() {
       </header>
 
       {reflections.length === 0 ? (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 overflow-hidden px-8 pb-[max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))] text-center">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 overflow-y-auto overflow-x-hidden overscroll-y-contain px-8 pb-[max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))] text-center">
           <p className="font-serif text-lg italic text-[#1A1A1A]/80">
             No past whims yet. Complete a whim and save a reflection to see it
             here.
@@ -359,7 +359,7 @@ function HistorySnapCarousel({
           <section
             key={r.savedAt}
             className={cn(
-              "flex h-full shrink-0 snap-center snap-always flex-col items-center justify-start px-2 pb-3 pt-[max(1.25rem,4dvh)] sm:px-3 sm:pt-[max(1.5rem,5dvh)]",
+              "flex h-full min-h-0 shrink-0 snap-center snap-always flex-col items-center justify-start overflow-y-auto overflow-x-hidden overscroll-y-contain px-2 pb-3 pt-[max(1.25rem,4dvh)] sm:px-3 sm:pt-[max(1.5rem,5dvh)]",
               slidePx <= 0 && "w-[85%] min-w-[85%] max-w-[85%]",
             )}
             style={

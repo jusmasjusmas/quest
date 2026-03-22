@@ -190,14 +190,14 @@ function HomeHillEllipse({
 
   return (
     <motion.svg
-      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full -translate-y-[min(11dvh,92px)] sm:-translate-y-[min(12dvh,104px)]"
       viewBox="0 0 393 852"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden
       initial={instant ? { opacity: 1 } : { opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={intro}
-      style={{ transformOrigin: "50% 85%" }}
+      style={{ transformOrigin: "50% 92%" }}
     >
       <defs>
         <clipPath id={clipId}>
@@ -406,9 +406,11 @@ export function WhimHomeShell() {
   };
 
   return (
-    <div className="relative flex h-full min-h-0 w-full min-w-0 flex-col overflow-x-visible overflow-y-visible bg-whim-sky text-[#1A1A1A]">
+    <div className="relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-whim-sky text-[#1A1A1A]">
       <HomeHillEllipse intro={entrance.hill} instant={entrance.instant} />
-      <FloatingEncouragementBubbles visible={copyMode === "doneToday"} />
+      <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-visible overscroll-y-contain">
+        <div className="flex min-h-full min-w-0 flex-col pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
+          <FloatingEncouragementBubbles visible={copyMode === "doneToday"} />
 
       <header className="relative z-10 shrink-0 bg-transparent px-6 pb-6 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-7 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
         <div className="mb-3 flex w-full items-center justify-between gap-3 sm:mb-4">
@@ -710,9 +712,9 @@ export function WhimHomeShell() {
         </div>
       </header>
 
-      <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] pt-8 sm:px-2 sm:pt-10">
+      <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pt-8 sm:px-2 sm:pt-10">
         <motion.div
-          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,30rem)] shrink-0 -translate-y-[4rem] sm:max-w-[min(100vw-1rem,32rem)] sm:-translate-y-[4.75rem]"
+          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,18rem)] shrink-0 translate-y-3 sm:max-w-[min(100vw-1rem,20rem)] sm:translate-y-4"
           initial={
             entrance.instant
               ? { opacity: 1, y: 0 }
@@ -725,7 +727,7 @@ export function WhimHomeShell() {
           }}
         >
           <motion.div
-            className="relative mx-auto h-[min(44dvh,400px)] w-full min-h-[min(28dvh,220px)] overflow-visible sm:h-[min(48dvh,440px)] sm:min-h-[min(30dvh,240px)]"
+            className="relative mx-auto h-[min(20dvh,168px)] w-full min-h-[min(12dvh,96px)] overflow-visible sm:h-[min(22dvh,188px)] sm:min-h-[min(13dvh,108px)]"
             animate={
               illusFloating && !reduceMotion
                 ? {
@@ -758,7 +760,7 @@ export function WhimHomeShell() {
               alt=""
               fill
               className="object-contain object-bottom drop-shadow-md"
-              sizes="(max-width: 640px) 100vw, 32rem"
+              sizes="(max-width: 640px) 50vw, 12rem"
               priority
             />
           </motion.div>
@@ -766,7 +768,7 @@ export function WhimHomeShell() {
       </div>
 
       <motion.p
-        className="pointer-events-none absolute bottom-[max(7.25rem,calc(env(safe-area-inset-bottom)+6.25rem))] left-0 right-0 z-[5] px-6 text-center font-serif text-2xl font-normal leading-snug text-white sm:px-8 sm:text-3xl"
+        className="pointer-events-none relative z-[5] -mt-6 shrink-0 px-6 pb-1 pt-1 text-center font-serif text-xl font-normal leading-snug text-white sm:-mt-8 sm:px-8 sm:pb-2 sm:pt-2 sm:text-2xl"
         style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
         initial={fadeUp(entrance.instant)}
         animate={{ opacity: 1, y: 0 }}
@@ -776,6 +778,9 @@ export function WhimHomeShell() {
           ? "See you tomorrow for a new whim."
           : "Let's make a difference today."}
       </motion.p>
+
+        </div>
+      </div>
 
       <WhimBottomNav active="whim" />
 
