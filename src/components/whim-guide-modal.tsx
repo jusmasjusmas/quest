@@ -60,20 +60,30 @@ export function WhimGuideHelp() {
 
       <AnimatePresence>
         {open ? (
-          <motion.div
-            key="guide-backdrop"
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/45 p-5 backdrop-blur-[3px]"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="whim-guide-title"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={close}
-          >
+          <>
             <motion.div
-              className="relative w-full max-w-[min(100%,24rem)] overflow-hidden rounded-[1.35rem] bg-[#fdfcfa] shadow-2xl ring-1 ring-black/10"
+              key="guide-blur"
+              aria-hidden
+              className="fixed inset-0 z-[109] min-h-dvh w-full bg-transparent backdrop-blur-xl backdrop-saturate-150"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={close}
+            />
+            <motion.div
+              key="guide-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="whim-guide-title"
+              className="pointer-events-none fixed inset-0 z-[110] flex min-h-dvh w-full items-center justify-center p-5"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 1 }}
+              transition={{ duration: 0 }}
+            >
+            <motion.div
+              className="pointer-events-auto relative w-full max-w-[min(100%,24rem)] overflow-hidden rounded-[1.35rem] bg-[#fdfcfa] shadow-2xl ring-1 ring-black/10"
               initial={{ scale: 0.96, opacity: 0, y: 10 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.96, opacity: 0, y: 8 }}
@@ -160,7 +170,8 @@ export function WhimGuideHelp() {
                 </div>
               </div>
             </motion.div>
-          </motion.div>
+            </motion.div>
+          </>
         ) : null}
       </AnimatePresence>
     </>

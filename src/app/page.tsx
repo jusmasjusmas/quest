@@ -6,12 +6,24 @@ import { ReflectionDrawer } from "@/components/reflection-drawer";
 import { WhimHomeShell } from "@/components/whim-home-shell";
 import { WhimSuccessTransition } from "@/components/whim-success-transition";
 import { useWhim } from "@/context/WhimContext";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
-  const { whimState } = useWhim();
+  const { whimState, reflectedToday } = useWhim();
+  const inWhimFlow =
+    whimState === "joined" ||
+    whimState === "active" ||
+    whimState === "reflecting";
+  /** Matches `WhimHomeShell` `copyMode === "doneToday"` — reflected, not mid-flow. */
+  const doneHome = reflectedToday && !inWhimFlow;
 
   return (
-    <div className="relative flex min-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-hidden bg-whim-sky">
+    <div
+      className={cn(
+        "relative flex min-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-hidden",
+        doneHome ? "bg-whim-sunset" : "bg-whim-sky",
+      )}
+    >
       <WhimHomeShell />
       <AnimatePresence>
         {whimState === "joined" ? (

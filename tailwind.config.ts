@@ -6,6 +6,8 @@ export default {
       colors: {
         /** Main app sky; slightly more azure than the former #ECFAFF. */
         "whim-sky": "#E0F4FF",
+        /** Home “great job today” — very light warm amber / sunset wash. */
+        "whim-sunset": "#FFF5E8",
       },
       fontFamily: {
         sans: [

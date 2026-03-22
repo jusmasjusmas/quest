@@ -69,21 +69,31 @@ export function ProfileStatsModal({
   return (
     <AnimatePresence>
       {open ? (
-        <motion.div
-          key="profile-stats-modal"
-          className="fixed inset-0 z-[200] flex items-end justify-center bg-black/45 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-center"
-          role="presentation"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={onClose}
-        >
+        <>
+          <motion.div
+            key="profile-stats-blur"
+            aria-hidden
+            className="fixed inset-0 z-[199] min-h-dvh w-full bg-transparent backdrop-blur-xl backdrop-saturate-150"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+          />
+          <motion.div
+            key="profile-stats-panel"
+            role="presentation"
+            className="pointer-events-none fixed inset-0 z-[200] flex min-h-dvh w-full items-end justify-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-center"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 1 }}
+            transition={{ duration: 0 }}
+          >
           <motion.div
             role="dialog"
             aria-modal="true"
             aria-labelledby="profile-stats-title"
-            className="flex max-h-[min(88dvh,640px)] w-full max-w-sm flex-col overflow-hidden rounded-2xl bg-[#fdfcfa] shadow-2xl ring-1 ring-black/10"
+            className="pointer-events-auto flex max-h-[min(88dvh,640px)] w-full max-w-sm flex-col overflow-hidden rounded-2xl bg-[#fdfcfa] shadow-2xl ring-1 ring-black/10"
             initial={{ y: 24, opacity: 0.96 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 16, opacity: 0 }}
@@ -178,7 +188,8 @@ export function ProfileStatsModal({
               )}
             </div>
           </motion.div>
-        </motion.div>
+          </motion.div>
+        </>
       ) : null}
     </AnimatePresence>
   );

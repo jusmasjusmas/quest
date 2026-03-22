@@ -465,7 +465,12 @@ export function WhimHomeShell() {
   };
 
   return (
-    <div className="relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-y-hidden bg-whim-sky text-[#1A1A1A]">
+    <div
+      className={cn(
+        "relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-y-hidden text-[#1A1A1A]",
+        copyMode === "doneToday" ? "bg-whim-sunset" : "bg-whim-sky",
+      )}
+    >
       <HomeHillEllipse intro={entrance.hill} instant={entrance.instant} />
       <div className="relative z-[1] flex w-full flex-1 flex-col overflow-x-visible">
         <div
@@ -659,7 +664,7 @@ export function WhimHomeShell() {
                         "max-w-md text-[#1A1A1A]/75",
                       )}
                     >
-                      You passed earlier, but you can still join anytime below.
+                      You passed earlier, but you can still join anytime.
                     </p>
                   ) : null}
                   <motion.button
