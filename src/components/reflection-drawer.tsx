@@ -3,7 +3,15 @@
 import { motion } from "framer-motion";
 import { ImagePlus } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useId, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   Drawer,
@@ -11,18 +19,168 @@ import {
   DrawerDescription,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { WhimPaperCard } from "@/components/whim-paper-card";
 import { useWhim } from "@/context/WhimContext";
 import { cn } from "@/lib/utils";
 import { moodFeelingText, type MoodId } from "@/lib/whim-reflections";
 
-const MOODS: { id: MoodId; emoji: string; label: string }[] = [
-  { id: "neutral", emoji: "😐", label: "Neutral" },
-  { id: "good", emoji: "🙂", label: "Good" },
-  { id: "great", emoji: "😁", label: "Great" },
-  { id: "creative", emoji: "🎨", label: "Creative" },
+/** Match history `WhimDetailDrawer` sheet surface. */
+const REFLECTION_SHEET_BG = {
+  backgroundImage:
+    "radial-gradient(circle at 20% 10%, rgba(255,255,255,0.65) 0%, transparent 42%), radial-gradient(circle at 80% 90%, rgba(0,0,0,0.03) 0%, transparent 35%)",
+} as const;
+
+/** Clears fixed `WhimBottomNav`; same as history detail drawer. */
+const reflectionDrawerBottom =
+  "bottom-[max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))]";
+
+const MOODS: { id: MoodId; emoji: string; menuLabel: string }[] = [
+  { id: "neutral", emoji: "😐", menuLabel: "Okay" },
+  { id: "good", emoji: "🙂", menuLabel: "Good" },
+  { id: "great", emoji: "😁", menuLabel: "Great" },
+  { id: "creative", emoji: "🎨", menuLabel: "Creative" },
+  { id: "calm", emoji: "😌", menuLabel: "Calm" },
+  { id: "grateful", emoji: "🙏", menuLabel: "Grateful" },
+  { id: "drawn", emoji: "✏️", menuLabel: "Draw" },
 ];
 
+/** Compact canvas so the full reflection form fits on one screen with the drawer nearly full-height. */
+const SKETCH_DISPLAY = 168;
+
+function setupReflectionSketchCanvas(canvas: HTMLCanvasElement) {
+  const dpr = Math.min(
+    typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
+    2,
+  );
+  canvas.width = Math.round(SKETCH_DISPLAY * dpr);
+  canvas.height = Math.round(SKETCH_DISPLAY * dpr);
+  canvas.style.width = `${SKETCH_DISPLAY}px`;
+  canvas.style.height = `${SKETCH_DISPLAY}px`;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = "#fafaf9";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#1A1A1A";
+  ctx.lineWidth = 2.5;
+  return ctx;
+}
+
+function FeelingSketchField({
+  onChange,
+}: {
+  onChange: (dataUrl: string | null) => void;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drawing = useRef(false);
+  const last = useRef<{ x: number; y: number } | null>(null);
+  const hasInkRef = useRef(false);
+
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    setupReflectionSketchCanvas(canvas);
+    hasInkRef.current = false;
+    onChange(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset once on mount
+  }, []);
+
+  const pos = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const r = canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }, []);
+
+  const syncPng = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !hasInkRef.current) return;
+    onChange(canvas.toDataURL("image/png"));
+  }, [onChange]);
+
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
+      e.currentTarget.setPointerCapture(e.pointerId);
+      drawing.current = true;
+      const p = pos(e);
+      last.current = p;
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (ctx) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 1.25, 0, Math.PI * 2);
+        ctx.fillStyle = "#1A1A1A";
+        ctx.fill();
+        hasInkRef.current = true;
+      }
+    },
+    [pos],
+  );
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
+      if (!drawing.current) return;
+      const canvas = canvasRef.current;
+      if (!canvas || !last.current) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      const p = pos(e);
+      ctx.beginPath();
+      ctx.moveTo(last.current.x, last.current.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      last.current = p;
+      hasInkRef.current = true;
+    },
+    [pos],
+  );
+
+  const onPointerUp = useCallback(() => {
+    drawing.current = false;
+    last.current = null;
+    syncPng();
+  }, [syncPng]);
+
+  const clear = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    setupReflectionSketchCanvas(canvas);
+    hasInkRef.current = false;
+    onChange(null);
+  }, [onChange]);
+
+  return (
+    <div className="mt-2">
+      <p className="font-sans text-[0.65rem] font-medium text-[#1A1A1A]/55 sm:text-xs">
+        Sketch how it felt. It saves with your reflection.
+      </p>
+      <div className="mt-2 flex justify-center">
+        <canvas
+          ref={canvasRef}
+          className="touch-none rounded-xl border-2 border-zinc-200 bg-[#fafaf9] shadow-inner"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+          onPointerCancel={onPointerUp}
+        />
+      </div>
+      <button
+        type="button"
+        onClick={clear}
+        className="mt-2 w-full rounded-full border border-zinc-300 py-2 font-sans text-xs font-medium text-[#1A1A1A]/80"
+      >
+        Clear sketch
+      </button>
+    </div>
+  );
+}
+
 export function ReflectionDrawer() {
+  const router = useRouter();
   const { whimState, setReflectingOpen, saveReflection, currentWhim } =
     useWhim();
   const open = whimState === "reflecting";
@@ -32,7 +190,19 @@ export function ReflectionDrawer() {
 
   const [selectedMood, setSelectedMood] = useState<MoodId | null>(null);
   const [noteText, setNoteText] = useState("");
-  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
+  const [attachmentPhotoUrl, setAttachmentPhotoUrl] = useState<string | null>(
+    null,
+  );
+  const [feelingSketchUrl, setFeelingSketchUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) return;
+    setSelectedMood(null);
+    setNoteText("");
+    setAttachmentPhotoUrl(null);
+    setFeelingSketchUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, [open]);
 
   const handlePhotoChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +211,7 @@ export function ReflectionDrawer() {
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
-          setPhotoDataUrl(reader.result);
+          setAttachmentPhotoUrl(reader.result);
         }
       };
       reader.readAsDataURL(file);
@@ -50,17 +220,29 @@ export function ReflectionDrawer() {
   );
 
   const handleSave = useCallback(() => {
-    saveReflection({
+    if (selectedMood === "drawn" && !feelingSketchUrl) return;
+    const savedAt = saveReflection({
       feeling: selectedMood,
       feelingText: moodFeelingText(selectedMood),
       note: noteText,
-      photoUrl: photoDataUrl,
+      photoUrl: attachmentPhotoUrl,
+      sketchUrl:
+        selectedMood === "drawn" ? feelingSketchUrl : null,
     });
     setSelectedMood(null);
     setNoteText("");
-    setPhotoDataUrl(null);
+    setAttachmentPhotoUrl(null);
+    setFeelingSketchUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [noteText, photoDataUrl, saveReflection, selectedMood]);
+    router.push(`/history?focus=${encodeURIComponent(savedAt)}`);
+  }, [
+    attachmentPhotoUrl,
+    feelingSketchUrl,
+    noteText,
+    router,
+    saveReflection,
+    selectedMood,
+  ]);
 
   const handleShare = useCallback(async () => {
     const whimTitle = currentWhim.text;
@@ -70,7 +252,7 @@ export function ReflectionDrawer() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: "Whim reflection",
+          title: "Whims reflection",
           text,
         });
       } catch (e) {
@@ -85,45 +267,96 @@ export function ReflectionDrawer() {
     );
   }, [currentWhim.text, noteText]);
 
+  const canSave =
+    selectedMood != null &&
+    (selectedMood !== "drawn" || feelingSketchUrl != null);
+
   return (
-    <Drawer open={open} onOpenChange={setReflectingOpen}>
+    <Drawer
+      open={open}
+      onOpenChange={setReflectingOpen}
+      shouldScaleBackground={false}
+      snapPoints={[1]}
+      fadeFromIndex={0}
+    >
       <DrawerContent
-        className="mx-auto w-full max-w-sm border-0 bg-transparent p-0 shadow-none before:hidden data-[vaul-drawer-direction=bottom]:mb-0 data-[vaul-drawer-direction=bottom]:mt-3 data-[vaul-drawer-direction=bottom]:h-[85vh] data-[vaul-drawer-direction=bottom]:max-h-[85vh]"
+        overlayClassName="z-[52] bg-black/40 supports-backdrop-filter:backdrop-blur-[2px]"
+        className={cn(
+          "z-[53] flex w-full max-w-none flex-col border-0 bg-transparent !p-0 shadow-none outline-none",
+          "before:!hidden [&_[data-slot=drawer-handle]]:!hidden",
+          "!inset-x-0 !left-0 !right-0 !mt-0",
+          reflectionDrawerBottom,
+          "!top-auto !max-h-none",
+          "data-[vaul-drawer-direction=bottom]:!mb-0",
+        )}
       >
         <DrawerTitle className="sr-only">Reflect on your whim</DrawerTitle>
         <DrawerDescription className="sr-only">
           Record how your whim felt, add notes and a photo, then save or share.
         </DrawerDescription>
 
-        <div className="flex h-full min-h-0 flex-col rounded-t-[1.75rem] border border-b-0 border-zinc-200/80 bg-[#f7f6f3] shadow-[0_-8px_40px_rgba(0,0,0,0.12)]">
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-4 pt-8">
-            <p className="font-serif text-base italic text-[#1A1A1A]">
+        <div
+          className={cn(
+            "flex w-full max-w-none flex-col overflow-hidden rounded-t-[1.75rem] border border-b-0 border-zinc-200/70 bg-[#faf8f5] shadow-[0_-16px_48px_rgba(0,0,0,0.18)]",
+            "max-h-[calc(100dvh-max(5.75rem,calc(env(safe-area-inset-bottom)+5rem)))]",
+            "h-[min(92dvh,calc(100dvh-max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))))]",
+          )}
+          style={REFLECTION_SHEET_BG}
+        >
+          <div
+            className="flex w-full shrink-0 flex-col px-6 pb-2 pt-4"
+            aria-hidden
+          >
+            <div className="mx-auto h-1 w-9 shrink-0 rounded-full bg-zinc-300/90" />
+          </div>
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <p className="font-serif text-xs italic leading-snug text-[#1A1A1A]/85">
               On a whim, I decided to...
             </p>
-            <h2 className="mt-2 font-serif text-3xl font-bold leading-tight tracking-tight text-[#1A1A1A]">
-              {currentWhim.text}
-            </h2>
+            <div className="mt-2">
+              <WhimPaperCard innerClassName="rounded-t-[1.05rem] px-4 pb-3 pt-3 sm:px-4 sm:pb-3.5 sm:pt-3.5">
+                <h2 className="font-serif text-xl font-normal leading-snug text-[#1A1A1A] sm:text-[1.35rem]">
+                  {currentWhim.text}
+                </h2>
+              </WhimPaperCard>
+            </div>
 
-            <p className="mt-8 font-serif text-base italic text-[#1A1A1A]">
+            <p className="mt-4 font-serif text-xs italic leading-snug text-[#1A1A1A]/85 sm:mt-5">
               It made me feel...
             </p>
-            <div className="mt-4 flex w-full justify-between gap-2 px-1">
-              {MOODS.map(({ id, emoji, label }) => (
+            <div className="mt-2.5 flex flex-wrap justify-center gap-2 px-0 sm:mt-3 sm:gap-2.5">
+              {MOODS.map(({ id, emoji, menuLabel }) => (
                 <MoodButton
                   key={id}
+                  dense
                   emoji={emoji}
-                  label={label}
+                  menuLabel={menuLabel}
                   isNeutral={id === "neutral"}
                   selected={selectedMood === id}
                   selectedMood={selectedMood}
-                  onSelect={() => setSelectedMood(id)}
+                  onSelect={() => {
+                    setSelectedMood(id);
+                    if (id !== "drawn") setFeelingSketchUrl(null);
+                  }}
                 />
               ))}
             </div>
 
+            {selectedMood ? (
+              <p className="mt-2 text-center font-serif text-sm leading-snug text-[#1A1A1A] sm:mt-2.5">
+                {moodFeelingText(selectedMood)}
+              </p>
+            ) : null}
+
+            {selectedMood === "drawn" ? (
+              <FeelingSketchField onChange={setFeelingSketchUrl} />
+            ) : null}
+
             <label
               htmlFor="reflection-notes"
-              className="mt-10 block font-serif text-base italic text-[#1A1A1A]"
+              className="mt-3 block font-serif text-xs italic leading-snug text-[#1A1A1A]/85 sm:mt-4"
             >
               Notes (optional)
             </label>
@@ -132,45 +365,45 @@ export function ReflectionDrawer() {
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               placeholder="How did it go?"
-              rows={5}
-              className="mt-2 w-full resize-none bg-transparent font-serif text-base leading-relaxed text-[#1A1A1A] placeholder:text-zinc-400 focus:outline-none focus:ring-0"
+              rows={3}
+              className="mt-1.5 w-full resize-none bg-transparent font-serif text-sm leading-relaxed text-[#1A1A1A] placeholder:text-zinc-400 focus:outline-none focus:ring-0 sm:text-base"
             />
 
-            <p className="mt-8 font-serif text-base italic text-[#1A1A1A]">
-              Add a photo
+            <p className="mt-3 font-serif text-xs italic leading-snug text-[#1A1A1A]/85 sm:mt-4">
+              {selectedMood === "drawn"
+                ? "Add a photo (optional)"
+                : "Add a photo"}
             </p>
-            <div className="mt-2 flex gap-3">
-              {photoDataUrl ? (
-                <>
-                  <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-xl border border-white bg-white shadow-md ring-1 ring-black/5">
-                    <Image
-                      src={photoDataUrl}
-                      alt="Your upload"
-                      fill
-                      unoptimized
-                      className="object-cover"
-                      sizes="100px"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="flex h-[100px] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-zinc-300 bg-zinc-100/60 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100"
-                  >
-                    <ImagePlus className="h-7 w-7 stroke-[1.25]" aria-hidden />
-                    <span className="font-sans text-[0.7rem] font-medium">
-                      Select file
-                    </span>
-                  </button>
-                </>
+            <div className="mt-1.5 w-full">
+              {attachmentPhotoUrl ? (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="relative aspect-[4/3] w-full max-w-full overflow-hidden rounded-xl border border-zinc-200/90 bg-zinc-100/60 text-left shadow-md ring-1 ring-black/[0.06] transition-colors hover:border-zinc-300 hover:bg-zinc-100/80"
+                >
+                  <Image
+                    src={attachmentPhotoUrl}
+                    alt="Your upload. Tap to change."
+                    fill
+                    unoptimized
+                    className="object-cover"
+                    sizes="(max-width: 384px) 100vw, 384px"
+                  />
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-3 py-2.5 pt-8 font-sans text-[0.7rem] font-medium text-white sm:text-xs">
+                    Tap to choose a different photo
+                  </span>
+                </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex h-[100px] w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-zinc-300 bg-zinc-100/60 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100"
+                  className="flex aspect-[4/3] w-full max-w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-zinc-300 bg-zinc-100/60 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100 sm:gap-1.5"
                 >
-                  <ImagePlus className="h-7 w-7 stroke-[1.25]" aria-hidden />
-                  <span className="font-sans text-[0.7rem] font-medium">
+                  <ImagePlus
+                    className="h-8 w-8 stroke-[1.25] sm:h-9 sm:w-9"
+                    aria-hidden
+                  />
+                  <span className="font-sans text-[0.75rem] font-medium sm:text-sm">
                     Select file
                   </span>
                 </button>
@@ -184,25 +417,27 @@ export function ReflectionDrawer() {
                 onChange={handlePhotoChange}
               />
             </div>
-          </div>
+            </div>
 
-          <div className="shrink-0 border-t border-zinc-200/70 bg-[#f7f6f3] px-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
-            <div className="flex w-full gap-3">
+          <div className="shrink-0 border-t border-zinc-200/80 bg-[#faf8f5] px-6 pb-3 pt-3">
+            <div className="flex w-full gap-2.5 sm:gap-3">
               <button
                 type="button"
                 onClick={handleShare}
-                className="inline-flex min-h-[3.25rem] flex-1 items-center justify-center rounded-full border border-[#1A1A1A] bg-white px-4 py-3 font-sans text-sm font-medium text-[#1A1A1A] transition-transform active:scale-[0.98]"
+                className="inline-flex min-h-[2.85rem] flex-1 items-center justify-center rounded-full border border-[#1A1A1A] bg-white px-3 py-2.5 font-sans text-sm font-medium text-[#1A1A1A] transition-transform active:scale-[0.98] sm:min-h-[3.1rem] sm:px-4 sm:py-3"
               >
                 Share ×
               </button>
               <button
                 type="button"
                 onClick={handleSave}
-                className="inline-flex min-h-[3.25rem] flex-1 items-center justify-center rounded-full bg-[#1A1A1A] px-4 py-3 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98]"
+                disabled={!canSave}
+                className="inline-flex min-h-[2.85rem] flex-1 items-center justify-center rounded-full bg-[#1A1A1A] px-3 py-2.5 font-sans text-sm font-medium text-white transition-transform enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-[3.1rem] sm:px-4 sm:py-3"
               >
                 Save →
               </button>
             </div>
+          </div>
           </div>
         </div>
       </DrawerContent>
@@ -212,18 +447,20 @@ export function ReflectionDrawer() {
 
 function MoodButton({
   emoji,
-  label,
+  menuLabel,
   isNeutral,
   selected,
   selectedMood,
   onSelect,
+  dense = false,
 }: {
   emoji: string;
-  label: string;
+  menuLabel: string;
   isNeutral: boolean;
   selected: boolean;
   selectedMood: MoodId | null;
   onSelect: () => void;
+  dense?: boolean;
 }) {
   const none = selectedMood === null;
 
@@ -231,10 +468,13 @@ function MoodButton({
     <motion.button
       type="button"
       onClick={onSelect}
-      aria-label={label}
+      aria-label={menuLabel}
       aria-pressed={selected}
       className={cn(
-        "flex h-14 w-14 items-center justify-center rounded-full border-2 text-2xl transition-colors",
+        "flex flex-col items-center rounded-2xl border-2 transition-colors",
+        dense
+          ? "w-[3.55rem] gap-0.5 py-1.5 sm:w-[3.7rem] sm:py-2"
+          : "w-[4.25rem] gap-1 py-2.5",
         isNeutral &&
           none &&
           "border-dashed border-amber-500/80 bg-transparent",
@@ -245,17 +485,27 @@ function MoodButton({
         isNeutral &&
           selected &&
           "border-dashed border-amber-600/90 bg-amber-50/50 shadow-sm",
-        !isNeutral && !selected && "border-transparent bg-transparent",
+        !isNeutral && !selected && "border-transparent bg-white/60",
         !isNeutral &&
           selected &&
           "border-solid border-amber-400/90 bg-amber-50/60 shadow-sm",
       )}
       animate={{
-        scale: selected ? 1.1 : 1,
+        scale: selected ? 1.04 : 1,
       }}
       transition={{ type: "spring", stiffness: 400, damping: 22 }}
     >
-      <span aria-hidden>{emoji}</span>
+      <span className={dense ? "text-lg sm:text-xl" : "text-2xl"} aria-hidden>
+        {emoji}
+      </span>
+      <span
+        className={cn(
+          "font-sans font-medium text-[#1A1A1A]/70",
+          dense ? "text-[0.58rem] sm:text-[0.6rem]" : "text-[0.65rem]",
+        )}
+      >
+        {menuLabel}
+      </span>
     </motion.button>
   );
 }

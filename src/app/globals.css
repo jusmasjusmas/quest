@@ -125,3 +125,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*
+ * Vaul drawer uses 0.5s in JS + injected CSS; bump duration for a calmer open/close.
+ * !important beats Vaul’s inline transition shorthands.
+ */
+[data-vaul-drawer] {
+  transition-duration: 0.85s !important;
+  animation-duration: 0.85s !important;
+}
+
+[data-vaul-overlay] {
+  transition-duration: 0.85s !important;
+  animation-duration: 0.85s !important;
+}

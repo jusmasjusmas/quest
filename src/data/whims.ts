@@ -32,7 +32,7 @@ export const WHIMS: Whim[] = [
   },
   {
     id: 4,
-    text: "Cook something from scratch — even if it's just eggs.",
+    text: "Cook something from scratch, even if it's just eggs.",
     shortText: "Cook from scratch",
     type: "inward",
     illustration: "/illustrations/cook.png",

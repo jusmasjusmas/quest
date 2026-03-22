@@ -16,14 +16,17 @@ function clamp(n: number, lo: number, hi: number) {
 }
 
 /** Same on server and client so the first paint hydrates without mismatch. */
-const HYDRATION_PLACEHOLDER = 650;
+const HYDRATION_PLACEHOLDER = 612;
 
 /** Smooth ease-in-out with a gentle settle toward the target (no spring jitter). */
 const COUNT_EASE: [number, number, number, number] = [0.45, 0, 0.25, 1];
 
 /** Hold steady on one reading before the next move (ms). */
-const TICK_DELAY_MIN = 18_000;
-const TICK_DELAY_MAX = 32_000;
+const TICK_DELAY_MIN = 52_000;
+const TICK_DELAY_MAX = 88_000;
+
+const COUNT_FLOOR = 520;
+const COUNT_CEIL = 720;
 
 /**
  * Simulates a live “others doing this whim” count: each update tweens with ease-in-out
@@ -45,9 +48,9 @@ export function usePeopleCount(): number {
 
   useEffect(() => {
     stopAnim();
-    const c = animate(count, randomInt(400, 900), {
+    const c = animate(count, randomInt(COUNT_FLOOR + 20, COUNT_CEIL - 20), {
       type: "tween",
-      duration: 2.5,
+      duration: 4.2,
       ease: COUNT_EASE,
     });
     animRef.current = c;
@@ -58,24 +61,30 @@ export function usePeopleCount(): number {
   }, [count]);
 
   useEffect(() => {
-    let timeoutId = 0;
+    let timeoutId: number;
 
     const tick = () => {
       const from = Math.round(count.get());
-      const delta = randomInt(-5, 8);
-      const next = clamp(from + delta, 100, 1500);
+      const delta = randomInt(-2, 2);
+      const next = clamp(from + delta, COUNT_FLOOR, COUNT_CEIL);
       stopAnim();
       const dist = Math.abs(next - from);
-      const duration = Math.min(3.6, Math.max(1.85, 1.15 + dist * 0.03));
+      const duration = Math.min(8.5, Math.max(4.5, 3.2 + dist * 0.45));
       animRef.current = animate(count, next, {
         type: "tween",
         duration,
         ease: COUNT_EASE,
       });
-      timeoutId = window.setTimeout(tick, randomInt(TICK_DELAY_MIN, TICK_DELAY_MAX));
+      timeoutId = window.setTimeout(
+        tick,
+        randomInt(TICK_DELAY_MIN, TICK_DELAY_MAX),
+      ) as unknown as number;
     };
 
-    timeoutId = window.setTimeout(tick, randomInt(TICK_DELAY_MIN, TICK_DELAY_MAX));
+    timeoutId = window.setTimeout(
+      tick,
+      randomInt(TICK_DELAY_MIN, TICK_DELAY_MAX),
+    ) as unknown as number;
     return () => {
       window.clearTimeout(timeoutId);
       stopAnim();

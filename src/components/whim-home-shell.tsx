@@ -1,17 +1,366 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { ArrowRight, X } from "lucide-react";
-import { useState } from "react";
+import Link from "next/link";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  useReducedMotion,
+} from "framer-motion";
+import { ArrowRight, BookOpen, X } from "lucide-react";
+import { useEffect, useId, useLayoutEffect, useState } from "react";
 
-import { ActivityTicker } from "@/components/activity-ticker";
 import { WhimBottomNav } from "@/components/whim-bottom-nav";
+import { WhimGuideHelp } from "@/components/whim-guide-modal";
 import { WhimPaperCard } from "@/components/whim-paper-card";
 import { useWhim } from "@/context/WhimContext";
 import { usePeopleCount } from "@/hooks/usePeopleCount";
+import { cn } from "@/lib/utils";
 
 const crossEase = [0.4, 0, 0.2, 1] as const;
+/** Soft ease-in-out for staged home entrance */
+const enterEase = [0.22, 1, 0.36, 1] as const;
+
+const HOME_ENTRANCE_KEY = "quest-home-entrance-v4";
+
+/** Italic line under the main headline (join / active / done); larger than body, smaller than h1. */
+const HOME_HEADLINE_SUBTEXT =
+  "font-serif text-lg italic leading-snug sm:text-xl";
+
+function TodayCalendarChip() {
+  const [parts, setParts] = useState<{
+    weekday: string;
+    date: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const d = new Date();
+    setParts({
+      weekday: d.toLocaleDateString("en-US", { weekday: "short" }),
+      date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    });
+  }, []);
+
+  return (
+    <div
+      className="flex min-w-0 shrink-0 flex-col items-end justify-center gap-0.5 font-sans leading-none text-right text-[#1A1A1A]"
+      aria-label={
+        parts
+          ? `Today is ${parts.weekday}, ${parts.date}`
+          : "Today’s date"
+      }
+    >
+      {parts ? (
+        <>
+          <span className="text-[0.5625rem] font-light uppercase tracking-[0.08em] text-[#1A1A1A]/68 sm:text-[0.625rem]">
+            {parts.weekday}
+          </span>
+          <span className="text-[0.8125rem] font-light tabular-nums tracking-tight sm:text-[0.9375rem]">
+            {parts.date}
+          </span>
+        </>
+      ) : (
+        <>
+          <span className="min-h-[0.5625rem] w-8 animate-pulse text-[0.5625rem] font-light uppercase tracking-[0.08em] text-[#1A1A1A]/25 sm:min-h-[0.625rem] sm:w-9 sm:text-[0.625rem]">
+            ···
+          </span>
+          <span className="min-h-[0.8125rem] w-10 animate-pulse text-[0.8125rem] font-light tabular-nums text-[#1A1A1A]/25 sm:min-h-[0.9375rem] sm:w-11 sm:text-[0.9375rem]">
+            ···
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function useHomeEntrance() {
+  const reduceMotionPref = useReducedMotion();
+  const reduceMotion = reduceMotionPref ?? false;
+  const [phase, setPhase] = useState<"play" | "done">("play");
+
+  useLayoutEffect(() => {
+    if (reduceMotion) {
+      setPhase("done");
+      return;
+    }
+    try {
+      if (sessionStorage.getItem(HOME_ENTRANCE_KEY) === "1") {
+        setPhase("done");
+      }
+    } catch {
+      /* private mode */
+    }
+  }, [reduceMotion]);
+
+  useEffect(() => {
+    if (phase !== "play" || reduceMotion) return;
+    const id = window.setTimeout(() => {
+      try {
+        sessionStorage.setItem(HOME_ENTRANCE_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+    }, 4200);
+    return () => window.clearTimeout(id);
+  }, [phase, reduceMotion]);
+
+  const instant = phase === "done" || reduceMotion;
+
+  const t = (delay: number, duration: number) =>
+    instant
+      ? { delay: 0, duration: reduceMotion ? 0.01 : 0.28, ease: enterEase }
+      : { delay, duration, ease: enterEase };
+
+  /** Top to bottom: header icon, greeting, whim block, CTAs, hill, illustration, tag line. */
+  return {
+    instant,
+    t,
+    icons: t(0, 0.5),
+    hey: t(0.06, 0.55),
+    whim: t(0.2, 0.7),
+    cta: t(0.88, 0.62),
+    hill: t(1.08, 0.86),
+    illus: t(1.34, 0.8),
+    tag: t(1.58, 0.68),
+  };
+}
+
+/** Hill center & radii — iPhone 393×852 frame ellipse. */
+const HILL_CX = 196.5;
+const HILL_CY = 828;
+const HILL_RX = 414.5;
+const HILL_RY = 226;
+
+const hillWaveTransition = {
+  duration: 11.2,
+  repeat: Infinity,
+  ease: "easeInOut" as const,
+  times: [0, 0.28, 0.52, 0.75, 1],
+};
+
+function HillFlower({
+  x,
+  y,
+  scale = 1,
+  opacity = 0.2,
+  rotation = 0,
+}: {
+  x: number;
+  y: number;
+  scale?: number;
+  opacity?: number;
+  rotation?: number;
+}) {
+  const angles = [0, 72, 144, 216, 288];
+  return (
+    <g
+      transform={`translate(${x},${y}) rotate(${rotation}) scale(${scale})`}
+      opacity={opacity}
+    >
+      {angles.map((deg) => (
+        <ellipse
+          key={deg}
+          cx={0}
+          cy={-5.4}
+          rx={2.35}
+          ry={5.4}
+          fill="rgba(255, 252, 245, 0.72)"
+          transform={`rotate(${deg})`}
+        />
+      ))}
+      <circle cx={0} cy={0} r={2.35} fill="rgba(255, 255, 255, 0.38)" />
+    </g>
+  );
+}
+
+/** iPhone 393×852 frame: ellipse 829×452 with top-left (-218, 602) → center (196.5, 828), radii (414.5, 226). */
+function HomeHillEllipse({
+  intro,
+  instant,
+}: {
+  intro: { delay: number; duration: number; ease: readonly [number, number, number, number] };
+  instant: boolean;
+}) {
+  const reduceMotion = useReducedMotion() ?? false;
+  const waveOn = !reduceMotion;
+  const rid = useId().replace(/:/g, "");
+  const clipId = `whim-hill-clip-${rid}`;
+  const grainId = `whim-hill-grain-${rid}`;
+
+  return (
+    <motion.svg
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+      viewBox="0 0 393 852"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden
+      initial={instant ? { opacity: 1 } : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={intro}
+      style={{ transformOrigin: "50% 85%" }}
+    >
+      <defs>
+        <clipPath id={clipId}>
+          <ellipse cx={HILL_CX} cy={HILL_CY} rx={HILL_RX} ry={HILL_RY} />
+        </clipPath>
+        <pattern
+          id={grainId}
+          width={9}
+          height={9}
+          patternUnits="userSpaceOnUse"
+        >
+          <circle cx={1.8} cy={2.2} r={0.42} fill="#fff" opacity={0.038} />
+          <circle cx={6.2} cy={5.8} r={0.38} fill="#062108" opacity={0.024} />
+          <circle cx={4.5} cy={1.4} r={0.28} fill="#fff" opacity={0.03} />
+          <circle cx={2.8} cy={6.9} r={0.32} fill="#fff" opacity={0.028} />
+        </pattern>
+      </defs>
+
+      <g transform={`translate(${HILL_CX},${HILL_CY})`}>
+        <motion.g
+          animate={
+            waveOn
+              ? {
+                  rotate: [0, 0.32, 0, -0.24, 0],
+                  y: [0, -2.1, 0, 1.4, 0],
+                }
+              : { rotate: 0, y: 0 }
+          }
+          transition={hillWaveTransition}
+          style={{ transformOrigin: "0px 0px" }}
+        >
+          <g transform={`translate(${-HILL_CX},${-HILL_CY})`}>
+            <ellipse
+              cx={HILL_CX}
+              cy={HILL_CY}
+              rx={HILL_RX}
+              ry={HILL_RY}
+              fill="#1B6B1B"
+            />
+            <g clipPath={`url(#${clipId})`}>
+              <rect
+                x={-240}
+                y={508}
+                width={900}
+                height={400}
+                fill={`url(#${grainId})`}
+                opacity={0.26}
+              />
+              <ellipse
+                cx={HILL_CX - 120}
+                cy={HILL_CY - 118}
+                rx={140}
+                ry={48}
+                fill="rgba(255, 255, 255, 0.032)"
+              />
+              <ellipse
+                cx={HILL_CX + 160}
+                cy={HILL_CY - 78}
+                rx={110}
+                ry={38}
+                fill="rgba(255, 255, 255, 0.028)"
+              />
+              <ellipse
+                cx={HILL_CX + 40}
+                cy={HILL_CY - 132}
+                rx={95}
+                ry={32}
+                fill="rgba(0, 0, 0, 0.034)"
+              />
+            </g>
+            <ellipse
+              cx={HILL_CX}
+              cy={HILL_CY}
+              rx={HILL_RX}
+              ry={HILL_RY}
+              fill="none"
+              stroke="#1A1A1A"
+              strokeWidth={3}
+              vectorEffect="nonScalingStroke"
+            />
+
+            <g opacity={0.9}>
+              <HillFlower x={88} y={718} scale={0.72} opacity={0.18} rotation={-8} />
+              <HillFlower x={168} y={688} scale={0.95} opacity={0.2} rotation={14} />
+              <HillFlower x={268} y={732} scale={0.78} opacity={0.16} rotation={-18} />
+              <HillFlower x={318} y={778} scale={0.55} opacity={0.14} rotation={22} />
+              <HillFlower x={132} y={758} scale={0.62} opacity={0.15} rotation={-4} />
+            </g>
+
+            <g opacity={0.22} fill="rgba(255, 252, 245, 0.9)">
+              <ellipse cx={52} cy={752} rx={5.5} ry={3.2} transform="rotate(-32 52 752)" />
+              <ellipse cx={228} cy={702} rx={6} ry={3.4} transform="rotate(18 228 702)" />
+              <ellipse cx={340} cy={718} rx={4.8} ry={2.8} transform="rotate(48 340 718)" />
+            </g>
+            <circle cx={196} cy={722} r={3.2} fill="rgba(255, 255, 255, 0.12)" />
+            <circle cx={250} cy={748} r={2.4} fill="rgba(255, 255, 255, 0.1)" />
+            <circle cx={118} cy={738} r={2.1} fill="rgba(255, 255, 255, 0.09)" />
+          </g>
+        </motion.g>
+      </g>
+    </motion.svg>
+  );
+}
+
+const ENCOURAGEMENT_LINES = [
+  "Nice work today!",
+  "You showed up.",
+  "Small wins count.",
+  "That mattered.",
+  "Proud of you.",
+  "Keep that energy.",
+];
+
+function FloatingEncouragementBubbles({ visible }: { visible: boolean }) {
+  const reduceMotionPref = useReducedMotion();
+  const reduceMotion = reduceMotionPref ?? false;
+  if (!visible) return null;
+
+  const lanes = ["42%", "50%", "58%", "66%", "46%", "62%"] as const;
+
+  if (reduceMotion) {
+    return (
+      <div
+        className="pointer-events-none absolute inset-x-0 top-[38%] bottom-[28%] z-[4] flex flex-col items-center justify-center gap-2 px-8 opacity-[0.38]"
+        aria-hidden
+      >
+        {ENCOURAGEMENT_LINES.slice(0, 4).map((text) => (
+          <div
+            key={text}
+            className="max-w-[min(100%,18rem)] rounded-full bg-white/88 px-4 py-2 text-center font-sans text-xs font-medium text-[#1A1A1A]/85 shadow-md ring-1 ring-black/[0.08]"
+          >
+            {text}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-0 top-[36%] bottom-[22%] z-[4] overflow-hidden"
+      aria-hidden
+    >
+      {ENCOURAGEMENT_LINES.map((text, i) => (
+        <motion.div
+          key={`${text}-${i}`}
+          className="absolute whitespace-nowrap rounded-full bg-white/90 px-3.5 py-1.5 font-sans text-[0.7rem] font-medium text-[#1A1A1A]/88 shadow-md ring-1 ring-black/[0.08] sm:px-4 sm:py-2 sm:text-xs"
+          style={{ top: lanes[i % lanes.length] }}
+          initial={{ x: "105vw" }}
+          animate={{ x: "-130vw" }}
+          transition={{
+            duration: 19 + i * 2.4,
+            repeat: Infinity,
+            ease: "linear",
+            delay: i * 3.1,
+          }}
+        >
+          {text}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
 export function WhimHomeShell() {
   const {
@@ -22,12 +371,34 @@ export function WhimHomeShell() {
     joinWhim,
     passToday,
     openReflecting,
+    reflectedToday,
   } = useWhim();
 
   const peopleCount = usePeopleCount();
   const [passConfirmOpen, setPassConfirmOpen] = useState(false);
 
-  const mode = whimState === "active" || whimState === "reflecting" ? "active" : "idle";
+  const inWhimFlow =
+    whimState === "joined" ||
+    whimState === "active" ||
+    whimState === "reflecting";
+  const copyMode = inWhimFlow
+    ? "active"
+    : reflectedToday
+      ? "doneToday"
+      : "join";
+
+  const entrance = useHomeEntrance();
+  const reduceMotion = useReducedMotion() ?? false;
+  const [illusFloating, setIllusFloating] = useState(
+    () => entrance.instant || reduceMotion,
+  );
+
+  useEffect(() => {
+    if (entrance.instant || reduceMotion) setIllusFloating(true);
+  }, [entrance.instant, reduceMotion]);
+
+  const fadeUp = (instant: boolean) =>
+    instant ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 };
 
   const confirmPass = () => {
     setPassConfirmOpen(false);
@@ -35,27 +406,106 @@ export function WhimHomeShell() {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden rounded-2xl bg-[#1B6B1B] text-[#1A1A1A]">
-      <header className="relative z-10 flex min-h-[58vh] flex-col bg-[#ECFAFF] px-6 pb-36 pt-11">
-        <div className="relative min-h-[10rem]">
-          <AnimatePresence mode="sync" initial={false}>
-            {mode === "idle" ? (
+    <div className="relative flex h-full min-h-0 w-full min-w-0 flex-col overflow-x-visible overflow-y-visible bg-whim-sky text-[#1A1A1A]">
+      <HomeHillEllipse intro={entrance.hill} instant={entrance.instant} />
+      <FloatingEncouragementBubbles visible={copyMode === "doneToday"} />
+
+      <header className="relative z-10 shrink-0 bg-transparent px-6 pb-6 pt-[max(2.75rem,calc(env(safe-area-inset-top)+2rem))] sm:px-7 sm:pb-7 sm:pt-[max(3.25rem,calc(env(safe-area-inset-top)+2.5rem))]">
+        <div className="mb-3 flex w-full items-center justify-between gap-3 sm:mb-4">
+          <AnimatePresence mode="sync">
+            <motion.p
+              key={copyMode}
+              className="min-w-0 flex-1 font-serif text-[1.2rem] italic leading-snug text-[#1A1A1A] sm:text-[1.35rem]"
+              initial={
+                copyMode === "active"
+                  ? { opacity: 0, y: 8 }
+                  : fadeUp(entrance.instant)
+              }
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                copyMode === "active"
+                  ? { duration: 0.45, ease: crossEase }
+                  : entrance.hey
+              }
+            >
+              Hey, {profile.name}.
+            </motion.p>
+          </AnimatePresence>
+          <motion.div
+            key={copyMode}
+            className="flex min-h-9 min-w-9 shrink-0 items-center justify-end sm:min-h-10 sm:min-w-10"
+            initial={
+              reduceMotion
+                ? { opacity: 1, y: 0, visibility: "visible" as const }
+                : copyMode === "active"
+                  ? { opacity: 0, y: 8, visibility: "hidden" as const }
+                  : {
+                      ...fadeUp(entrance.instant),
+                      ...(!entrance.instant
+                        ? { visibility: "hidden" as const }
+                        : {}),
+                    }
+            }
+            animate={{
+              opacity: 1,
+              y: 0,
+              visibility: "visible",
+            }}
+            transition={
+              reduceMotion
+                ? { duration: 0.01 }
+                : copyMode === "active"
+                  ? { duration: 0.42, delay: 0.14, ease: crossEase }
+                  : entrance.icons
+            }
+          >
+            <WhimGuideHelp />
+          </motion.div>
+        </div>
+        <div className="relative flex w-full flex-col">
+          {/* initial must stay default (true): initial={false} skips nested motion initial/animate on first mount */}
+          <AnimatePresence mode="sync">
+            {copyMode === "join" ? (
               <motion.div
-                key="idle-copy"
+                key="join-copy"
                 className="left-0 right-0 top-0"
-                initial={{ opacity: 0 }}
+                initial={false}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.45, ease: crossEase }}
+                transition={{ duration: 0.4, ease: crossEase }}
               >
-                <p className="font-serif text-lg italic leading-snug text-[#1A1A1A]">
-                  Hey, {profile.name}. Let&apos;s get whimsical.
-                </p>
-                <h1 className="mt-2 max-w-[20ch] font-serif text-[2.25rem] font-normal leading-[1.12] tracking-tight text-[#1A1A1A] sm:text-[2.5rem]">
-                  {currentWhim.text}
-                </h1>
+                <motion.div
+                  className="mt-2 sm:mt-3"
+                  initial={fadeUp(entrance.instant)}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={entrance.whim}
+                >
+                  <div className="flex min-w-0 items-center justify-between gap-3">
+                    <h1 className="max-w-[18ch] min-w-0 font-serif text-[2.25rem] font-bold leading-[1.1] tracking-tight text-[#1A1A1A] sm:max-w-[22ch] sm:text-[2.5rem]">
+                      Today&apos;s whim
+                    </h1>
+                    <TodayCalendarChip />
+                  </div>
+                  <p
+                    className={cn(
+                      HOME_HEADLINE_SUBTEXT,
+                      "mt-2 max-w-[28ch] text-[#1A1A1A]/72",
+                    )}
+                  >
+                    Ready when you are.
+                  </p>
+                  <div className="mt-6">
+                    <WhimPaperCard
+                      innerClassName="rounded-t-[1.35rem] px-6 pb-5 pt-5 sm:px-7 sm:pb-6 sm:pt-6"
+                    >
+                      <p className="font-serif text-[1.5rem] font-normal leading-snug tracking-tight text-[#1A1A1A] sm:text-[1.7rem]">
+                        {currentWhim.text}
+                      </p>
+                    </WhimPaperCard>
+                  </div>
+                </motion.div>
               </motion.div>
-            ) : (
+            ) : copyMode === "active" ? (
               <motion.div
                 key="active-copy"
                 className="left-0 right-0 top-0"
@@ -64,15 +514,23 @@ export function WhimHomeShell() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.45, ease: crossEase }}
               >
-                <p className="font-serif text-lg italic leading-snug text-[#1A1A1A]">
-                  Whims In Progress
+                <div className="mt-2 flex min-w-0 items-start justify-between gap-3 sm:mt-3">
+                  <h1 className="min-w-0 flex-1 pr-2 font-serif text-[2.25rem] font-bold leading-[1.1] tracking-tight text-[#1A1A1A] sm:text-[2.5rem]">
+                    You and{" "}
+                    <span className="tabular-nums">{peopleCount}</span> others
+                    are on today&apos;s whim together.
+                  </h1>
+                  <TodayCalendarChip />
+                </div>
+                <p
+                  className={cn(
+                    HOME_HEADLINE_SUBTEXT,
+                    "mt-2 max-w-[30ch] text-[#1A1A1A]/72",
+                  )}
+                >
+                  Reflect when you&apos;re done.
                 </p>
-                <h1 className="mt-2 font-serif text-4xl font-normal leading-[1.12] tracking-tight text-[#1A1A1A]">
-                  You and{" "}
-                  <span className="tabular-nums">{peopleCount}</span> others are
-                  on today&apos;s whim together.
-                </h1>
-                <div className="mt-5">
+                <div className="mt-6">
                   <WhimPaperCard>
                     <p className="font-serif text-[1.35rem] font-normal leading-snug tracking-tight text-[#1A1A1A] sm:text-2xl">
                       {currentWhim.text}
@@ -80,26 +538,74 @@ export function WhimHomeShell() {
                   </WhimPaperCard>
                 </div>
               </motion.div>
+            ) : (
+              <motion.div
+                key="done-copy"
+                className="left-0 right-0 top-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.45, ease: crossEase }}
+              >
+                <motion.div
+                  className="mt-2 sm:mt-3"
+                  initial={fadeUp(entrance.instant)}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={entrance.whim}
+                >
+                  <h1 className="max-w-[20ch] min-w-0 font-serif text-[2.25rem] font-bold leading-[1.1] tracking-tight text-[#1A1A1A] sm:max-w-[24ch] sm:text-[2.5rem]">
+                    Great job today
+                  </h1>
+                  <p
+                    className={cn(
+                      HOME_HEADLINE_SUBTEXT,
+                      "mt-2 max-w-[30ch] text-[#1A1A1A]/72",
+                    )}
+                  >
+                    Today&apos;s whim is in the books.
+                  </p>
+                  <div className="mt-6">
+                    <WhimPaperCard
+                      innerClassName="rounded-t-[1.35rem] px-6 pb-5 pt-5 sm:px-7 sm:pb-6 sm:pt-6"
+                    >
+                      <p className="font-serif text-[1.5rem] font-normal leading-snug tracking-tight text-[#1A1A1A]/55 line-through decoration-[#1A1A1A]/40 decoration-2 sm:text-[1.7rem]">
+                        {currentWhim.text}
+                      </p>
+                    </WhimPaperCard>
+                  </div>
+                </motion.div>
+              </motion.div>
             )}
           </AnimatePresence>
-        </div>
 
         <LayoutGroup id="whim-ctas">
-          <motion.div layout className="mt-8 flex w-full flex-col gap-2.5">
-            <AnimatePresence mode="sync" initial={false}>
-              {mode === "idle" ? (
+          <motion.div
+            layout
+            className={
+              copyMode === "join"
+                ? "mt-10 flex w-full flex-col items-stretch gap-2.5 sm:mt-11"
+                : "mt-4 flex w-full flex-col items-stretch gap-2.5 sm:mt-5"
+            }
+          >
+            <AnimatePresence mode="sync">
+              {copyMode === "join" ? (
                 <motion.div
-                  key="row-idle"
+                  key="row-join"
                   layout
-                  className="flex w-full flex-col gap-3"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  className="flex w-full flex-col items-start gap-4"
+                  initial={fadeUp(entrance.instant)}
+                  animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.35, ease: crossEase }}
+                  transition={entrance.cta}
                 >
                   {passedToday ? (
-                    <p className="max-w-md font-serif text-base italic text-[#1A1A1A]/75">
-                      You passed earlier — you can still join anytime below.
+                    <p
+                      className={cn(
+                        HOME_HEADLINE_SUBTEXT,
+                        "max-w-md text-[#1A1A1A]/75",
+                      )}
+                    >
+                      You passed earlier, but you can still join anytime below.
                     </p>
                   ) : null}
                   <motion.button
@@ -107,32 +613,45 @@ export function WhimHomeShell() {
                     layout
                     layoutId="whim-primary-cta"
                     onClick={joinWhim}
-                    className="inline-flex items-center self-start rounded-full bg-[#1A1A1A] px-8 py-4 font-sans text-base font-medium text-white transition-transform enabled:active:scale-[0.98]"
+                    className="inline-flex items-center justify-center self-start rounded-full bg-[#1A1A1A] px-10 py-[1.125rem] font-sans text-lg font-medium text-white transition-transform enabled:active:scale-[0.98] sm:px-11 sm:py-5 sm:text-xl"
                     transition={{
                       layout: { duration: 0.45, ease: crossEase },
                     }}
                   >
-                    Join <span className="tabular-nums">{peopleCount}</span>{" "}
-                    others →
+                    <span className="inline-flex flex-wrap items-baseline justify-start gap-x-1.5 gap-y-0.5">
+                      <span>Join</span>
+                      <span className="tabular-nums">{peopleCount}</span>
+                      <span>others →</span>
+                    </span>
                   </motion.button>
                 </motion.div>
-              ) : (
+              ) : copyMode === "active" ? (
                 <motion.div
                   key="row-active"
                   layout
                   className="flex w-full gap-3"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  initial={
+                    entrance.instant ? { opacity: 0, y: 10 } : fadeUp(entrance.instant)
+                  }
+                  animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.35, ease: crossEase }}
+                  transition={
+                    entrance.instant
+                      ? { duration: 0.42, delay: 0.55, ease: crossEase }
+                      : entrance.cta
+                  }
                 >
                   <motion.button
                     type="button"
                     layout
                     onClick={() => setPassConfirmOpen(true)}
-                    className="inline-flex min-h-[3.25rem] flex-1 items-center justify-center gap-2 rounded-full border border-[#1A1A1A] bg-transparent px-4 py-3.5 font-sans text-sm font-medium text-[#1A1A1A] transition-transform active:scale-[0.98]"
+                    className="inline-flex min-h-[3.25rem] min-w-0 shrink-0 basis-[38%] items-center justify-center gap-2 rounded-full border border-[#1A1A1A] bg-transparent px-3 py-3.5 font-sans text-sm font-medium text-[#1A1A1A] transition-transform active:scale-[0.98] sm:basis-[36%]"
                     transition={{
-                      layout: { duration: 0.45, ease: crossEase },
+                      layout: {
+                        duration: 0.5,
+                        delay: 0.55,
+                        ease: crossEase,
+                      },
                     }}
                   >
                     Pass today
@@ -143,59 +662,128 @@ export function WhimHomeShell() {
                     layout
                     layoutId="whim-primary-cta"
                     onClick={openReflecting}
-                    className="inline-flex min-h-[3.25rem] flex-1 items-center justify-center gap-2 rounded-full bg-[#1A1A1A] px-4 py-3.5 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98]"
+                    className="inline-flex min-h-[3.25rem] min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-[#1A1A1A] px-5 py-3.5 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98]"
                     transition={{
-                      layout: { duration: 0.45, ease: crossEase },
+                      layout: {
+                        duration: 0.5,
+                        delay: 0.55,
+                        ease: crossEase,
+                      },
                     }}
                   >
-                    I&apos;m done
-                    <ArrowRight className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                    Reflect
+                    <BookOpen className="size-4 shrink-0" strokeWidth={2.25} aria-hidden />
                   </motion.button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="row-done"
+                  layout
+                  className="flex w-full flex-col items-start gap-3"
+                  initial={
+                    entrance.instant ? { opacity: 0, y: 10 } : fadeUp(entrance.instant)
+                  }
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={
+                    entrance.instant
+                      ? { duration: 0.4, delay: 0.55, ease: crossEase }
+                      : entrance.cta
+                  }
+                >
+                  <motion.div
+                    layout
+                    layoutId="whim-primary-cta"
+                    transition={{
+                      layout: {
+                        duration: 0.5,
+                        delay: 0.55,
+                        ease: crossEase,
+                      },
+                    }}
+                  >
+                    <Link
+                      href="/history"
+                      className="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-full bg-[#1A1A1A] px-8 py-3.5 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98] sm:px-10 sm:text-base"
+                    >
+                      View today&apos;s reflection
+                      <ArrowRight className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                    </Link>
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
           </motion.div>
         </LayoutGroup>
+        </div>
       </header>
 
-      <div className="relative z-20 -mt-28 flex min-h-0 flex-1 flex-col">
-        <div className="pointer-events-none relative z-30 mx-auto w-[min(88%,280px)] -translate-y-[42%]">
-          <div className="relative aspect-[4/5] w-full">
+      <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] pt-8 sm:px-2 sm:pt-10">
+        <motion.div
+          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,30rem)] shrink-0 -translate-y-[4rem] sm:max-w-[min(100vw-1rem,32rem)] sm:-translate-y-[4.75rem]"
+          initial={
+            entrance.instant
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: 22 }
+          }
+          animate={{ opacity: 1, y: 0 }}
+          transition={entrance.illus}
+          onAnimationComplete={() => {
+            if (!reduceMotion) setIllusFloating(true);
+          }}
+        >
+          <motion.div
+            className="relative mx-auto h-[min(44dvh,400px)] w-full min-h-[min(28dvh,220px)] overflow-visible sm:h-[min(48dvh,440px)] sm:min-h-[min(30dvh,240px)]"
+            animate={
+              illusFloating && !reduceMotion
+                ? {
+                    y: [0, -3.5, -0.8, -5.5, 0],
+                    rotate: [0, 0.35, 0, -0.25, 0],
+                  }
+                : { y: 0, rotate: 0 }
+            }
+            transition={
+              illusFloating && !reduceMotion
+                ? {
+                    y: {
+                      duration: 3.65,
+                      repeat: Infinity,
+                      ease: [0.4, 0, 0.2, 1],
+                      times: [0, 0.22, 0.48, 0.78, 1],
+                    },
+                    rotate: {
+                      duration: 3.65,
+                      repeat: Infinity,
+                      ease: [0.4, 0, 0.2, 1],
+                      times: [0, 0.22, 0.48, 0.78, 1],
+                    },
+                  }
+                : { duration: 0 }
+            }
+          >
             <Image
               src={currentWhim.illustration}
               alt=""
               fill
-              className="object-contain object-bottom drop-shadow-sm"
-              sizes="280px"
+              className="object-contain object-bottom drop-shadow-md"
+              sizes="(max-width: 640px) 100vw, 32rem"
               priority
             />
-          </div>
-        </div>
-
-        <div className="relative z-[25] -mt-4 w-full px-3 sm:-mt-5">
-          <ActivityTicker className="mx-auto h-[3.5rem] max-w-none" />
-        </div>
-
-        <div className="relative -mt-[min(12vw,2.75rem)] flex min-h-0 flex-1 flex-col bg-[#1B6B1B]">
-          <svg
-            className="relative z-[1] -mt-px block h-[4.75rem] w-full shrink-0 overflow-visible text-[#1B6B1B]"
-            viewBox="0 0 400 72"
-            preserveAspectRatio="none"
-            aria-hidden
-          >
-            <path
-              fill="currentColor"
-              d="M0,56 C100,4 300,4 400,56 L400,72 L0,72 Z"
-            />
-          </svg>
-
-          <div className="relative z-[2] -mt-px flex min-h-[5.5rem] flex-1 flex-col justify-center px-6 pb-[max(7rem,calc(env(safe-area-inset-bottom)+6rem))] pt-5">
-            <p className="text-center font-serif text-xl italic leading-snug text-white sm:text-2xl">
-              Let&apos;s make a difference today.
-            </p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
+
+      <motion.p
+        className="pointer-events-none absolute bottom-[max(7.25rem,calc(env(safe-area-inset-bottom)+6.25rem))] left-0 right-0 z-[5] px-6 text-center font-serif text-2xl font-normal leading-snug text-white sm:px-8 sm:text-3xl"
+        style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
+        initial={fadeUp(entrance.instant)}
+        animate={{ opacity: 1, y: 0 }}
+        transition={entrance.tag}
+      >
+        {copyMode === "doneToday"
+          ? "See you tomorrow for a new whim."
+          : "Let's make a difference today."}
+      </motion.p>
 
       <WhimBottomNav active="whim" />
 

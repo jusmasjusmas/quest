@@ -12,7 +12,7 @@ export type { WhimType };
 
 export const WHIMS_CATALOG = WHIMS;
 
-/** @deprecated Use getWhimForDate — alias for app code that still imports getDailyWhim. */
+/** @deprecated Use getWhimForDate; alias for app code that still imports getDailyWhim. */
 export function getDailyWhim(date = new Date()): Whim {
   return getWhimForDate(date);
 }

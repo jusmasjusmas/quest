@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 
+import { WHIM_JOINED_STATE_MIN_MS } from "@/lib/whim-success-timing";
 import { getDailyWhim, type CatalogWhim } from "@/lib/whims-catalog";
 import {
   PROFILE_AVATAR_KEY,
@@ -18,6 +19,7 @@ import {
   incrementRippleReach,
   loadReflectionsV2,
   moodFeelingText,
+  reflectionDateKey,
   saveReflectionsV2,
   type MoodId,
   type WhimReflection,
@@ -38,6 +40,8 @@ export type WhimReflectionEntry = WhimReflectionV2;
 export type WhimProfile = {
   name: string;
   emoji: string;
+  /** Custom circular avatar (data URL); when set, shown instead of emoji. */
+  avatarImageUrl: string | null;
   streak: number;
 };
 
@@ -106,29 +110,47 @@ function savePersistedState(s: PersistedAppState) {
   }
 }
 
-type PersistedProfile = { name: string; emoji: string };
+type PersistedProfile = {
+  name: string;
+  emoji: string;
+  avatarImageUrl?: string | null;
+};
 
 function loadProfileBasics(): PersistedProfile {
   if (typeof window === "undefined") {
-    return { name: "Justin", emoji: "😊" };
+    return { name: "Justin", emoji: "😊", avatarImageUrl: null };
   }
   try {
     const raw = localStorage.getItem(STORAGE_PROFILE);
     if (raw) {
       const p = JSON.parse(raw) as Partial<PersistedProfile>;
-      if (p.name && p.emoji) return { name: p.name, emoji: p.emoji };
+      if (p.name && p.emoji) {
+        return {
+          name: p.name,
+          emoji: p.emoji,
+          avatarImageUrl:
+            typeof p.avatarImageUrl === "string" ? p.avatarImageUrl : null,
+        };
+      }
     }
     const avatar = localStorage.getItem(PROFILE_AVATAR_KEY);
-    if (avatar) return { name: "Justin", emoji: avatar };
+    if (avatar) return { name: "Justin", emoji: avatar, avatarImageUrl: null };
   } catch {
     /* ignore */
   }
-  return { name: "Justin", emoji: "😊" };
+  return { name: "Justin", emoji: "😊", avatarImageUrl: null };
 }
 
 function saveProfileBasics(p: PersistedProfile) {
   try {
-    localStorage.setItem(STORAGE_PROFILE, JSON.stringify(p));
+    localStorage.setItem(
+      STORAGE_PROFILE,
+      JSON.stringify({
+        name: p.name,
+        emoji: p.emoji,
+        avatarImageUrl: p.avatarImageUrl ?? null,
+      }),
+    );
     localStorage.setItem(PROFILE_AVATAR_KEY, p.emoji);
   } catch {
     /* ignore */
@@ -142,7 +164,7 @@ function reconcileJoinedState(
   if (whimState !== "joined" || joinedAtMs == null) {
     return { whimState, joinedAtMs };
   }
-  if (Date.now() - joinedAtMs >= 3000) {
+  if (Date.now() - joinedAtMs >= WHIM_JOINED_STATE_MIN_MS) {
     return { whimState: "active", joinedAtMs: null };
   }
   return { whimState, joinedAtMs };
@@ -158,6 +180,8 @@ type WhimContextValue = {
   reflections: WhimReflectionEntry[];
   profile: WhimProfile;
   passedToday: boolean;
+  /** True when there is a reflection saved for the device’s local calendar day. */
+  reflectedToday: boolean;
   joinWhim: () => void;
   passToday: () => void;
   openReflecting: () => void;
@@ -167,9 +191,12 @@ type WhimContextValue = {
     feelingText: string;
     note: string;
     photoUrl: string | null;
-  }) => void;
+    /** Mood “drawn” doodle; optional alongside `photoUrl`. */
+    sketchUrl?: string | null;
+  }) => string;
   setProfileEmoji: (emoji: string) => void;
   setProfileName: (name: string) => void;
+  setProfileAvatarImage: (dataUrl: string | null) => void;
   clearAllData: () => void;
 };
 
@@ -183,6 +210,9 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
   const [reflections, setReflections] = useState<WhimReflectionEntry[]>([]);
   const [profileName, setProfileNameState] = useState("Justin");
   const [profileEmoji, setProfileEmojiState] = useState("😊");
+  const [profileAvatarImageUrl, setProfileAvatarImageUrl] = useState<
+    string | null
+  >(null);
 
   const joinedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const completedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -199,6 +229,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
     const pb = loadProfileBasics();
     setProfileNameState(pb.name);
     setProfileEmojiState(pb.emoji);
+    setProfileAvatarImageUrl(pb.avatarImageUrl ?? null);
     setHydrated(true);
   }, []);
 
@@ -218,8 +249,12 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    saveProfileBasics({ name: profileName, emoji: profileEmoji });
-  }, [hydrated, profileName, profileEmoji]);
+    saveProfileBasics({
+      name: profileName,
+      emoji: profileEmoji,
+      avatarImageUrl: profileAvatarImageUrl,
+    });
+  }, [hydrated, profileName, profileEmoji, profileAvatarImageUrl]);
 
   const currentWhim = useMemo(() => getDailyWhim(), []);
 
@@ -229,6 +264,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
       mood: r.feeling,
       note: r.note,
       photoDataUrl: r.photoUrl,
+      sketchDataUrl: r.sketchUrl ?? null,
       savedAt: r.date,
     }));
   }, [reflections]);
@@ -237,12 +273,23 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
     () => ({
       name: profileName,
       emoji: profileEmoji,
+      avatarImageUrl: profileAvatarImageUrl,
       streak: computeStreak(legacyReflectionsForStreak),
     }),
-    [legacyReflectionsForStreak, profileEmoji, profileName],
+    [
+      legacyReflectionsForStreak,
+      profileAvatarImageUrl,
+      profileEmoji,
+      profileName,
+    ],
   );
 
   const passedToday = skippedDateKey === todayKey();
+
+  const reflectedToday = useMemo(() => {
+    const k = todayKey();
+    return reflections.some((r) => reflectionDateKey(r.date) === k);
+  }, [reflections]);
 
   const joinWhim = useCallback(() => {
     setSkippedDateKey(null);
@@ -260,7 +307,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const elapsed = Date.now() - joinedAtMs;
-    const wait = Math.max(0, 3000 - elapsed);
+    const wait = Math.max(0, WHIM_JOINED_STATE_MIN_MS - elapsed);
     joinedTimerRef.current = setTimeout(() => {
       setWhimState("active");
       setJoinedAtMs(null);
@@ -299,16 +346,23 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
       feelingText: string;
       note: string;
       photoUrl: string | null;
-    }) => {
+      sketchUrl?: string | null;
+    }): string => {
+      const savedAt = new Date().toISOString();
+      const sketch =
+        payload.feeling === "drawn" && payload.sketchUrl
+          ? payload.sketchUrl
+          : null;
       const entry: WhimReflectionEntry = {
         whimId: String(currentWhim.id),
         whimText: currentWhim.text,
-        date: new Date().toISOString(),
+        date: savedAt,
         feeling: payload.feeling,
         feelingText:
           payload.feelingText || moodFeelingText(payload.feeling),
         note: payload.note,
         photoUrl: payload.photoUrl,
+        ...(sketch ? { sketchUrl: sketch } : {}),
       };
       setReflections((prev) => [...prev, entry]);
       incrementRippleReach();
@@ -319,6 +373,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
         setJoinedAtMs(null);
         completedTimerRef.current = null;
       }, 1600);
+      return savedAt;
     },
     [currentWhim.id, currentWhim.text],
   );
@@ -337,6 +392,10 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
     setProfileNameState(name);
   }, []);
 
+  const setProfileAvatarImageCb = useCallback((dataUrl: string | null) => {
+    setProfileAvatarImageUrl(dataUrl);
+  }, []);
+
   const clearAllData = useCallback(() => {
     clearLegacyWhimKeys();
     setWhimState("idle");
@@ -345,6 +404,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
     setReflections([]);
     setProfileNameState("Justin");
     setProfileEmojiState("😊");
+    setProfileAvatarImageUrl(null);
   }, []);
 
   const value = useMemo<WhimContextValue>(
@@ -354,6 +414,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
       reflections,
       profile,
       passedToday,
+      reflectedToday,
       joinWhim,
       passToday,
       openReflecting,
@@ -361,6 +422,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
       saveReflection,
       setProfileEmoji: setProfileEmojiCb,
       setProfileName: setProfileNameCb,
+      setProfileAvatarImage: setProfileAvatarImageCb,
       clearAllData,
     }),
     [
@@ -369,6 +431,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
       reflections,
       profile,
       passedToday,
+      reflectedToday,
       joinWhim,
       passToday,
       openReflecting,
@@ -376,6 +439,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
       saveReflection,
       setProfileEmojiCb,
       setProfileNameCb,
+      setProfileAvatarImageCb,
       clearAllData,
     ],
   );

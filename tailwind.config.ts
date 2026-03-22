@@ -3,6 +3,10 @@ import type { Config } from "tailwindcss";
 export default {
   theme: {
     extend: {
+      colors: {
+        /** Main app sky; slightly more azure than the former #ECFAFF. */
+        "whim-sky": "#E0F4FF",
+      },
       fontFamily: {
         sans: [
           "var(--font-sans)",

@@ -11,13 +11,13 @@ export default function Home() {
   const { whimState } = useWhim();
 
   return (
-    <div className="relative mx-auto min-h-screen max-w-sm overflow-hidden rounded-2xl">
+    <div className="relative h-dvh max-h-dvh w-full min-w-0 overflow-x-visible overflow-y-visible bg-whim-sky">
       <WhimHomeShell />
       <AnimatePresence>
         {whimState === "joined" ? (
           <motion.div
             key="success-overlay"
-            className="absolute inset-0 z-50 overflow-hidden rounded-2xl"
+            className="absolute inset-0 z-50 overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -33,7 +33,7 @@ export default function Home() {
           <motion.div
             key="saved-toast"
             role="status"
-            className="pointer-events-none fixed bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+4.75rem))] left-1/2 z-[60] max-w-sm -translate-x-1/2 rounded-full bg-[#1A1A1A] px-6 py-3 font-sans text-sm font-medium text-white shadow-lg"
+            className="pointer-events-none fixed bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+4.75rem))] left-1/2 z-[60] w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2 rounded-full bg-[#1A1A1A] px-6 py-3 text-center font-sans text-sm font-medium text-white shadow-lg"
             initial={{ opacity: 0, y: 12, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}

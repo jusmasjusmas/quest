@@ -1,42 +1,80 @@
 "use client";
 
-import { ChevronDown, ChevronLeft } from "lucide-react";
+import { ChevronRight, Pencil, Settings } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { ProfileAvatarModal } from "@/components/profile-avatar-modal";
+import {
+  ProfileStatsModal,
+  type ProfileStatsDetail,
+} from "@/components/profile-stats-modal";
 import { WhimBottomNav } from "@/components/whim-bottom-nav";
 import { useWhim } from "@/context/WhimContext";
 import { cn } from "@/lib/utils";
+import { mergeWithPlaceholderReflections } from "@/lib/history-placeholders";
 import {
-  favoriteMoodEmoji,
-  getRippleReach,
+  computeBestStreak,
+  computeStreak,
+  dominantMood,
+  formatReflectionDateOrdinal,
   type WhimReflection,
 } from "@/lib/whim-reflections";
 
-const AVATAR_OPTIONS = ["😊", "🌸", "🦋", "✨", "🌿", "🐚", "🦊", "☀️"];
-
 export default function ProfilePage() {
-  const { reflections, profile, setProfileEmoji, clearAllData } = useWhim();
-  const [aboutOpen, setAboutOpen] = useState(false);
+  const {
+    reflections,
+    profile,
+    setProfileEmoji,
+    setProfileAvatarImage,
+    clearAllData,
+  } = useWhim();
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  const [statsModalOpen, setStatsModalOpen] = useState(false);
 
-  const legacyForFavorite = useMemo((): WhimReflection[] => {
-    return reflections.map((r) => ({
-      whimTitle: r.whimText,
-      mood: r.feeling,
-      note: r.note,
-      photoDataUrl: r.photoUrl,
-      savedAt: r.date,
-    }));
-  }, [reflections]);
-
-  const favorite = useMemo(
-    () => favoriteMoodEmoji(legacyForFavorite),
-    [legacyForFavorite],
+  /** Same merge as Past Whims so profile stats match what you see in history. */
+  const reflectionsMerged = useMemo(
+    () => mergeWithPlaceholderReflections(reflections),
+    [reflections],
   );
 
-  const completed = reflections.length;
-  const streak = profile.streak;
-  const rippleReach = getRippleReach();
+  const legacyMerged: WhimReflection[] = useMemo(
+    () =>
+      reflectionsMerged.map((r) => ({
+        whimTitle: r.whimText,
+        mood: r.feeling,
+        note: r.note,
+        photoDataUrl: r.photoUrl,
+        savedAt: r.date,
+        whimId: r.whimId,
+      })),
+    [reflectionsMerged],
+  );
+
+  const completed = reflectionsMerged.length;
+  const streakForDisplay = useMemo(
+    () => computeStreak(legacyMerged),
+    [legacyMerged],
+  );
+
+  const statsDetail: ProfileStatsDetail = useMemo(() => {
+    const sorted = [...reflectionsMerged].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+    const first = sorted[0]?.date;
+    const last = sorted[sorted.length - 1]?.date;
+    return {
+      completed: reflectionsMerged.length,
+      currentStreak: computeStreak(legacyMerged),
+      bestStreak: computeBestStreak(legacyMerged),
+      dominantMood: dominantMood(legacyMerged),
+      withPhoto: reflectionsMerged.filter((r) => r.photoUrl).length,
+      withNote: reflectionsMerged.filter((r) => r.note?.trim()).length,
+      firstCompletionLabel: first ? formatReflectionDateOrdinal(first) : null,
+      lastCompletionLabel: last ? formatReflectionDateOrdinal(last) : null,
+    };
+  }, [reflectionsMerged, legacyMerged]);
 
   const handleDeleteAll = () => {
     const ok = window.confirm(
@@ -46,15 +84,26 @@ export default function ProfilePage() {
     clearAllData();
   };
 
+  const handleChooseEmoji = (emoji: string) => {
+    setProfileAvatarImage(null);
+    setProfileEmoji(emoji);
+  };
+
   return (
-    <div className="mx-auto flex min-h-[100dvh] max-w-sm flex-col overflow-hidden rounded-2xl bg-[#ECFAFF]">
-      <header className="flex shrink-0 items-center px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]">
+    <div className="flex h-dvh max-h-dvh w-full min-w-0 flex-col overflow-hidden bg-whim-sky">
+      <header className="flex shrink-0 items-center justify-end px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <Link
-          href="/"
-          className="flex h-10 w-10 items-center justify-center rounded-full text-[#1A1A1A] transition-colors hover:bg-black/5"
-          aria-label="Back to home"
+          href="/profile/settings"
+          className={cn(
+            "z-20 flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white/55 px-3 text-[#1A1A1A] shadow-sm ring-1 ring-black/[0.08] backdrop-blur-sm transition-transform hover:bg-white/70 active:scale-[0.96] sm:h-10 sm:gap-2 sm:px-3.5",
+          )}
+          aria-label="Settings"
         >
-          <ChevronLeft className="h-6 w-6" strokeWidth={2} />
+          <Settings
+            className="size-[1.05rem] shrink-0 stroke-[2.2] sm:size-[1.15rem] sm:stroke-[2.25]"
+            aria-hidden
+          />
+          <span className="font-sans text-xs font-medium sm:text-sm">Settings</span>
         </Link>
       </header>
 
@@ -63,115 +112,111 @@ export default function ProfilePage() {
           <h1 className="font-serif text-4xl italic leading-tight text-[#1A1A1A]">
             Hey, {profile.name}.
           </h1>
-          <p className="mt-2 font-sans text-sm text-[#1A1A1A]/55">
-            Tap your avatar to pick a mood
-          </p>
-          <button
-            type="button"
-            className="mx-auto mt-5 flex h-24 w-24 items-center justify-center rounded-full bg-white text-5xl shadow-md ring-2 ring-white ring-offset-2 ring-offset-[#ECFAFF] transition-transform active:scale-95"
-            aria-label="Choose avatar emoji"
-            onClick={() => {
-              const i = AVATAR_OPTIONS.indexOf(profile.emoji);
-              const next = AVATAR_OPTIONS[(i + 1) % AVATAR_OPTIONS.length];
-              setProfileEmoji(next);
-            }}
-          >
-            <span aria-hidden>{profile.emoji}</span>
-          </button>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            {AVATAR_OPTIONS.map((e) => (
-              <button
-                key={e}
-                type="button"
-                onClick={() => setProfileEmoji(e)}
-                className={cn(
-                  "flex h-11 w-11 items-center justify-center rounded-full text-xl transition-transform",
-                  e === profile.emoji
-                    ? "bg-white shadow-md ring-2 ring-[#1B6B1B] ring-offset-2 ring-offset-[#ECFAFF]"
-                    : "bg-white/80 hover:bg-white",
-                )}
-                aria-label={`Use ${e} avatar`}
-                aria-pressed={e === profile.emoji}
-              >
-                {e}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <div className="grid grid-cols-3 gap-3 rounded-2xl bg-white/60 px-3 py-6 shadow-sm ring-1 ring-black/5">
-            <div className="text-center">
-              <p className="font-serif text-3xl font-bold tabular-nums text-[#1A1A1A]">
-                {completed}
-              </p>
-              <p className="mt-2 font-sans text-[0.65rem] font-medium uppercase tracking-wide text-[#1A1A1A]/55">
-                Whims
-                <br />
-                completed
-              </p>
-            </div>
-            <div className="border-x border-[#1A1A1A]/10 text-center">
-              <p className="font-serif text-3xl font-bold tabular-nums text-[#1A1A1A]">
-                {streak}
-              </p>
-              <p className="mt-2 font-sans text-[0.65rem] font-medium uppercase tracking-wide text-[#1A1A1A]/55">
-                Current streak
-                <br />
-                <span className="normal-case">days</span>
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="font-serif text-3xl font-bold leading-none text-[#1A1A1A]">
-                {favorite}
-              </p>
-              <p className="mt-2 font-sans text-[0.65rem] font-medium uppercase tracking-wide text-[#1A1A1A]/55">
-                Favorite
-                <br />
-                feeling
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-2xl bg-[#1B6B1B] px-5 py-8 text-white shadow-md">
-          <RippleGraphic className="mx-auto mb-6 text-white/25" />
-          <p className="text-center font-serif text-xl font-bold leading-snug">
-            Your whims have rippled to{" "}
-            <span className="whitespace-nowrap">{rippleReach} people</span>
-          </p>
-          <p className="mx-auto mt-4 max-w-[28ch] text-center font-serif text-sm italic leading-relaxed text-white/85">
-            Every time you complete a whim, you inspire others to start theirs.
-          </p>
-        </section>
-
-        <section>
-          <button
-            type="button"
-            onClick={() => setAboutOpen((o) => !o)}
-            className="flex w-full items-center justify-between gap-3 rounded-2xl bg-white/70 px-5 py-4 text-left shadow-sm ring-1 ring-black/5 transition-colors hover:bg-white"
-            aria-expanded={aboutOpen}
-          >
-            <span className="font-serif text-lg italic text-[#1A1A1A]">
-              About Whim
-            </span>
-            <ChevronDown
-              className={cn(
-                "h-5 w-5 shrink-0 text-[#1A1A1A]/60 transition-transform",
-                aboutOpen && "rotate-180",
+          <div className="relative mx-auto mt-5 inline-block">
+            <div
+              className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-white text-5xl shadow-md ring-2 ring-[#1A1A1A]/18"
+              aria-hidden
+            >
+              {profile.avatarImageUrl ? (
+                <Image
+                  src={profile.avatarImageUrl}
+                  alt=""
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="96px"
+                />
+              ) : (
+                <span>{profile.emoji}</span>
               )}
-            />
-          </button>
-          {aboutOpen ? (
-            <div className="mt-3 rounded-2xl border border-[#1A1A1A]/10 bg-white/50 px-5 py-4">
-              <p className="font-sans text-[0.95rem] leading-relaxed text-[#1A1A1A]/90">
-                Whim is built on a simple idea: the best thing for your mental
-                health is often doing something small — for yourself or someone
-                else. No tracking, no scores, no data we can sell. Just one whim
-                a day.
-              </p>
             </div>
-          ) : null}
+            <button
+              type="button"
+              onClick={() => setAvatarModalOpen(true)}
+              className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 items-center justify-center rounded-full border-2 border-whim-sky bg-[#1A1A1A] text-white shadow-md transition-transform active:scale-95"
+              aria-label="Edit profile picture"
+            >
+              <Pencil className="h-4 w-4" strokeWidth={2.25} aria-hidden />
+            </button>
+          </div>
+        </section>
+
+        <ProfileAvatarModal
+          open={avatarModalOpen}
+          onClose={() => setAvatarModalOpen(false)}
+          currentEmoji={profile.emoji}
+          currentImageUrl={profile.avatarImageUrl}
+          onChooseEmoji={handleChooseEmoji}
+          onChooseImage={setProfileAvatarImage}
+        />
+
+        <section>
+          <button
+            type="button"
+            onClick={() => setStatsModalOpen(true)}
+            className="group w-full rounded-2xl text-left transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1B6B1B]/40 active:scale-[0.99]"
+          >
+            <div className="overflow-hidden rounded-2xl bg-white/60 shadow-sm ring-1 ring-black/5 transition-colors group-hover:bg-white/85 group-active:bg-white/90">
+              <div className="grid grid-cols-2 gap-4 px-4 pb-5 pt-6">
+                <div className="text-center">
+                  <p className="font-serif text-3xl font-bold tabular-nums text-[#1A1A1A]">
+                    {completed}
+                  </p>
+                  <p className="mt-2 font-sans text-[0.65rem] font-medium leading-tight tracking-wide text-black">
+                    Whims
+                    <br />
+                    Completed
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="font-serif text-3xl font-bold tabular-nums text-[#1A1A1A]">
+                    {streakForDisplay}
+                  </p>
+                  <p className="mt-2 font-sans text-[0.65rem] font-medium leading-tight tracking-wide text-black">
+                    Current
+                    <br />
+                    Streak
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-1 border-t border-[#1A1A1A]/10 bg-white/35 px-3 py-2.5 transition-colors group-hover:bg-white/55 sm:gap-1.5 sm:py-3">
+                <span className="font-sans text-[0.8rem] font-medium leading-none tracking-tight text-[#1A1A1A]/88 sm:text-[0.875rem]">
+                  See More Stats
+                </span>
+                <ChevronRight
+                  className="size-[1rem] shrink-0 text-[#1A1A1A]/70 sm:size-[1.05rem]"
+                  strokeWidth={2}
+                  aria-hidden
+                />
+              </div>
+            </div>
+          </button>
+        </section>
+
+        <ProfileStatsModal
+          open={statsModalOpen}
+          onClose={() => setStatsModalOpen(false)}
+          stats={statsDetail}
+        />
+
+        <section className="overflow-hidden rounded-3xl bg-white shadow-[0_8px_28px_rgba(0,0,0,0.06)] ring-1 ring-[#1A1A1A]/10">
+          <div className="border-b border-[#1A1A1A]/10 px-6 py-5">
+            <h2 className="font-serif text-2xl italic leading-tight text-[#1A1A1A]">
+              About Whims
+            </h2>
+          </div>
+          <div className="space-y-4 px-6 py-6">
+            <p className="font-sans text-[1.05rem] font-normal leading-relaxed tracking-[-0.02em] text-[#1A1A1A]/90">
+              Whims is built on a simple idea: the best thing for your head and
+              heart is often something small, for you or someone else. No
+              leaderboards, no selling your data. Just one shared whim a day and
+              a moment to reflect when you&apos;re done.
+            </p>
+            <p className="border-l-2 border-[#1B6B1B]/35 pl-4 font-sans text-[1.05rem] font-normal leading-relaxed tracking-[-0.02em] text-[#1A1A1A]/90">
+              We believe tiny, kind actions add up. Whims is here to make them
+              easy to notice and easy to remember.
+            </p>
+          </div>
         </section>
 
         <section className="space-y-4 pb-2">
@@ -203,42 +248,5 @@ export default function ProfilePage() {
 
       <WhimBottomNav active="profile" />
     </div>
-  );
-}
-
-function RippleGraphic({ className }: { className?: string }) {
-  return (
-    <svg
-      className={cn("h-28 w-28", className)}
-      viewBox="0 0 120 120"
-      fill="none"
-      aria-hidden
-    >
-      <circle cx="60" cy="60" r="8" fill="currentColor" className="text-white/90" />
-      <circle
-        cx="60"
-        cy="60"
-        r="28"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeOpacity={0.5}
-      />
-      <circle
-        cx="60"
-        cy="60"
-        r="48"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeOpacity={0.35}
-      />
-      <circle
-        cx="60"
-        cy="60"
-        r="58"
-        stroke="currentColor"
-        strokeWidth="1"
-        strokeOpacity={0.2}
-      />
-    </svg>
   );
 }

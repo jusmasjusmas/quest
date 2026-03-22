@@ -1,13 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Clock, Sparkles, User } from "lucide-react";
+import { BookOpen, Flower2, User } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
-/** Reference palette — same on every route (solid bar, no blur). */
-const INACTIVE_CIRCLE = "#4B8A3E";
 const ACTIVE_ICON = "#2B621F";
 
 export type WhimNavTab = "history" | "whim" | "profile";
@@ -17,24 +15,21 @@ const iconStroke = "size-[22px] stroke-[1.75]";
 export function WhimBottomNav({ active }: { active: WhimNavTab }) {
   return (
     <nav
-      className="fixed bottom-0 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 rounded-t-2xl rounded-b-2xl bg-[#2B621F] px-5 pt-4 shadow-[0_-8px_28px_rgba(0,0,0,0.18)]"
-      style={{
-        paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
-      }}
+      className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[min(100%-1.25rem,26rem)] -translate-x-1/2 rounded-[1.75rem] border-[0.5px] border-white/78 bg-white/22 px-4 pb-3 pt-3 shadow-[0_10px_40px_rgba(27,107,27,0.12),0_2px_12px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-2xl backdrop-saturate-150"
       aria-label="Primary"
     >
-      <div className="flex w-full items-end justify-between gap-2">
+      <div className="flex w-full items-end justify-between gap-1">
         <NavItem
           label="History"
           href="/history"
           active={active === "history"}
-          icon={<Clock className={iconStroke} aria-hidden />}
+          icon={<BookOpen className={iconStroke} aria-hidden />}
         />
         <NavItem
-          label="Whim"
+          label="Whims"
           href="/"
           active={active === "whim"}
-          icon={<Sparkles className={iconStroke} aria-hidden />}
+          icon={<Flower2 className={iconStroke} aria-hidden />}
         />
         <NavItem
           label="Profile"
@@ -61,32 +56,29 @@ function NavItem({
   return (
     <Link
       href={href}
-      className="flex min-w-0 flex-1 flex-col items-center gap-1.5 font-sans text-white"
+      className="flex min-w-0 flex-1 flex-col items-center gap-[8px] font-sans text-[#1A1A1A]"
       aria-current={active ? "page" : undefined}
     >
       <div
         className={cn(
-          "flex h-12 w-12 shrink-0 items-center justify-center rounded-full transition-colors duration-200",
-          active ? "bg-white shadow-sm" : "shadow-sm",
-        )}
-        style={
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors duration-200 sm:h-12 sm:w-12",
           active
-            ? undefined
-            : { backgroundColor: INACTIVE_CIRCLE }
-        }
+            ? "bg-white/92 shadow-[0_2px_12px_rgba(0,0,0,0.08)] ring-[0.5px] ring-white/85"
+            : "bg-transparent",
+        )}
         aria-hidden
       >
         <span
           className="flex items-center justify-center"
-          style={{ color: active ? ACTIVE_ICON : "#ffffff" }}
+          style={{ color: active ? ACTIVE_ICON : "rgba(26,26,26,0.72)" }}
         >
           {icon}
         </span>
       </div>
       <span
         className={cn(
-          "text-center text-[0.68rem] leading-none text-white",
-          active ? "font-bold" : "font-normal",
+          "text-center text-[0.68rem] leading-none",
+          active ? "font-bold text-[#1A1A1A]" : "font-normal text-[#1A1A1A]/68",
         )}
       >
         {label}

@@ -1,10 +1,19 @@
-export type MoodId = "neutral" | "good" | "great" | "creative";
+export type MoodId =
+  | "neutral"
+  | "good"
+  | "great"
+  | "creative"
+  | "calm"
+  | "grateful"
+  | "drawn";
 
 export type WhimReflection = {
   whimTitle: string;
   mood: MoodId | null;
   note: string;
   photoDataUrl: string | null;
+  /** Doodle when mood is “drawn”; optional alongside a mirror photo in photoDataUrl. */
+  sketchDataUrl?: string | null;
   savedAt: string;
   /** Stored id; illustration for UI comes from `getWhimForDate(savedAt)` when possible. */
   whimId?: string;
@@ -19,6 +28,8 @@ export type WhimReflectionV2 = {
   feelingText: string;
   note: string;
   photoUrl: string | null;
+  /** Mood “drawn” doodle; optional when photoUrl holds an uploaded snapshot too. */
+  sketchUrl?: string | null;
 };
 
 const REFLECTIONS_LIST_KEY = "quest-whim-reflections";
@@ -37,6 +48,9 @@ export function moodEmoji(mood: MoodId | null): string {
     good: "🙂",
     great: "😁",
     creative: "🎨",
+    calm: "😌",
+    grateful: "🙏",
+    drawn: "✏️",
   };
   return map[mood];
 }
@@ -48,6 +62,9 @@ export function moodFeelingText(mood: MoodId | null): string {
     good: "Pretty good.",
     great: "Freaking fantastic.",
     creative: "So inspired.",
+    calm: "Peaceful and grounded.",
+    grateful: "Full of gratitude.",
+    drawn: "Hard to put into words, so I drew it instead.",
   };
   return map[mood];
 }
@@ -63,12 +80,13 @@ function migrateLegacyToV2(): WhimReflectionV2[] {
           if (!r?.savedAt) continue;
           out.push({
             whimId: "legacy",
-            whimText: r.whimTitle ?? "Whim",
+            whimText: r.whimTitle ?? "Today's whim",
             date: r.savedAt,
             feeling: r.mood ?? null,
             feelingText: moodFeelingText(r.mood ?? null),
             note: r.note ?? "",
             photoUrl: r.photoDataUrl ?? null,
+            sketchUrl: r.sketchDataUrl ?? undefined,
           });
         }
       }
@@ -79,12 +97,13 @@ function migrateLegacyToV2(): WhimReflectionV2[] {
         if (r?.savedAt) {
           out.push({
             whimId: "legacy",
-            whimText: r.whimTitle ?? "Whim",
+            whimText: r.whimTitle ?? "Today's whim",
             date: r.savedAt,
             feeling: r.mood ?? null,
             feelingText: moodFeelingText(r.mood ?? null),
             note: r.note ?? "",
             photoUrl: r.photoDataUrl ?? null,
+            sketchUrl: r.sketchDataUrl ?? undefined,
           });
         }
       }
@@ -128,12 +147,13 @@ export function loadReflections(): WhimReflection[] {
     mood: v.feeling,
     note: v.note,
     photoDataUrl: v.photoUrl,
+    sketchDataUrl: v.sketchUrl ?? null,
     savedAt: v.date,
     whimId: v.whimId,
   }));
 }
 
-/** @deprecated Prefer WhimContext.saveReflection — kept for direct storage writes. */
+/** @deprecated Prefer WhimContext.saveReflection; kept for direct storage writes. */
 export function appendReflection(entry: WhimReflection): void {
   if (typeof window === "undefined") return;
   try {
@@ -145,6 +165,7 @@ export function appendReflection(entry: WhimReflection): void {
       feelingText: moodFeelingText(entry.mood),
       note: entry.note,
       photoUrl: entry.photoDataUrl,
+      sketchUrl: entry.sketchDataUrl ?? undefined,
     };
     const next = [...loadReflectionsV2(), v2];
     saveReflectionsV2(next);
@@ -200,6 +221,49 @@ export function computeStreak(reflections: WhimReflection[]): number {
   return streak;
 }
 
+/** Longest run of consecutive calendar days with at least one completion. */
+export function computeBestStreak(reflections: WhimReflection[]): number {
+  const dayKeys = [
+    ...new Set(reflections.map((r) => reflectionDateKey(r.savedAt))),
+  ].sort();
+  if (dayKeys.length === 0) return 0;
+  let best = 1;
+  let run = 1;
+  for (let i = 1; i < dayKeys.length; i++) {
+    const d0 = new Date(`${dayKeys[i - 1]}T12:00:00`);
+    const d1 = new Date(`${dayKeys[i]}T12:00:00`);
+    const diffDays = Math.round(
+      (d1.getTime() - d0.getTime()) / (24 * 60 * 60 * 1000),
+    );
+    if (diffDays === 1) {
+      run++;
+      best = Math.max(best, run);
+    } else {
+      run = 1;
+    }
+  }
+  return best;
+}
+
+export function dominantMood(
+  reflections: WhimReflection[],
+): { mood: MoodId; count: number } | null {
+  const counts = new Map<MoodId, number>();
+  for (const r of reflections) {
+    if (!r.mood) continue;
+    counts.set(r.mood, (counts.get(r.mood) ?? 0) + 1);
+  }
+  let best: MoodId | null = null;
+  let max = 0;
+  for (const [m, c] of counts) {
+    if (c > max) {
+      max = c;
+      best = m;
+    }
+  }
+  return best && max > 0 ? { mood: best, count: max } : null;
+}
+
 export function favoriteMoodEmoji(reflections: WhimReflection[]): string {
   const counts = new Map<MoodId, number>();
   for (const r of reflections) {
@@ -214,7 +278,7 @@ export function favoriteMoodEmoji(reflections: WhimReflection[]): string {
       best = m;
     }
   }
-  return best ? moodEmoji(best) : "—";
+  return best ? moodEmoji(best) : "";
 }
 
 export function clearAllWhimLocalData(): void {
@@ -227,6 +291,8 @@ export function clearAllWhimLocalData(): void {
     PROFILE_AVATAR_KEY,
     WHIM_APP_STATE_KEY,
     WHIM_PROFILE_KEY,
+    "whim-profile-settings-v1",
+    "whim-custom-whims-v1",
   ].forEach((k) => localStorage.removeItem(k));
 }
 
@@ -250,4 +316,20 @@ export function formatReflectionDateLong(iso: string): string {
     month: "long",
     day: "numeric",
   }).format(new Date(iso));
+}
+
+/** e.g. "March 21st" */
+export function formatReflectionDateOrdinal(iso: string): string {
+  const d = new Date(iso);
+  const month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(d);
+  const day = d.getDate();
+  const suf =
+    day % 10 === 1 && day !== 11
+      ? "st"
+      : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+          ? "rd"
+          : "th";
+  return `${month} ${day}${suf}`;
 }
