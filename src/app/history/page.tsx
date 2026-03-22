@@ -39,10 +39,14 @@ type ViewMode = "carousel" | "calendar";
 
 function HistoryPageFallback() {
   return (
-    <div className="flex h-dvh max-h-dvh w-full min-w-0 flex-col items-center justify-center bg-whim-sky">
-      <p className="font-serif text-lg italic text-[#1A1A1A]/45">
-        Loading…
-      </p>
+    <div className="flex h-dvh max-h-dvh w-full min-w-0 flex-col overflow-hidden bg-whim-sky">
+      <div className="flex min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
+        <div className="flex min-h-safari-scroll-slack w-full flex-1 flex-col items-center justify-center px-6">
+          <p className="font-serif text-lg italic text-[#1A1A1A]/45">
+            Loading…
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -180,17 +184,19 @@ function HistoryPageContent() {
       </header>
 
       {reflections.length === 0 ? (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 overflow-y-auto overflow-x-hidden overscroll-y-contain px-8 pb-[max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))] text-center">
-          <p className="font-serif text-lg italic text-[#1A1A1A]/80">
-            No past whims yet. Complete a whim and save a reflection to see it
-            here.
-          </p>
-          <Link
-            href="/"
-            className="rounded-full bg-[#1A1A1A] px-6 py-3 font-sans text-sm font-medium text-white"
-          >
-            Go home
-          </Link>
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain px-8 pb-[max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))] text-center">
+          <div className="flex min-h-safari-scroll-slack w-full flex-1 flex-col items-center justify-center gap-4">
+            <p className="font-serif text-lg italic text-[#1A1A1A]/80">
+              No past whims yet. Complete a whim and save a reflection to see it
+              here.
+            </p>
+            <Link
+              href="/"
+              className="rounded-full bg-[#1A1A1A] px-6 py-3 font-sans text-sm font-medium text-white"
+            >
+              Go home
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="relative min-h-0 flex-1 overflow-hidden">
@@ -203,7 +209,7 @@ function HistoryPageContent() {
           ) : (
             <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-whim-sky">
               <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain">
-                <div className="flex w-full flex-col items-center justify-start px-2 pb-2 pt-[max(0.5rem,2.5dvh)] sm:px-3 sm:pb-2.5 sm:pt-[max(0.75rem,3dvh)]">
+                <div className="flex min-h-safari-scroll-slack w-full flex-col items-center justify-start px-2 pb-2 pt-[max(0.5rem,2.5dvh)] sm:px-3 sm:pb-2.5 sm:pt-[max(0.75rem,3dvh)]">
                   {active ? (
                     <HistoryReflectionHeroCluster
                       reflection={active}
@@ -373,10 +379,12 @@ function HistorySnapCarousel({
             }
             aria-current={i === activeIndex ? "true" : undefined}
           >
-            <HistoryReflectionHeroCluster
-              reflection={r}
-              isActive={i === activeIndex}
-            />
+            <div className="flex min-h-safari-scroll-slack w-full flex-col items-center">
+              <HistoryReflectionHeroCluster
+                reflection={r}
+                isActive={i === activeIndex}
+              />
+            </div>
           </section>
         ))}
         <div
@@ -673,6 +681,7 @@ function WhimDetailDrawer({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
+        <div className="min-h-safari-scroll-slack">
         <p className="font-serif text-xs italic leading-snug text-[#1A1A1A]/85">
           On a whim, I decided to...
         </p>
@@ -724,6 +733,7 @@ function WhimDetailDrawer({
               sizes="(max-width: 640px) 100vw, 28rem"
             />
           ) : null}
+        </div>
         </div>
       </motion.div>
       {/* 12px breathing room above fixed nav; outside scroll so it stays visible when collapsed. */}

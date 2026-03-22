@@ -26,7 +26,8 @@ export default function AccountSettingsPage() {
         <span className="h-10 w-10 shrink-0" aria-hidden />
       </header>
 
-      <main className="min-h-0 flex-1 space-y-8 overflow-y-auto px-6 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] pt-2">
+      <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 pt-2">
+        <div className="flex min-h-safari-scroll-slack flex-col space-y-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
         <section className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-3xl shadow-md ring-2 ring-[#1A1A1A]/14">
@@ -76,6 +77,7 @@ export default function AccountSettingsPage() {
             .
           </p>
         </section>
+        </div>
       </main>
 
       <WhimBottomNav active="profile" />

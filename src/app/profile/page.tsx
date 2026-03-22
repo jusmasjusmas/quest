@@ -107,7 +107,8 @@ export default function ProfilePage() {
         </Link>
       </header>
 
-      <main className="min-h-0 flex-1 space-y-10 overflow-y-auto px-6 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
+      <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6">
+        <div className="flex min-h-safari-scroll-slack flex-col space-y-10 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
         <section className="text-center">
           <h1 className="font-serif text-4xl italic leading-tight text-[#1A1A1A]">
             Hey, {profile.name}.
@@ -244,6 +245,7 @@ export default function ProfilePage() {
             Delete My Data
           </button>
         </section>
+        </div>
       </main>
 
       <WhimBottomNav active="profile" />

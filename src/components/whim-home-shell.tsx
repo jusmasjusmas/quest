@@ -190,14 +190,14 @@ function HomeHillEllipse({
 
   return (
     <motion.svg
-      className="pointer-events-none absolute inset-0 z-0 h-full w-full -translate-y-[min(11dvh,92px)] sm:-translate-y-[min(12dvh,104px)]"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full -translate-y-[min(18dvh,148px)] sm:-translate-y-[min(19dvh,162px)]"
       viewBox="0 0 393 852"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden
       initial={instant ? { opacity: 1 } : { opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={intro}
-      style={{ transformOrigin: "50% 92%" }}
+      style={{ transformOrigin: "50% 96%" }}
     >
       <defs>
         <clipPath id={clipId}>
@@ -409,7 +409,7 @@ export function WhimHomeShell() {
     <div className="relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-whim-sky text-[#1A1A1A]">
       <HomeHillEllipse intro={entrance.hill} instant={entrance.instant} />
       <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-visible overscroll-y-contain">
-        <div className="flex min-h-full min-w-0 flex-col pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
+        <div className="flex min-h-safari-scroll-slack min-w-0 flex-col pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
           <FloatingEncouragementBubbles visible={copyMode === "doneToday"} />
 
       <header className="relative z-10 shrink-0 bg-transparent px-6 pb-6 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-7 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
@@ -712,9 +712,9 @@ export function WhimHomeShell() {
         </div>
       </header>
 
-      <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pt-8 sm:px-2 sm:pt-10">
+      <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pb-1 pt-4 sm:px-2 sm:pb-2 sm:pt-6">
         <motion.div
-          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,18rem)] shrink-0 translate-y-3 sm:max-w-[min(100vw-1rem,20rem)] sm:translate-y-4"
+          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,18rem)] shrink-0 -translate-y-5 sm:max-w-[min(100vw-1rem,20rem)] sm:-translate-y-6"
           initial={
             entrance.instant
               ? { opacity: 1, y: 0 }
@@ -768,7 +768,7 @@ export function WhimHomeShell() {
       </div>
 
       <motion.p
-        className="pointer-events-none relative z-[5] -mt-6 shrink-0 px-6 pb-1 pt-1 text-center font-serif text-xl font-normal leading-snug text-white sm:-mt-8 sm:px-8 sm:pb-2 sm:pt-2 sm:text-2xl"
+        className="pointer-events-none relative z-[5] mt-3 shrink-0 px-6 pb-1 text-center font-serif text-xl font-normal leading-snug text-white sm:mt-4 sm:px-8 sm:text-2xl"
         style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
         initial={fadeUp(entrance.instant)}
         animate={{ opacity: 1, y: 0 }}

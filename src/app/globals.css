@@ -131,6 +131,16 @@
   }
 }
 
+@layer utilities {
+  /**
+   * Taller than the scroll viewport by a few pixels so iOS Safari can scroll slightly
+   * and minimize the browser chrome (same idea as a tiny “overscroll” affordance).
+   */
+  .min-h-safari-scroll-slack {
+    min-height: calc(100% + 1.75rem);
+  }
+}
+
 /*
  * Vaul drawer uses 0.5s in JS + injected CSS; bump duration for a calmer open/close.
  * !important beats Vaul’s inline transition shorthands.

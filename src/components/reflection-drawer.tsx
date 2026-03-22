@@ -312,6 +312,7 @@ export function ReflectionDrawer() {
 
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-6 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="min-h-safari-scroll-slack">
             <p className="font-serif text-xs italic leading-snug text-[#1A1A1A]/85">
               On a whim, I decided to...
             </p>
@@ -416,6 +417,7 @@ export function ReflectionDrawer() {
                 className="sr-only"
                 onChange={handlePhotoChange}
               />
+            </div>
             </div>
             </div>
 
