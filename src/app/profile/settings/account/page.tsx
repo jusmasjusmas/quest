@@ -12,7 +12,7 @@ export default function AccountSettingsPage() {
 
   return (
     <div className="flex h-dvh max-h-dvh w-full min-w-0 flex-col overflow-hidden bg-whim-sky">
-      <header className="flex shrink-0 items-center justify-between px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]">
+      <header className="flex shrink-0 items-center justify-between px-4 pb-2 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
         <Link
           href="/profile/settings"
           className="flex h-10 w-10 items-center justify-center rounded-full text-[#1A1A1A] transition-colors hover:bg-black/5"
@@ -20,7 +20,7 @@ export default function AccountSettingsPage() {
         >
           <ChevronLeft className="h-6 w-6" strokeWidth={2} />
         </Link>
-        <h1 className="pointer-events-none absolute left-1/2 top-[max(0.75rem,env(safe-area-inset-top))] -translate-x-1/2 translate-y-2 font-serif text-lg italic text-[#1A1A1A]">
+        <h1 className="pointer-events-none absolute left-1/2 top-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] -translate-x-1/2 translate-y-2 font-serif text-lg italic text-[#1A1A1A] sm:top-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
           Account
         </h1>
         <span className="h-10 w-10 shrink-0" aria-hidden />

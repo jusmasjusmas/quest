@@ -410,7 +410,7 @@ export function WhimHomeShell() {
       <HomeHillEllipse intro={entrance.hill} instant={entrance.instant} />
       <FloatingEncouragementBubbles visible={copyMode === "doneToday"} />
 
-      <header className="relative z-10 shrink-0 bg-transparent px-6 pb-6 pt-[max(2.75rem,calc(env(safe-area-inset-top)+2rem))] sm:px-7 sm:pb-7 sm:pt-[max(3.25rem,calc(env(safe-area-inset-top)+2.5rem))]">
+      <header className="relative z-10 shrink-0 bg-transparent px-6 pb-6 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-7 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
         <div className="mb-3 flex w-full items-center justify-between gap-3 sm:mb-4">
           <AnimatePresence mode="sync">
             <motion.p
@@ -486,14 +486,6 @@ export function WhimHomeShell() {
                     </h1>
                     <TodayCalendarChip />
                   </div>
-                  <p
-                    className={cn(
-                      HOME_HEADLINE_SUBTEXT,
-                      "mt-2 max-w-[28ch] text-[#1A1A1A]/72",
-                    )}
-                  >
-                    Ready when you are.
-                  </p>
                   <div className="mt-6">
                     <WhimPaperCard
                       innerClassName="rounded-t-[1.35rem] px-6 pb-5 pt-5 sm:px-7 sm:pb-6 sm:pt-6"
@@ -583,7 +575,7 @@ export function WhimHomeShell() {
             layout
             className={
               copyMode === "join"
-                ? "mt-10 flex w-full flex-col items-stretch gap-2.5 sm:mt-11"
+                ? "mt-3 flex w-full flex-col items-stretch gap-2.5"
                 : "mt-4 flex w-full flex-col items-stretch gap-2.5 sm:mt-5"
             }
           >

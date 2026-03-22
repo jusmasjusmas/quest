@@ -91,7 +91,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex h-dvh max-h-dvh w-full min-w-0 flex-col overflow-hidden bg-whim-sky">
-      <header className="flex shrink-0 items-center justify-end px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))]">
+      <header className="flex shrink-0 items-center justify-end px-4 pb-2 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
         <Link
           href="/profile/settings"
           className={cn(

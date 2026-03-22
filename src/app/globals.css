@@ -121,8 +121,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Match app shell (whim-sky); avoids black letterboxing in iOS safe areas. */
+  html {
+    background-color: #e0f4ff;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: #e0f4ff;
   }
 }
 

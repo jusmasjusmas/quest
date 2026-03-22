@@ -135,7 +135,7 @@ function HistoryPageContent() {
 
   return (
     <div className="flex h-dvh max-h-dvh w-full min-w-0 flex-col overflow-hidden bg-whim-sky">
-      <header className="flex shrink-0 items-center justify-between gap-3 px-6 pb-3 pt-[max(2.75rem,calc(env(safe-area-inset-top)+2rem))] sm:px-7 sm:pb-4 sm:pt-[max(3.25rem,calc(env(safe-area-inset-top)+2.5rem))]">
+      <header className="flex shrink-0 items-center justify-between gap-3 px-6 pb-3 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-4 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
         <h1 className="min-w-0 flex-1 font-serif text-[1.2rem] italic leading-snug text-[#1A1A1A] sm:text-[1.35rem]">
           Past Whims
         </h1>
