@@ -135,8 +135,8 @@ const HILL_CY = 828;
 const HILL_RX = 414.5;
 const HILL_RY = 226;
 
-/** Horizontal radius — wider than half the viewBox; SVG uses overflow-visible so the arc reads fuller on device. */
-const HILL_RX_FIT = 220;
+/** Horizontal radius — large rx vs ry so the visible hill arc is wide and flat; SVG overflow-visible. */
+const HILL_RX_FIT = 292;
 const HILL_X_SCALE = HILL_RX_FIT / HILL_RX;
 
 function hillSpaceX(localX: number) {

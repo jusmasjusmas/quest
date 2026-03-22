@@ -55,6 +55,9 @@ export default function RootLayout({
         geistMono.variable,
       )}
     >
+      <head>
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body
         className={cn(
           "flex min-h-dvh min-h-0 w-full max-w-[100vw] flex-col overflow-x-visible overflow-y-auto overscroll-y-contain bg-whim-sky font-sans antialiased",
