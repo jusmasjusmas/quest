@@ -201,7 +201,7 @@ function HomeHillEllipse({
 
   return (
     <motion.svg
-      className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible -translate-y-[min(13dvh,112px)] sm:-translate-y-[min(14dvh,124px)]"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible -translate-y-[min(20dvh,168px)] sm:-translate-y-[min(22dvh,188px)]"
       viewBox="0 0 393 852"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden
@@ -380,7 +380,7 @@ function FloatingEncouragementBubbles({ visible }: { visible: boolean }) {
   if (reduceMotion) {
     return (
       <div
-        className="pointer-events-none absolute inset-x-0 top-[38%] bottom-[28%] z-[4] flex flex-col items-center justify-center gap-2 px-8 opacity-[0.38]"
+        className="pointer-events-none absolute inset-x-0 top-[34%] bottom-[40%] z-[4] flex flex-col items-center justify-center gap-2 px-8 opacity-[0.38]"
         aria-hidden
       >
         {ENCOURAGEMENT_LINES.slice(0, 4).map((text) => (
@@ -397,7 +397,7 @@ function FloatingEncouragementBubbles({ visible }: { visible: boolean }) {
 
   return (
     <div
-      className="pointer-events-none absolute inset-x-0 top-[36%] bottom-[22%] z-[4] overflow-hidden"
+      className="pointer-events-none absolute inset-x-0 top-[32%] bottom-[38%] z-[4] overflow-hidden"
       aria-hidden
     >
       {ENCOURAGEMENT_LINES.map((text, i) => (
@@ -472,13 +472,11 @@ export function WhimHomeShell() {
       )}
     >
       <HomeHillEllipse intro={entrance.hill} instant={entrance.instant} />
-      <div className="relative z-[1] flex w-full flex-1 flex-col overflow-x-visible">
-        <div
-          className={cn("flex min-w-0 flex-col", whimHomeShellPaddingBottomClass)}
-        >
+      <div className="relative z-[1] flex min-h-0 w-full flex-1 flex-col overflow-x-visible">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <FloatingEncouragementBubbles visible={copyMode === "doneToday"} />
 
-      <header className="relative z-10 shrink-0 bg-transparent px-6 pb-6 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-7 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
+      <header className="relative z-10 shrink-0 bg-transparent px-6 pb-4 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-5 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
         <div className="mb-3 flex w-full items-center justify-between gap-3 sm:mb-4">
           <AnimatePresence mode="sync">
             <motion.p
@@ -558,7 +556,7 @@ export function WhimHomeShell() {
                     <WhimPaperCard
                       innerClassName="rounded-t-[1.35rem] px-6 pb-5 pt-5 sm:px-7 sm:pb-6 sm:pt-6"
                     >
-                      <p className="font-serif text-[1.5rem] font-normal leading-snug tracking-tight text-[#1A1A1A] sm:text-[1.7rem]">
+                      <p className="font-serif text-[1.8125rem] font-normal leading-snug tracking-tight text-[#1A1A1A] sm:text-[2.0625rem]">
                         {currentWhim.text}
                       </p>
                     </WhimPaperCard>
@@ -591,7 +589,7 @@ export function WhimHomeShell() {
                 </p>
                 <div className="mt-6">
                   <WhimPaperCard>
-                    <p className="font-serif text-[1.35rem] font-normal leading-snug tracking-tight text-[#1A1A1A] sm:text-2xl">
+                    <p className="font-serif text-[1.8125rem] font-normal leading-snug tracking-tight text-[#1A1A1A] sm:text-[2.0625rem]">
                       {currentWhim.text}
                     </p>
                   </WhimPaperCard>
@@ -627,7 +625,7 @@ export function WhimHomeShell() {
                     <WhimPaperCard
                       innerClassName="rounded-t-[1.35rem] px-6 pb-5 pt-5 sm:px-7 sm:pb-6 sm:pt-6"
                     >
-                      <p className="font-serif text-[1.5rem] font-normal leading-snug tracking-tight text-[#1A1A1A]/55 line-through decoration-[#1A1A1A]/40 decoration-2 sm:text-[1.7rem]">
+                      <p className="font-serif text-[1.8125rem] font-normal leading-snug tracking-tight text-[#1A1A1A]/55 line-through decoration-[#1A1A1A]/40 decoration-2 sm:text-[2.0625rem]">
                         {currentWhim.text}
                       </p>
                     </WhimPaperCard>
@@ -636,220 +634,225 @@ export function WhimHomeShell() {
               </motion.div>
             )}
           </AnimatePresence>
-
-        <LayoutGroup id="whim-ctas">
-          <motion.div
-            layout
-            className={
-              copyMode === "join"
-                ? "mt-3 flex w-full flex-col items-stretch gap-2.5"
-                : "mt-4 flex w-full flex-col items-stretch gap-2.5 sm:mt-5"
-            }
-          >
-            <AnimatePresence mode="sync">
-              {copyMode === "join" ? (
-                <motion.div
-                  key="row-join"
-                  layout
-                  className="flex w-full flex-col items-start gap-4"
-                  initial={fadeUp(entrance.instant)}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={entrance.cta}
-                >
-                  {passedToday ? (
-                    <p
-                      className={cn(
-                        HOME_HEADLINE_SUBTEXT,
-                        "max-w-md text-[#1A1A1A]/75",
-                      )}
-                    >
-                      You passed earlier, but you can still join anytime.
-                    </p>
-                  ) : null}
-                  <motion.button
-                    type="button"
-                    layout
-                    layoutId="whim-primary-cta"
-                    onClick={joinWhim}
-                    className="inline-flex items-center justify-center self-start rounded-full bg-[#1A1A1A] px-10 py-[1.125rem] font-sans text-lg font-medium text-white transition-transform enabled:active:scale-[0.98] sm:px-11 sm:py-5 sm:text-xl"
-                    transition={{
-                      layout: { duration: 0.45, ease: crossEase },
-                    }}
-                  >
-                    <span className="inline-flex flex-wrap items-center gap-x-2 sm:gap-x-2.5">
-                      <span>
-                        Join{" "}
-                        <span className="tabular-nums">{peopleCount}</span>{" "}
-                        others
-                      </span>
-                      <ArrowRight
-                        className="size-5 shrink-0 sm:size-[1.35rem]"
-                        strokeWidth={2.25}
-                        aria-hidden
-                      />
-                    </span>
-                  </motion.button>
-                </motion.div>
-              ) : copyMode === "active" ? (
-                <motion.div
-                  key="row-active"
-                  layout
-                  className="flex w-full gap-3"
-                  initial={
-                    entrance.instant ? { opacity: 0, y: 10 } : fadeUp(entrance.instant)
-                  }
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={
-                    entrance.instant
-                      ? { duration: 0.42, delay: 0.55, ease: crossEase }
-                      : entrance.cta
-                  }
-                >
-                  <motion.button
-                    type="button"
-                    layout
-                    onClick={() => setPassConfirmOpen(true)}
-                    className="inline-flex min-h-[3.25rem] min-w-0 shrink-0 basis-[38%] items-center justify-center gap-2 rounded-full border border-[#1A1A1A] bg-transparent px-3 py-3.5 font-sans text-sm font-medium text-[#1A1A1A] transition-transform active:scale-[0.98] sm:basis-[36%]"
-                    transition={{
-                      layout: {
-                        duration: 0.5,
-                        delay: 0.55,
-                        ease: crossEase,
-                      },
-                    }}
-                  >
-                    Pass today
-                    <X className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
-                  </motion.button>
-                  <motion.button
-                    type="button"
-                    layout
-                    layoutId="whim-primary-cta"
-                    onClick={openReflecting}
-                    className="inline-flex min-h-[3.25rem] min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-[#1A1A1A] px-5 py-3.5 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98]"
-                    transition={{
-                      layout: {
-                        duration: 0.5,
-                        delay: 0.55,
-                        ease: crossEase,
-                      },
-                    }}
-                  >
-                    Reflect
-                    <BookOpen className="size-4 shrink-0" strokeWidth={2.25} aria-hidden />
-                  </motion.button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="row-done"
-                  layout
-                  className="flex w-full flex-col items-start gap-3"
-                  initial={
-                    entrance.instant ? { opacity: 0, y: 10 } : fadeUp(entrance.instant)
-                  }
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={
-                    entrance.instant
-                      ? { duration: 0.4, delay: 0.55, ease: crossEase }
-                      : entrance.cta
-                  }
-                >
-                  <motion.div
-                    layout
-                    layoutId="whim-primary-cta"
-                    transition={{
-                      layout: {
-                        duration: 0.5,
-                        delay: 0.55,
-                        ease: crossEase,
-                      },
-                    }}
-                  >
-                    <Link
-                      href="/history"
-                      className="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-full bg-[#1A1A1A] px-8 py-3.5 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98] sm:px-10 sm:text-base"
-                    >
-                      View today&apos;s reflection
-                      <ArrowRight className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
-                    </Link>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </LayoutGroup>
         </div>
       </header>
 
-      <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pb-1 pt-4 sm:px-2 sm:pb-2 sm:pt-6">
-        <div className="relative z-[2] flex min-h-0 w-full flex-1 flex-col items-stretch justify-end -translate-y-3">
-        <motion.div
-          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,21.25rem)] shrink-0 translate-y-1 sm:max-w-[min(100vw-1rem,23.5rem)] sm:translate-y-1.5"
-          initial={
-            entrance.instant
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: 22 }
-          }
-          animate={{ opacity: 1, y: 0 }}
-          transition={entrance.illus}
-          onAnimationComplete={() => {
-            if (!reduceMotion) setIllusFloating(true);
-          }}
-        >
-          <motion.div
-            className="relative mx-auto h-[min(27dvh,210px)] w-full min-h-[min(16dvh,118px)] overflow-visible sm:h-[min(29dvh,232px)] sm:min-h-[min(17dvh,128px)]"
-            animate={
-              illusFloating && !reduceMotion
-                ? {
-                    y: [0, -3.5, -0.8, -5.5, 0],
-                    rotate: [0, 0.35, 0, -0.25, 0],
-                  }
-                : { y: 0, rotate: 0 }
-            }
-            transition={
-              illusFloating && !reduceMotion
-                ? {
-                    y: {
-                      duration: 3.65,
-                      repeat: Infinity,
-                      ease: [0.4, 0, 0.2, 1],
-                      times: [0, 0.22, 0.48, 0.78, 1],
-                    },
-                    rotate: {
-                      duration: 3.65,
-                      repeat: Infinity,
-                      ease: [0.4, 0, 0.2, 1],
-                      times: [0, 0.22, 0.48, 0.78, 1],
-                    },
-                  }
-                : { duration: 0 }
-            }
-          >
-            <Image
-              src={currentWhim.illustration}
-              alt=""
-              fill
-              className="object-contain object-bottom drop-shadow-md"
-              sizes="(max-width: 640px) 62vw, 15.5rem"
-              priority
-            />
-          </motion.div>
-        </motion.div>
-
-      <motion.p
-        className="pointer-events-none relative z-[5] mt-4 shrink-0 px-6 text-center font-serif text-xl font-normal leading-snug text-white sm:mt-6 sm:px-8 sm:text-2xl"
-        style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
-        initial={fadeUp(entrance.instant)}
-        animate={{ opacity: 1, y: 0 }}
-        transition={entrance.tag}
+      <div
+        className={cn(
+          "relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col justify-end overflow-visible",
+          whimHomeShellPaddingBottomClass,
+        )}
       >
-        {copyMode === "doneToday"
-          ? "See you tomorrow for a new whim."
-          : "Let's make a difference today."}
-      </motion.p>
+        <div className="flex min-h-0 w-full flex-1 flex-col justify-end px-1 pb-1 sm:px-2 sm:pb-2">
+          <motion.div
+            className="pointer-events-none relative z-[2] mx-auto flex min-h-0 w-full max-w-[min(100vw-0.25rem,34rem)] flex-1 flex-col justify-end sm:max-w-[min(100vw-0.5rem,36rem)]"
+            initial={
+              entrance.instant
+                ? { opacity: 1, y: 0 }
+                : { opacity: 0, y: 22 }
+            }
+            animate={{ opacity: 1, y: 0 }}
+            transition={entrance.illus}
+            onAnimationComplete={() => {
+              if (!reduceMotion) setIllusFloating(true);
+            }}
+          >
+            <motion.div
+              className="relative mx-auto h-[min(46dvh,320px)] w-full min-h-[min(22dvh,160px)] max-h-[min(52dvh,380px)] overflow-visible sm:h-[min(50dvh,360px)] sm:min-h-[min(24dvh,180px)] sm:max-h-[min(56dvh,420px)]"
+              animate={
+                illusFloating && !reduceMotion
+                  ? {
+                      y: [0, -3.5, -0.8, -5.5, 0],
+                      rotate: [0, 0.35, 0, -0.25, 0],
+                    }
+                  : { y: 0, rotate: 0 }
+              }
+              transition={
+                illusFloating && !reduceMotion
+                  ? {
+                      y: {
+                        duration: 3.65,
+                        repeat: Infinity,
+                        ease: [0.4, 0, 0.2, 1],
+                        times: [0, 0.22, 0.48, 0.78, 1],
+                      },
+                      rotate: {
+                        duration: 3.65,
+                        repeat: Infinity,
+                        ease: [0.4, 0, 0.2, 1],
+                        times: [0, 0.22, 0.48, 0.78, 1],
+                      },
+                    }
+                  : { duration: 0 }
+              }
+            >
+              <Image
+                src={currentWhim.illustration}
+                alt=""
+                fill
+                className="object-contain object-bottom drop-shadow-md"
+                sizes="(max-width: 640px) 85vw, 22rem"
+                priority
+              />
+            </motion.div>
+          </motion.div>
+
+          <motion.p
+            className="pointer-events-none relative z-[5] mt-2 shrink-0 px-6 pb-2 pt-1 text-center font-serif text-xl font-normal leading-snug text-white sm:mt-3 sm:px-8 sm:pb-2.5 sm:pt-1.5 sm:text-2xl"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
+            initial={fadeUp(entrance.instant)}
+            animate={{ opacity: 1, y: 0 }}
+            transition={entrance.tag}
+          >
+            {copyMode === "doneToday"
+              ? "See you tomorrow for a new whim."
+              : "Let's make a difference today."}
+          </motion.p>
+
+          <LayoutGroup id="whim-ctas">
+            <motion.div
+              layout
+              className="relative z-[6] mx-auto w-full max-w-xl shrink-0 px-6 sm:px-7"
+            >
+              <AnimatePresence mode="sync">
+                {copyMode === "join" ? (
+                  <motion.div
+                    key="row-join"
+                    layout
+                    className="flex w-full flex-col items-stretch gap-3 sm:gap-4"
+                    initial={fadeUp(entrance.instant)}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={entrance.cta}
+                  >
+                    {passedToday ? (
+                      <p
+                        className={cn(
+                          HOME_HEADLINE_SUBTEXT,
+                          "max-w-md text-[#1A1A1A]/75",
+                        )}
+                      >
+                        You passed earlier, but you can still join anytime.
+                      </p>
+                    ) : null}
+                    <motion.button
+                      type="button"
+                      layout
+                      layoutId="whim-primary-cta"
+                      onClick={joinWhim}
+                      className="inline-flex w-full items-center justify-center rounded-full bg-[#1A1A1A] px-10 py-[1.125rem] font-sans text-lg font-medium text-white transition-transform enabled:active:scale-[0.98] sm:px-11 sm:py-5 sm:text-xl"
+                      transition={{
+                        layout: { duration: 0.45, ease: crossEase },
+                      }}
+                    >
+                      <span className="inline-flex flex-wrap items-center justify-center gap-x-2 sm:gap-x-2.5">
+                        <span>
+                          Join{" "}
+                          <span className="tabular-nums">{peopleCount}</span>{" "}
+                          others
+                        </span>
+                        <ArrowRight
+                          className="size-5 shrink-0 sm:size-[1.35rem]"
+                          strokeWidth={2.25}
+                          aria-hidden
+                        />
+                      </span>
+                    </motion.button>
+                  </motion.div>
+                ) : copyMode === "active" ? (
+                  <motion.div
+                    key="row-active"
+                    layout
+                    className="flex w-full gap-3"
+                    initial={
+                      entrance.instant
+                        ? { opacity: 0, y: 10 }
+                        : fadeUp(entrance.instant)
+                    }
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={
+                      entrance.instant
+                        ? { duration: 0.42, delay: 0.55, ease: crossEase }
+                        : entrance.cta
+                    }
+                  >
+                    <motion.button
+                      type="button"
+                      layout
+                      onClick={() => setPassConfirmOpen(true)}
+                      className="inline-flex min-h-[3.25rem] min-w-0 shrink-0 basis-[38%] items-center justify-center gap-2 rounded-full border border-[#1A1A1A] bg-transparent px-3 py-3.5 font-sans text-sm font-medium text-[#1A1A1A] transition-transform active:scale-[0.98] sm:basis-[36%]"
+                      transition={{
+                        layout: {
+                          duration: 0.5,
+                          delay: 0.55,
+                          ease: crossEase,
+                        },
+                      }}
+                    >
+                      Pass today
+                      <X className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                    </motion.button>
+                    <motion.button
+                      type="button"
+                      layout
+                      layoutId="whim-primary-cta"
+                      onClick={openReflecting}
+                      className="inline-flex min-h-[3.25rem] min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-[#1A1A1A] px-5 py-3.5 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98]"
+                      transition={{
+                        layout: {
+                          duration: 0.5,
+                          delay: 0.55,
+                          ease: crossEase,
+                        },
+                      }}
+                    >
+                      Reflect
+                      <BookOpen className="size-4 shrink-0" strokeWidth={2.25} aria-hidden />
+                    </motion.button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="row-done"
+                    layout
+                    className="flex w-full flex-col items-stretch gap-3"
+                    initial={
+                      entrance.instant
+                        ? { opacity: 0, y: 10 }
+                        : fadeUp(entrance.instant)
+                    }
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={
+                      entrance.instant
+                        ? { duration: 0.4, delay: 0.55, ease: crossEase }
+                        : entrance.cta
+                    }
+                  >
+                    <motion.div
+                      layout
+                      layoutId="whim-primary-cta"
+                      transition={{
+                        layout: {
+                          duration: 0.5,
+                          delay: 0.55,
+                          ease: crossEase,
+                        },
+                      }}
+                    >
+                      <Link
+                        href="/history"
+                        className="inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-full bg-[#1A1A1A] px-8 py-3.5 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98] sm:px-10 sm:text-base"
+                      >
+                        View today&apos;s reflection
+                        <ArrowRight className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                      </Link>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </LayoutGroup>
         </div>
       </div>
 
