@@ -237,10 +237,12 @@ export function ReflectionDrawer() {
     setAttachmentPhotoUrl(null);
     setFeelingSketchUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    // Let home completion toast show (~3s) before navigating away.
-    window.setTimeout(() => {
-      router.push(`/history?focus=${encodeURIComponent(savedAt)}`);
-    }, 3200);
+    try {
+      sessionStorage.setItem("whim-history-celebrate-at", savedAt);
+    } catch {
+      /* private mode */
+    }
+    router.push(`/history?focus=${encodeURIComponent(savedAt)}`);
   }, [
     attachmentPhotoUrl,
     feelingSketchUrl,

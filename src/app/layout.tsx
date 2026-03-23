@@ -68,6 +68,7 @@ export default function RootLayout({
         <WhimProviders>
           <div
             id="whim-app-root"
+            data-whim-chrome="day"
             className="flex min-h-safari-page-plus min-h-0 min-w-0 flex-1 flex-col overflow-x-visible bg-whim-sky"
           >
             {children}

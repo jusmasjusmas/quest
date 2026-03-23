@@ -215,7 +215,6 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
   >(null);
 
   const joinedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const completedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const persisted = loadPersistedState();
@@ -366,23 +365,12 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
       };
       setReflections((prev) => [...prev, entry]);
       incrementRippleReach();
-      setWhimState("completed");
-      if (completedTimerRef.current) clearTimeout(completedTimerRef.current);
-      completedTimerRef.current = setTimeout(() => {
-        setWhimState("idle");
-        setJoinedAtMs(null);
-        completedTimerRef.current = null;
-      }, 3000);
+      setWhimState("idle");
+      setJoinedAtMs(null);
       return savedAt;
     },
     [currentWhim.id, currentWhim.text],
   );
-
-  useEffect(() => {
-    return () => {
-      if (completedTimerRef.current) clearTimeout(completedTimerRef.current);
-    };
-  }, []);
 
   const setProfileEmojiCb = useCallback((emoji: string) => {
     setProfileEmojiState(emoji);

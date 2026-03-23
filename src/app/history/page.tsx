@@ -1,13 +1,14 @@
 "use client";
 
 import { CalendarDays, ChevronLeft, ChevronRight, GalleryHorizontal } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Suspense,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -57,6 +58,16 @@ function HistoryPageContent() {
   const searchParams = useSearchParams();
   const focusFromSave = searchParams.get("focus");
   const focusHandledRef = useRef<string | null>(null);
+  const [celebrateAt, setCelebrateAt] = useState<string | null>(null);
+
+  useLayoutEffect(() => {
+    try {
+      const v = sessionStorage.getItem("whim-history-celebrate-at");
+      if (v) setCelebrateAt(v);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const reflections = useMemo(() => {
     const merged = mergeWithPlaceholderReflections(rawReflections);
@@ -137,6 +148,22 @@ function HistoryPageContent() {
     }
   }, [focusFromSave, reflections, router]);
 
+  useEffect(() => {
+    if (!celebrateAt || !active || active.savedAt !== celebrateAt) return;
+    const id = window.setTimeout(() => {
+      try {
+        sessionStorage.removeItem("whim-history-celebrate-at");
+      } catch {
+        /* ignore */
+      }
+      setCelebrateAt(null);
+    }, 2400);
+    return () => clearTimeout(id);
+  }, [celebrateAt, active?.savedAt]);
+
+  const celebrateThisReflection =
+    Boolean(celebrateAt && active && celebrateAt === active.savedAt);
+
   return (
     <div className="flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-whim-sky">
       <header className="flex shrink-0 items-center justify-between gap-3 px-6 pb-3 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-4 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
@@ -205,6 +232,7 @@ function HistoryPageContent() {
               reflections={reflections}
               activeIndex={activeIndex}
               onSelectIndex={setActiveIndex}
+              celebrateAt={celebrateAt}
             />
           ) : (
             <div className="flex h-full min-h-0 w-full flex-col overflow-x-hidden overflow-y-hidden bg-whim-sky">
@@ -219,6 +247,7 @@ function HistoryPageContent() {
                     <HistoryReflectionHeroCluster
                       reflection={active}
                       isActive
+                      celebrate={celebrateThisReflection}
                     />
                   ) : null}
                 </div>
@@ -261,6 +290,9 @@ function HistoryPageContent() {
               key={active.savedAt}
               reflection={active}
               dockedVisible={view === "carousel"}
+              celebrateEntrance={
+                celebrateThisReflection && view === "carousel"
+              }
             />
           ) : null}
         </div>
@@ -314,10 +346,12 @@ function HistorySnapCarousel({
   reflections,
   activeIndex,
   onSelectIndex,
+  celebrateAt,
 }: {
   reflections: WhimReflection[];
   activeIndex: number;
   onSelectIndex: (i: number) => void;
+  celebrateAt: string | null;
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const metricsRef = useRef({ slide: 0, spacer: 0 });
@@ -397,6 +431,7 @@ function HistorySnapCarousel({
             <HistoryReflectionHeroCluster
               reflection={r}
               isActive={i === activeIndex}
+              celebrate={Boolean(celebrateAt && celebrateAt === r.savedAt)}
             />
           </section>
         ))}
@@ -413,10 +448,14 @@ function HistorySnapCarousel({
 function CarouselSlideVisual({
   reflection,
   isActive,
+  celebrate = false,
 }: {
   reflection: WhimReflection;
   isActive: boolean;
+  celebrate?: boolean;
 }) {
+  const reduceMotion = useReducedMotion() ?? false;
+  const runCelebrate = Boolean(celebrate && !reduceMotion);
   const dayWhim = getWhimForDate(new Date(reflection.savedAt));
   const photo = reflection.photoDataUrl;
   const sketch = reflection.sketchDataUrl ?? null;
@@ -425,6 +464,8 @@ function CarouselSlideVisual({
     polaroidSrc?.startsWith("http://") ||
     polaroidSrc?.startsWith("https://");
   const emoji = moodEmoji(reflection.mood);
+
+  const ease = [0.22, 1, 0.36, 1] as const;
 
   return (
     <div
@@ -436,7 +477,7 @@ function CarouselSlideVisual({
       {/* Tight cluster: polaroid + emoji sit just above the illustration (mockup) */}
       <div className="relative z-10 flex w-full flex-col items-center">
         <div className="flex w-full max-w-[300px] items-end justify-center gap-x-2 gap-y-0 sm:gap-x-2.5">
-          <div
+          <motion.div
             className={cn(
               "w-[min(26vw,96px)] shrink-0 -rotate-[7deg] p-1.5 pb-3 sm:w-[102px] sm:p-2 sm:pb-3.5",
               polaroidSrc
@@ -445,6 +486,17 @@ function CarouselSlideVisual({
             )}
             style={{ transformStyle: "preserve-3d" }}
             aria-hidden
+            initial={
+              runCelebrate && polaroidSrc ? { opacity: 0 } : { opacity: polaroidSrc ? 1 : 0 }
+            }
+            animate={{
+              opacity: polaroidSrc ? 1 : 0,
+            }}
+            transition={{
+              duration: runCelebrate && polaroidSrc ? 0.36 : 0.01,
+              delay: runCelebrate && polaroidSrc ? 0.48 : 0,
+              ease,
+            }}
           >
             <div className="relative aspect-square w-full overflow-hidden rounded-[2px] bg-zinc-100">
               {polaroidSrc ? (
@@ -474,21 +526,35 @@ function CarouselSlideVisual({
                 </>
               ) : null}
             </div>
-          </div>
-          <span
+          </motion.div>
+          <motion.span
             className="shrink-0 select-none text-[min(13vw,3.1rem)] leading-none drop-shadow-[0_2px_12px_rgba(255,255,255,0.92)] sm:text-[3.35rem]"
             aria-hidden
+            initial={runCelebrate ? { opacity: 0 } : { opacity: 1 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: runCelebrate ? 0.34 : 0.01,
+              delay: runCelebrate ? 0.22 : 0,
+              ease,
+            }}
           >
             {emoji}
-          </span>
+          </motion.span>
         </div>
 
         <div className="-mt-4 flex w-full justify-center sm:-mt-5">
-          <img
+          <motion.img
             src={dayWhim.illustration}
             alt=""
             draggable={false}
             className="pointer-events-none max-h-[min(22dvh,200px)] w-[min(84%,220px)] object-contain object-bottom drop-shadow-[0_8px_20px_rgba(0,0,0,0.1)] sm:max-h-[min(24dvh,220px)] sm:w-[min(86%,236px)]"
+            initial={runCelebrate ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: runCelebrate ? 0.38 : 0.01,
+              delay: 0,
+              ease,
+            }}
           />
         </div>
       </div>
@@ -509,13 +575,19 @@ function CarouselSlideVisual({
 function HistoryReflectionHeroCluster({
   reflection,
   isActive,
+  celebrate = false,
 }: {
   reflection: WhimReflection;
   isActive: boolean;
+  celebrate?: boolean;
 }) {
   return (
     <div className="flex origin-top translate-y-[22px] scale-[0.8] flex-col items-center sm:translate-y-[26px]">
-      <CarouselSlideVisual reflection={reflection} isActive={isActive} />
+      <CarouselSlideVisual
+        reflection={reflection}
+        isActive={isActive}
+        celebrate={celebrate}
+      />
     </div>
   );
 }
@@ -535,10 +607,13 @@ const historyDrawerDockSpring = {
 function WhimDetailDrawer({
   reflection,
   dockedVisible = true,
+  celebrateEntrance = false,
 }: {
   reflection: WhimReflection;
   /** When false (calendar view), sheet slides off-screen so it doesn’t cover the grid. */
   dockedVisible?: boolean;
+  /** One-time shorter sheet → full height after saving a new reflection (carousel only). */
+  celebrateEntrance?: boolean;
 }) {
   const feeling = moodFeelingText(reflection.mood);
   const emoji = moodEmoji(reflection.mood);
@@ -547,8 +622,22 @@ function WhimDetailDrawer({
   const isRemotePhoto =
     photo?.startsWith("http://") || photo?.startsWith("https://");
   const canExpand = reflectionHasExpandableBody(reflection);
+  const reduceMotion = useReducedMotion() ?? false;
 
   const [expanded, setExpanded] = useState(false);
+  const [drawerCelebrateTall, setDrawerCelebrateTall] = useState(
+    !celebrateEntrance || reduceMotion,
+  );
+
+  useEffect(() => {
+    if (!celebrateEntrance || reduceMotion) {
+      setDrawerCelebrateTall(true);
+      return;
+    }
+    setDrawerCelebrateTall(false);
+    const id = window.setTimeout(() => setDrawerCelebrateTall(true), 800);
+    return () => clearTimeout(id);
+  }, [celebrateEntrance, reduceMotion, reflection.savedAt]);
   const bodyRef = useRef<HTMLDivElement>(null);
   const handlePointerY0 = useRef<number | null>(null);
   const handleDraggedRef = useRef(false);
@@ -633,7 +722,9 @@ function WhimDetailDrawer({
         !dockedVisible && "pointer-events-none",
         expanded
           ? "h-[70%] max-h-[70%] min-h-0"
-          : "h-[min(42dvh,520px)] min-h-[min(42dvh,520px)] max-h-[min(42dvh,520px)] sm:h-[min(40dvh,540px)] sm:min-h-[min(40dvh,540px)] sm:max-h-[min(40dvh,540px)]",
+          : celebrateEntrance && !drawerCelebrateTall
+            ? "h-[min(31dvh,380px)] min-h-[min(31dvh,380px)] max-h-[min(31dvh,380px)] sm:h-[min(30dvh,400px)] sm:min-h-[min(30dvh,400px)] sm:max-h-[min(30dvh,400px)]"
+            : "h-[min(42dvh,520px)] min-h-[min(42dvh,520px)] max-h-[min(42dvh,520px)] sm:h-[min(40dvh,540px)] sm:min-h-[min(40dvh,540px)] sm:max-h-[min(40dvh,540px)]",
       )}
       style={{
         backgroundImage:
@@ -692,7 +783,12 @@ function WhimDetailDrawer({
         onWheel={onBodyWheel}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        transition={{
+          duration: 0.4,
+          ease: [0.22, 1, 0.36, 1],
+          delay:
+            celebrateEntrance && !reduceMotion ? 0.88 : 0,
+        }}
       >
         <div className="min-h-safari-scroll-slack">
         <p className="font-serif text-xs italic leading-snug text-[#1A1A1A]/85">

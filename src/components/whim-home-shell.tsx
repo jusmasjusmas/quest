@@ -469,23 +469,27 @@ function FloatingEncouragementBubbles({ visible }: { visible: boolean }) {
       className="pointer-events-none absolute inset-x-0 top-[32%] bottom-[38%] z-[4] overflow-hidden"
       aria-hidden
     >
-      {ENCOURAGEMENT_LINES.map((text, i) => (
-        <motion.div
-          key={`${text}-${i}`}
-          className="absolute whitespace-nowrap rounded-full bg-white/90 px-3.5 py-1.5 font-sans text-[0.7rem] font-medium text-[#1A1A1A]/88 shadow-md ring-1 ring-black/[0.08] sm:px-4 sm:py-2 sm:text-xs"
-          style={{ top: lanes[i % lanes.length] }}
-          initial={{ x: "105vw" }}
-          animate={{ x: "-130vw" }}
-          transition={{
-            duration: 19 + i * 2.4,
-            repeat: Infinity,
-            ease: "linear",
-            delay: i * 3.1,
-          }}
-        >
-          {text}
-        </motion.div>
-      ))}
+      {ENCOURAGEMENT_LINES.map((text, i) => {
+        const fromRight = i % 2 === 0;
+        return (
+          <motion.div
+            key={`${text}-${i}`}
+            className="absolute whitespace-nowrap rounded-full bg-white/90 px-3.5 py-1.5 font-sans text-[0.7rem] font-medium text-[#1A1A1A]/88 shadow-md ring-1 ring-black/[0.08] sm:px-4 sm:py-2 sm:text-xs"
+            style={{ top: lanes[i % lanes.length] }}
+            initial={{ x: fromRight ? "105vw" : "-105vw" }}
+            animate={{ x: fromRight ? "-130vw" : "130vw" }}
+            transition={{
+              duration: 26 + i * 3.4,
+              repeat: Infinity,
+              repeatDelay: 8 + (i % 4) * 2.5,
+              ease: "linear",
+              delay: i * 6.2,
+            }}
+          >
+            {text}
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
