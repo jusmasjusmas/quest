@@ -34,10 +34,15 @@ function pathKeyFromPathname(pathname: string): string {
  * Fixed bottom nav + animated route layer; nav hides during horizontal slides and the
  * join success overlay so it never sits above the transition.
  */
+/** Must match `AppRouteTransition` slide duration + small buffer for Framer to settle. */
+const TAB_SLIDE_MS = Math.round(0.3 * 1000) + 100;
+
 export function WhimAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { whimState } = useWhim();
   const reduceMotion = useReducedMotion() ?? false;
+  const reduceMotionRef = useRef(reduceMotion);
+  reduceMotionRef.current = reduceMotion;
   const [navHiddenForSlide, setNavHiddenForSlide] = useState(false);
   const prevPathnameRef = useRef<string | null>(null);
 
@@ -52,22 +57,26 @@ export function WhimAppShell({ children }: { children: React.ReactNode }) {
 
     const prevKey = pathKeyFromPathname(prev);
     const pathKey = pathKeyFromPathname(pathname);
-    if (prevKey === pathKey) return;
+    if (prevKey === pathKey) {
+      setNavHiddenForSlide(false);
+      return;
+    }
 
     const a = navRank(prevKey);
     const b = navRank(pathKey);
     const d = a !== null && b !== null ? b - a : 0;
-    if (d === 0 || reduceMotion) return;
+    if (d === 0 || reduceMotionRef.current) {
+      setNavHiddenForSlide(false);
+      return;
+    }
 
-    const durationSec = 0.3;
     setNavHiddenForSlide(true);
-    const ms = Math.round(durationSec * 1000) + 80;
-    const id = window.setTimeout(() => setNavHiddenForSlide(false), ms);
+    const id = window.setTimeout(() => setNavHiddenForSlide(false), TAB_SLIDE_MS);
+    /** Only clear the timer — do not force visible here, or the nav flashes between routes. */
     return () => {
       window.clearTimeout(id);
-      setNavHiddenForSlide(false);
     };
-  }, [pathname, reduceMotion]);
+  }, [pathname]);
 
   return (
     <>
@@ -76,7 +85,7 @@ export function WhimAppShell({ children }: { children: React.ReactNode }) {
         className={cn(
           navChromeHidden
             ? "pointer-events-none invisible opacity-0"
-            : "opacity-100 transition-opacity duration-200 ease-out",
+            : "opacity-100",
         )}
         aria-hidden={navChromeHidden}
       >
