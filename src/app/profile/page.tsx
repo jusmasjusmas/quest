@@ -159,8 +159,8 @@ export default function ProfilePage() {
             className="group w-full rounded-2xl text-left transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1B6B1B]/40 active:scale-[0.99]"
           >
             <div className="overflow-hidden rounded-2xl bg-white/60 shadow-sm ring-1 ring-black/5 transition-colors group-hover:bg-white/85 group-active:bg-white/90">
-              <div className="grid grid-cols-2 gap-4 px-4 pb-5 pt-6">
-                <div className="text-center">
+              <div className="flex px-4 pb-5 pt-6">
+                <div className="flex min-w-0 flex-1 flex-col items-center justify-center text-center">
                   <p className="font-serif text-3xl font-bold tabular-nums text-[#1A1A1A]">
                     {completed}
                   </p>
@@ -170,7 +170,13 @@ export default function ProfilePage() {
                     Completed
                   </p>
                 </div>
-                <div className="text-center">
+                <div
+                  className="mx-3 shrink-0 self-center sm:mx-4"
+                  aria-hidden
+                >
+                  <div className="h-12 w-px bg-[#1A1A1A]/14 sm:h-14" />
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col items-center justify-center text-center">
                   <p className="font-serif text-3xl font-bold tabular-nums text-[#1A1A1A]">
                     {streakForDisplay}
                   </p>

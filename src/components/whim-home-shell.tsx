@@ -449,13 +449,13 @@ function FloatingEncouragementBubbles({ visible }: { visible: boolean }) {
   if (reduceMotion) {
     return (
       <div
-        className="pointer-events-none absolute inset-x-0 top-[34%] bottom-[40%] z-[4] flex flex-col items-center justify-center gap-2 px-8 opacity-[0.38]"
+        className="pointer-events-none absolute inset-x-0 top-[34%] bottom-[40%] z-[4] flex flex-col items-center justify-center gap-2 px-8 opacity-95"
         aria-hidden
       >
         {ENCOURAGEMENT_LINES.slice(0, 4).map((text) => (
           <div
             key={text}
-            className="max-w-[min(100%,18rem)] rounded-full border-2 border-[#1A1A1A] bg-white px-4 py-2 text-center font-sans text-xs font-medium text-[#1A1A1A] shadow-[0_4px_14px_rgba(0,0,0,0.12)]"
+            className="max-w-[min(100%,18rem)] rounded-full border border-white/20 bg-[#0a1f30]/92 px-4 py-2 text-center font-sans text-xs font-medium text-white/95 shadow-[0_4px_18px_rgba(0,0,0,0.45)] backdrop-blur-sm"
           >
             {text}
           </div>
@@ -474,7 +474,7 @@ function FloatingEncouragementBubbles({ visible }: { visible: boolean }) {
         return (
           <motion.div
             key={`${text}-${i}`}
-            className="absolute whitespace-nowrap rounded-full bg-white/90 px-3.5 py-1.5 font-sans text-[0.7rem] font-medium text-[#1A1A1A]/88 shadow-md ring-1 ring-black/[0.08] sm:px-4 sm:py-2 sm:text-xs"
+            className="absolute whitespace-nowrap rounded-full border border-white/18 bg-[#0a1f30]/90 px-3.5 py-1.5 font-sans text-[0.7rem] font-medium text-white/95 shadow-[0_2px_12px_rgba(0,0,0,0.4)] ring-1 ring-black/25 backdrop-blur-[2px] sm:px-4 sm:py-2 sm:text-xs"
             style={{ top: lanes[i % lanes.length] }}
             initial={{ x: fromRight ? "105vw" : "-105vw" }}
             animate={{ x: fromRight ? "-130vw" : "130vw" }}
@@ -926,11 +926,11 @@ export function WhimHomeShell() {
                     >
                       <Link
                         href="/history"
-                        className="inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-full border-2 border-[#1A1A1A] bg-white px-8 py-3.5 font-sans text-sm font-semibold text-[#1A1A1A] shadow-[0_6px_20px_rgba(0,0,0,0.12)] transition-transform active:scale-[0.98] sm:px-10 sm:text-base"
+                        className="inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-full border-2 border-[#1A1A1A] bg-white px-8 py-3.5 font-sans text-sm font-semibold !text-black shadow-[0_6px_20px_rgba(0,0,0,0.12)] transition-transform active:scale-[0.98] sm:px-10 sm:text-base"
                       >
                         View today&apos;s reflection
                         <ArrowRight
-                          className="size-4 shrink-0 text-[#1A1A1A]"
+                          className="size-4 shrink-0 !text-black"
                           strokeWidth={2.5}
                           aria-hidden
                         />

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useLayoutEffect } from "react";
 
 import { useWhim } from "@/context/WhimContext";
@@ -16,10 +17,12 @@ import {
 const SHELL_ID = "whim-app-root";
 
 /**
- * Paints html/body/shell + theme-color + `data-whim-chrome` for global CSS when today’s whim is done
- * (night) or during the join success sweep (green). Home page no longer owns this alone.
+ * Paints html/body/shell + theme-color for the join success sweep (green), or when
+ * today’s whim is done only on `/` so safe areas match the night home. Other routes
+ * stay sky; history/profile keep default light styling.
  */
 export function WhimGlobalChrome({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const { whimState, reflectedToday } = useWhim();
   const inWhimFlow =
     whimState === "joined" ||
@@ -27,9 +30,7 @@ export function WhimGlobalChrome({ children }: { children: React.ReactNode }) {
     whimState === "reflecting";
   const nightCompleteDay = reflectedToday && !inWhimFlow;
   const successSweep = whimState === "joined";
-
-  const mode =
-    successSweep ? "success" : nightCompleteDay ? "night" : "day";
+  const paintNightHome = nightCompleteDay && pathname === "/";
 
   useLayoutEffect(() => {
     const html = document.documentElement;
@@ -41,13 +42,13 @@ export function WhimGlobalChrome({ children }: { children: React.ReactNode }) {
     const prevTheme = meta?.getAttribute("content");
     let paintedMeta = false;
 
-    if (mode === "night") {
-      paintRootStack(stack, { solid: THEME_NIGHT, image: NIGHT_GRADIENT });
-      meta?.setAttribute("content", THEME_NIGHT);
-      paintedMeta = true;
-    } else if (mode === "success") {
+    if (successSweep) {
       paintRootStack(stack, { solid: SUCCESS_EDGE_BG, image: null });
       meta?.setAttribute("content", THEME_SUCCESS);
+      paintedMeta = true;
+    } else if (paintNightHome) {
+      paintRootStack(stack, { solid: THEME_NIGHT, image: NIGHT_GRADIENT });
+      meta?.setAttribute("content", THEME_NIGHT);
       paintedMeta = true;
     } else {
       clearRootPaint(stack);
@@ -55,7 +56,7 @@ export function WhimGlobalChrome({ children }: { children: React.ReactNode }) {
       else meta?.setAttribute("content", THEME_SKY);
     }
 
-    shell?.setAttribute("data-whim-chrome", mode);
+    shell?.setAttribute("data-whim-chrome", successSweep ? "success" : "day");
 
     return () => {
       clearRootPaint(stack);
@@ -65,7 +66,7 @@ export function WhimGlobalChrome({ children }: { children: React.ReactNode }) {
         else meta?.setAttribute("content", THEME_SKY);
       }
     };
-  }, [mode]);
+  }, [successSweep, paintNightHome]);
 
   return <>{children}</>;
 }
