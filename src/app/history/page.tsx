@@ -237,12 +237,23 @@ function HistoryPageContent() {
           ) : (
             <div className="flex h-full min-h-0 w-full flex-col overflow-x-hidden overflow-y-hidden bg-whim-sky">
               <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-visible">
-                <div
-                  className={cn(
-                    HISTORY_HERO_BAND_CLASS,
-                    "min-h-0 flex-1 overflow-visible pb-2",
-                  )}
+        <div
+          className={cn(
+            HISTORY_HERO_BAND_CLASS,
+            "relative min-h-0 flex-1 overflow-visible pb-2",
+          )}
                 >
+                  <HistoryHeroNavChevrons
+                    canGoPrev={activeIndex > 0}
+                    canGoNext={activeIndex < reflections.length - 1}
+                    onPrev={() => setActiveIndex((i) => Math.max(0, i - 1))}
+                    onNext={() =>
+                      setActiveIndex((i) =>
+                        Math.min(reflections.length - 1, i + 1),
+                      )
+                    }
+                    wrapperClassName="absolute inset-0"
+                  />
                   {active ? (
                     <HistoryReflectionHeroCluster reflection={active} isActive />
                   ) : null}
@@ -304,6 +315,55 @@ const HISTORY_HERO_BAND_CLASS =
 /** Carousel only: reserve space for docked drawer + nav so the hero centers in the same sky band as before. */
 const HISTORY_HERO_CAROUSEL_BOTTOM_PAD =
   "pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(42dvh,520px)+1.5rem)] sm:pb-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(40dvh,540px)+1.5rem)]";
+
+/** Same vertical band as carousel slides — chevron overlay aligns with hero cluster. */
+const HISTORY_HERO_CAROUSEL_CHEVRON_OVERLAY_CLASS = cn(
+  "absolute inset-x-0 z-[6]",
+  "top-[max(0.75rem,3.5dvh)] sm:top-[max(1rem,4dvh)]",
+  "bottom-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(42dvh,520px)+1.5rem)] sm:bottom-[calc(max(5.75rem,env(safe-area-inset-bottom)+5rem)+min(40dvh,540px)+1.5rem)]",
+);
+
+function HistoryHeroNavChevrons({
+  canGoPrev,
+  canGoNext,
+  onPrev,
+  onNext,
+  wrapperClassName,
+}: {
+  canGoPrev: boolean;
+  canGoNext: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+  wrapperClassName: string;
+}) {
+  const btnClass =
+    "pointer-events-auto absolute top-1/2 -translate-y-1/2 rounded-full p-1.5 text-[#1A1A1A]/30 transition-colors hover:bg-black/[0.05] hover:text-[#1A1A1A]/48 active:scale-[0.97] sm:p-2";
+  const iconClass = "size-[1.15rem] stroke-[1.85] sm:size-5";
+  return (
+    <div className={cn("pointer-events-none", wrapperClassName)}>
+      {canGoPrev ? (
+        <button
+          type="button"
+          onClick={onPrev}
+          aria-label="Older whim"
+          className={cn(btnClass, "left-0.5 sm:left-1")}
+        >
+          <ChevronLeft className={iconClass} aria-hidden />
+        </button>
+      ) : null}
+      {canGoNext ? (
+        <button
+          type="button"
+          onClick={onNext}
+          aria-label="Newer whim"
+          className={cn(btnClass, "right-0.5 sm:right-1")}
+        >
+          <ChevronRight className={iconClass} aria-hidden />
+        </button>
+      ) : null}
+    </div>
+  );
+}
 
 function scrollToCarouselIndex(
   el: HTMLDivElement,
@@ -429,6 +489,13 @@ function HistorySnapCarousel({
           aria-hidden
         />
       </div>
+      <HistoryHeroNavChevrons
+        canGoPrev={activeIndex > 0}
+        canGoNext={activeIndex < n - 1}
+        onPrev={() => onSelectIndex(activeIndex - 1)}
+        onNext={() => onSelectIndex(activeIndex + 1)}
+        wrapperClassName={HISTORY_HERO_CAROUSEL_CHEVRON_OVERLAY_CLASS}
+      />
     </div>
   );
 }
