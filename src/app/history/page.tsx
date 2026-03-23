@@ -39,9 +39,9 @@ type ViewMode = "carousel" | "calendar";
 
 function HistoryPageFallback() {
   return (
-    <div className="flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden overscroll-none bg-whim-sky">
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="flex w-full flex-1 flex-col items-center justify-center px-6">
+    <div className="flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-whim-sky">
+      <div className="flex min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
+        <div className="flex min-h-safari-scroll-slack w-full flex-1 flex-col items-center justify-center px-6">
           <p className="font-serif text-lg italic text-[#1A1A1A]/45">
             Loading…
           </p>
@@ -138,7 +138,7 @@ function HistoryPageContent() {
   }, [focusFromSave, reflections, router]);
 
   return (
-    <div className="flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden overscroll-none bg-whim-sky">
+    <div className="flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-whim-sky">
       <header className="flex shrink-0 items-center justify-between gap-3 px-6 pb-3 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-4 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
         <h1 className="min-w-0 flex-1 font-serif text-[1.2rem] italic leading-snug text-[#1A1A1A] sm:text-[1.35rem]">
           Past Whims
@@ -184,8 +184,8 @@ function HistoryPageContent() {
       </header>
 
       {reflections.length === 0 ? (
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden overflow-x-hidden px-8 pb-[max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))] text-center">
-          <div className="flex w-full flex-1 flex-col items-center justify-center gap-4">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain px-8 pb-[max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))] text-center">
+          <div className="flex min-h-safari-scroll-slack w-full flex-1 flex-col items-center justify-center gap-4">
             <p className="font-serif text-lg italic text-[#1A1A1A]/80">
               No past whims yet. Complete a whim and save a reflection to see it
               here.
