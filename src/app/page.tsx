@@ -34,7 +34,7 @@ export default function Home() {
         {whimState === "joined" ? (
           <motion.div
             key="success-overlay"
-            className="absolute inset-0 z-50 overflow-hidden"
+            className="absolute inset-0 z-[70] overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

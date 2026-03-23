@@ -683,16 +683,16 @@ function WhimDetailDrawer({
           <p className="font-serif text-xs italic leading-snug text-[#1A1A1A]/85">
             It made me feel...
           </p>
-          <div className="mt-1 flex flex-row items-center gap-3">
+          <div className="mt-1 inline-flex max-w-full flex-wrap items-baseline gap-x-1 gap-y-0">
+            <p className="min-w-0 font-serif text-xl font-normal leading-snug text-[#1A1A1A] sm:text-[1.35rem]">
+              {feeling}
+            </p>
             <span
               className="shrink-0 text-3xl leading-none drop-shadow-sm sm:text-[2.5rem]"
               aria-hidden
             >
               {emoji}
             </span>
-            <p className="min-w-0 flex-1 text-right font-serif text-xl font-normal leading-snug text-[#1A1A1A] sm:text-[1.35rem]">
-              {feeling}
-            </p>
           </div>
         </div>
 

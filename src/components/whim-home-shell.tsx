@@ -852,7 +852,7 @@ export function WhimHomeShell() {
                       type="button"
                       layout
                       onClick={() => setPassConfirmOpen(true)}
-                      className="inline-flex min-h-[3.25rem] min-w-0 shrink-0 basis-[38%] items-center justify-center gap-2 rounded-full border border-white bg-transparent px-3 py-3.5 font-sans text-sm font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] transition-transform active:scale-[0.98] sm:basis-[36%]"
+                      className="inline-flex min-h-[3.25rem] min-w-0 shrink-0 basis-[38%] items-center justify-center gap-2 rounded-full border border-white bg-transparent px-3 py-3.5 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98] sm:basis-[36%]"
                       transition={{
                         layout: {
                           duration: 0.5,
@@ -863,7 +863,7 @@ export function WhimHomeShell() {
                     >
                       Pass today
                       <X
-                        className="size-4 shrink-0 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]"
+                        className="size-4 shrink-0 text-white"
                         strokeWidth={2.5}
                         aria-hidden
                       />

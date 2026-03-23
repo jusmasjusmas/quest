@@ -34,6 +34,9 @@ const REFLECTION_SHEET_BG = {
 const reflectionDrawerBottom =
   "bottom-[max(7.35rem,calc(env(safe-area-inset-bottom)+6.65rem))]";
 
+const REFLECTION_NOTES_PLACEHOLDER =
+  "What did you make? Did it work out? How did it taste?";
+
 const MOODS: { id: MoodId; emoji: string; menuLabel: string }[] = [
   { id: "neutral", emoji: "😐", menuLabel: "Okay" },
   { id: "good", emoji: "🙂", menuLabel: "Good" },
@@ -41,7 +44,7 @@ const MOODS: { id: MoodId; emoji: string; menuLabel: string }[] = [
   { id: "tender", emoji: "🤗", menuLabel: "Tender" },
   { id: "calm", emoji: "😌", menuLabel: "Calm" },
   { id: "grateful", emoji: "🙏", menuLabel: "Grateful" },
-  { id: "energized", emoji: "⚡", menuLabel: "Energized" },
+  { id: "energized", emoji: "⚡", menuLabel: "Hype" },
   { id: "hopeful", emoji: "🌟", menuLabel: "Hopeful" },
   { id: "creative", emoji: "🎨", menuLabel: "Creative" },
   { id: "drawn", emoji: "✏️", menuLabel: "Sketch" },
@@ -345,7 +348,7 @@ export function ReflectionDrawer() {
                 id="reflection-notes"
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
-                placeholder={currentWhim.notesPlaceholder}
+                placeholder={REFLECTION_NOTES_PLACEHOLDER}
                 rows={3}
                 className="min-h-[4.75rem] w-full resize-none bg-transparent font-serif text-sm leading-relaxed text-[#1A1A1A] placeholder:text-zinc-500/90 focus:outline-none focus:ring-0 sm:min-h-[5rem] sm:text-base"
               />
@@ -377,7 +380,7 @@ export function ReflectionDrawer() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex h-[5.25rem] w-[7rem] shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-dashed border-zinc-300 bg-zinc-100/70 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100 sm:h-[5.5rem] sm:w-[7.35rem]"
+                  className="flex h-[5.25rem] w-[7rem] shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-zinc-300 bg-zinc-100/70 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100 sm:h-[5.5rem] sm:w-[7.35rem]"
                 >
                   <ImagePlus
                     className="h-5 w-5 stroke-[1.35] sm:h-5 sm:w-5"
@@ -456,10 +459,10 @@ function MoodButton({
           : "w-[4.25rem] gap-1 py-2.5",
         isDraw &&
           !selected &&
-          "border-dashed border-violet-300/55 bg-gradient-to-b from-violet-50/40 to-stone-50/88 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]",
+          "border-dashed border-zinc-400/55 bg-gradient-to-b from-zinc-100/75 to-stone-50/88 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]",
         isDraw &&
           selected &&
-          "border-solid border-violet-400/55 bg-violet-50/95 shadow-sm ring-1 ring-violet-200/40",
+          "border-solid border-zinc-500/60 bg-zinc-200/90 shadow-sm ring-1 ring-zinc-400/35",
         !isDraw && !selected && "border-transparent bg-white/60",
         !isDraw &&
           selected &&
@@ -477,7 +480,7 @@ function MoodButton({
         className={cn(
           "font-sans font-medium",
           isDraw
-            ? "text-[0.55rem] font-semibold text-violet-800/72 sm:text-[0.58rem]"
+            ? "text-[0.55rem] font-semibold text-zinc-700/90 sm:text-[0.58rem]"
             : "text-[#1A1A1A]/70",
           dense && !isDraw ? "text-[0.58rem] sm:text-[0.6rem]" : null,
           dense && isDraw ? "text-[0.52rem] sm:text-[0.55rem]" : null,

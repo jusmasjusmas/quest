@@ -91,7 +91,7 @@ export function moodFeelingText(mood: MoodId | null): string {
     creative: "So inspired.",
     calm: "Peaceful and grounded.",
     grateful: "Full of gratitude.",
-    energized: "I felt electric.",
+    energized: "I felt hyped.",
     hopeful: "Something good is coming.",
     tender: "It hit me in the heart.",
     drawn: "Hard to put into words, so I drew it instead.",
