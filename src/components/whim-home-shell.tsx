@@ -9,12 +9,13 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { ArrowRight, BookOpen, X } from "lucide-react";
-import { useEffect, useId, useLayoutEffect, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useState } from "react";
 
 import {
   WhimBottomNav,
   whimHomeShellPaddingBottomClass,
 } from "@/components/whim-bottom-nav";
+import { FitOneLineWhimText } from "@/components/fit-one-line-whim-text";
 import { WhimGuideHelp } from "@/components/whim-guide-modal";
 import { WhimPaperCard } from "@/components/whim-paper-card";
 import { useWhim } from "@/context/WhimContext";
@@ -30,6 +31,115 @@ const HOME_ENTRANCE_KEY = "quest-home-entrance-v4";
 /** Italic line under the main headline (join / active / done); larger than body, smaller than h1. */
 const HOME_HEADLINE_SUBTEXT =
   "font-serif text-lg italic leading-snug sm:text-xl";
+
+/** Tiny stars / sparkles for the done-for-today night home. */
+function NightSkyDecor({ visible }: { visible: boolean }) {
+  const reduceMotion = useReducedMotion() ?? false;
+  const stars = useMemo(
+    () =>
+      Array.from({ length: 56 }, (_, i) => ({
+        x: ((i * 47) % 92) + 4,
+        y: ((i * 61) % 48) + 3,
+        r: i % 5 === 0 ? 2.25 : i % 3 === 0 ? 1.75 : 1.25,
+        o: 0.25 + (i % 7) * 0.1,
+        delay: (i % 11) * 0.18,
+      })),
+    [],
+  );
+
+  if (!visible) return null;
+
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 z-[1] overflow-hidden [mask-image:linear-gradient(to_bottom,black_0%,black_38%,transparent_62%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_38%,transparent_62%)]"
+      aria-hidden
+    >
+      {stars.map((s, i) =>
+        reduceMotion ? (
+          <span
+            key={i}
+            className="absolute rounded-full bg-[#fde68a] shadow-[0_0_5px_rgba(253,224,138,0.95),0_0_12px_rgba(250,204,21,0.35)]"
+            style={{
+              left: `${s.x}%`,
+              top: `${s.y}%`,
+              width: s.r,
+              height: s.r,
+              opacity: s.o,
+            }}
+          />
+        ) : (
+          <motion.span
+            key={i}
+            className="absolute rounded-full bg-[#fde68a] shadow-[0_0_5px_rgba(253,224,138,0.95),0_0_12px_rgba(250,204,21,0.35)]"
+            style={{
+              left: `${s.x}%`,
+              top: `${s.y}%`,
+              width: s.r,
+              height: s.r,
+            }}
+            initial={{ opacity: s.o * 0.4 }}
+            animate={{
+              opacity: [s.o * 0.35, s.o, s.o * 0.5, s.o * 0.85, s.o * 0.4],
+            }}
+            transition={{
+              duration: 2.8 + (i % 5) * 0.45,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: s.delay,
+            }}
+          />
+        ),
+      )}
+      <svg
+        className="pointer-events-none absolute inset-x-0 top-0 h-[min(52dvh,320px)] w-full opacity-[0.6]"
+        viewBox="0 0 100 55"
+        preserveAspectRatio="xMidYMin meet"
+        aria-hidden
+      >
+        {[
+          [12, 18, 2.2],
+          [28, 11, 1.8],
+          [73, 22, 2.4],
+          [88, 14, 1.6],
+          [52, 8, 2],
+          [66, 28, 1.5],
+        ].map(([cx, cy, len], i) => (
+          <line
+            key={`x-${i}`}
+            x1={cx - len}
+            y1={cy}
+            x2={cx + len}
+            y2={cy}
+            stroke="#fef9c3"
+            strokeWidth={0.22}
+            strokeLinecap="round"
+            vectorEffect="nonScalingStroke"
+            opacity={0.7}
+          />
+        ))}
+        {[
+          [18, 16, 2],
+          [44, 9, 1.6],
+          [81, 19, 2.2],
+          [61, 25, 1.4],
+        ].map(([cx, cy, len], i) => (
+          <line
+            key={`y-${i}`}
+            x1={cx}
+            y1={cy - len}
+            x2={cx}
+            y2={cy + len}
+            stroke="#fef9c3"
+            strokeWidth={0.22}
+            strokeLinecap="round"
+            vectorEffect="nonScalingStroke"
+            opacity={0.55}
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
 
 function TodayCalendarChip() {
   const [parts, setParts] = useState<{
@@ -189,9 +299,12 @@ function HillFlower({
 function HomeHillEllipse({
   intro,
   instant,
+  night = false,
 }: {
   intro: { delay: number; duration: number; ease: readonly [number, number, number, number] };
   instant: boolean;
+  /** Darken hill for done-for-today night scene. */
+  night?: boolean;
 }) {
   const reduceMotion = useReducedMotion() ?? false;
   const waveOn = !reduceMotion;
@@ -201,7 +314,10 @@ function HomeHillEllipse({
 
   return (
     <motion.svg
-      className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible -translate-y-[min(20dvh,168px)] sm:-translate-y-[min(22dvh,188px)]"
+      className={cn(
+        "pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible -translate-y-[min(20dvh,168px)] sm:-translate-y-[min(22dvh,188px)]",
+        night && "brightness-[0.72] saturate-[0.88]",
+      )}
       viewBox="0 0 393 852"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden
@@ -386,7 +502,7 @@ function FloatingEncouragementBubbles({ visible }: { visible: boolean }) {
         {ENCOURAGEMENT_LINES.slice(0, 4).map((text) => (
           <div
             key={text}
-            className="max-w-[min(100%,18rem)] rounded-full bg-white/88 px-4 py-2 text-center font-sans text-xs font-medium text-[#1A1A1A]/85 shadow-md ring-1 ring-black/[0.08]"
+            className="max-w-[min(100%,18rem)] rounded-full border-2 border-[#1A1A1A] bg-white px-4 py-2 text-center font-sans text-xs font-medium text-[#1A1A1A] shadow-[0_4px_14px_rgba(0,0,0,0.12)]"
           >
             {text}
           </div>
@@ -467,21 +583,33 @@ export function WhimHomeShell() {
   return (
     <div
       className={cn(
-        "relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-y-hidden text-[#1A1A1A]",
-        copyMode === "doneToday" ? "bg-whim-sunset" : "bg-whim-sky",
+        "relative flex h-full min-h-0 max-h-full w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-y-hidden text-[#1A1A1A]",
+        copyMode === "doneToday"
+          ? "bg-gradient-to-b from-whim-night-top via-whim-night-mid to-whim-night"
+          : "bg-whim-sky",
       )}
     >
-      <HomeHillEllipse intro={entrance.hill} instant={entrance.instant} />
-      <div className="relative z-[1] flex min-h-0 w-full flex-1 flex-col overflow-x-visible">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <NightSkyDecor visible={copyMode === "doneToday"} />
+      <HomeHillEllipse
+        intro={entrance.hill}
+        instant={entrance.instant}
+        night={copyMode === "doneToday"}
+      />
+      <div className="relative z-[1] flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-x-visible overflow-y-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <FloatingEncouragementBubbles visible={copyMode === "doneToday"} />
 
-      <header className="relative z-10 shrink-0 bg-transparent px-6 pb-4 pt-[max(1.125rem,calc(env(safe-area-inset-top)+0.65rem))] sm:px-7 sm:pb-5 sm:pt-[max(1.5rem,calc(env(safe-area-inset-top)+0.85rem))]">
-        <div className="mb-3 flex w-full items-center justify-between gap-3 sm:mb-4">
+      <header className="relative z-10 min-h-0 shrink-0 bg-transparent px-6 pb-2 pt-[max(1rem,calc(env(safe-area-inset-top)+0.5rem))] sm:px-7 sm:pb-3 sm:pt-[max(1.25rem,calc(env(safe-area-inset-top)+0.65rem))]">
+        <div className="mb-2 flex w-full items-center justify-between gap-3 sm:mb-3">
           <AnimatePresence mode="sync">
             <motion.p
               key={copyMode}
-              className="min-w-0 flex-1 font-serif text-[1.2rem] italic leading-snug text-[#1A1A1A] sm:text-[1.35rem]"
+              className={cn(
+                "min-w-0 flex-1 font-serif text-[1.2rem] italic leading-snug sm:text-[1.35rem]",
+                copyMode === "doneToday"
+                  ? "text-white/95"
+                  : "text-[#1A1A1A]",
+              )}
               initial={
                 copyMode === "active"
                   ? { opacity: 0, y: 8 }
@@ -541,24 +669,25 @@ export function WhimHomeShell() {
                 transition={{ duration: 0.4, ease: crossEase }}
               >
                 <motion.div
-                  className="mt-2 sm:mt-3"
+                  className="mt-1.5 sm:mt-2"
                   initial={fadeUp(entrance.instant)}
                   animate={{ opacity: 1, y: 0 }}
                   transition={entrance.whim}
                 >
                   <div className="flex min-w-0 items-center justify-between gap-3">
-                    <h1 className="max-w-[18ch] min-w-0 font-serif text-[2.25rem] font-bold leading-[1.1] tracking-tight text-[#1A1A1A] sm:max-w-[22ch] sm:text-[2.5rem]">
+                    <h1 className="max-w-[18ch] min-w-0 font-serif text-[1.85rem] font-bold leading-[1.08] tracking-tight text-[#1A1A1A] sm:max-w-[22ch] sm:text-[2.1rem]">
                       Today&apos;s whim
                     </h1>
                     <TodayCalendarChip />
                   </div>
-                  <div className="mt-6">
+                  <div className="mt-3 sm:mt-4">
                     <WhimPaperCard
-                      innerClassName="rounded-t-[1.35rem] px-6 pb-5 pt-5 sm:px-7 sm:pb-6 sm:pt-6"
+                      innerClassName="rounded-t-[1.35rem] px-5 pb-4 pt-4 sm:px-6 sm:pb-5 sm:pt-5"
                     >
-                      <p className="font-serif text-[1.8125rem] font-normal leading-snug tracking-tight text-[#1A1A1A] sm:text-[2.0625rem]">
-                        {currentWhim.text}
-                      </p>
+                      <FitOneLineWhimText
+                        text={currentWhim.text}
+                        className="text-[#1A1A1A]"
+                      />
                     </WhimPaperCard>
                   </div>
                 </motion.div>
@@ -572,26 +701,19 @@ export function WhimHomeShell() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.45, ease: crossEase }}
               >
-                <div className="mt-2 min-w-0 sm:mt-3">
-                  <h1 className="min-w-0 font-serif text-[2.25rem] font-bold leading-[1.1] tracking-tight text-[#1A1A1A] sm:text-[2.5rem]">
+                <div className="mt-1.5 min-w-0 sm:mt-2">
+                  <h1 className="min-w-0 font-serif text-[1.35rem] font-bold leading-snug tracking-tight text-[#1A1A1A] sm:text-[1.5rem]">
                     You and{" "}
                     <span className="tabular-nums">{peopleCount}</span> others
                     are on today&apos;s whim together.
                   </h1>
                 </div>
-                <p
-                  className={cn(
-                    HOME_HEADLINE_SUBTEXT,
-                    "mt-2 max-w-[30ch] text-[#1A1A1A]/72",
-                  )}
-                >
-                  Reflect when you&apos;re done.
-                </p>
-                <div className="mt-6">
-                  <WhimPaperCard>
-                    <p className="font-serif text-[1.8125rem] font-normal leading-snug tracking-tight text-[#1A1A1A] sm:text-[2.0625rem]">
-                      {currentWhim.text}
-                    </p>
+                <div className="mt-2.5 sm:mt-3">
+                  <WhimPaperCard innerClassName="px-5 pb-4 pt-4 sm:px-6 sm:pb-5 sm:pt-5">
+                    <FitOneLineWhimText
+                      text={currentWhim.text}
+                      className="text-[#1A1A1A]"
+                    />
                   </WhimPaperCard>
                 </div>
               </motion.div>
@@ -605,29 +727,30 @@ export function WhimHomeShell() {
                 transition={{ duration: 0.45, ease: crossEase }}
               >
                 <motion.div
-                  className="mt-2 sm:mt-3"
+                  className="mt-1.5 sm:mt-2"
                   initial={fadeUp(entrance.instant)}
                   animate={{ opacity: 1, y: 0 }}
                   transition={entrance.whim}
                 >
-                  <h1 className="max-w-[20ch] min-w-0 font-serif text-[2.25rem] font-bold leading-[1.1] tracking-tight text-[#1A1A1A] sm:max-w-[24ch] sm:text-[2.5rem]">
+                  <h1 className="max-w-[20ch] min-w-0 font-serif text-[1.85rem] font-bold leading-[1.08] tracking-tight text-white sm:max-w-[24ch] sm:text-[2.1rem]">
                     Great job today
                   </h1>
                   <p
                     className={cn(
                       HOME_HEADLINE_SUBTEXT,
-                      "mt-2 max-w-[30ch] text-[#1A1A1A]/72",
+                      "mt-1.5 max-w-[30ch] text-white/75",
                     )}
                   >
                     Today&apos;s whim is in the books.
                   </p>
-                  <div className="mt-6">
+                  <div className="mt-3 sm:mt-4">
                     <WhimPaperCard
-                      innerClassName="rounded-t-[1.35rem] px-6 pb-5 pt-5 sm:px-7 sm:pb-6 sm:pt-6"
+                      innerClassName="rounded-t-[1.35rem] px-5 pb-4 pt-4 sm:px-6 sm:pb-5 sm:pt-5"
                     >
-                      <p className="font-serif text-[1.8125rem] font-normal leading-snug tracking-tight text-[#1A1A1A]/55 line-through decoration-[#1A1A1A]/40 decoration-2 sm:text-[2.0625rem]">
-                        {currentWhim.text}
-                      </p>
+                      <FitOneLineWhimText
+                        text={currentWhim.text}
+                        className="text-[#1A1A1A]/55 line-through decoration-[#1A1A1A]/40 decoration-2"
+                      />
                     </WhimPaperCard>
                   </div>
                 </motion.div>
@@ -639,11 +762,11 @@ export function WhimHomeShell() {
 
       <div
         className={cn(
-          "relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col justify-end overflow-visible",
+          "relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col justify-end overflow-hidden",
           whimHomeShellPaddingBottomClass,
         )}
       >
-        <div className="flex min-h-0 w-full flex-1 flex-col justify-end px-1 pb-1 sm:px-2 sm:pb-2">
+        <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col justify-end px-1 sm:px-2">
           <motion.div
             className="pointer-events-none relative z-[2] mx-auto flex min-h-0 w-full max-w-[min(100vw-0.25rem,34rem)] flex-1 flex-col justify-end sm:max-w-[min(100vw-0.5rem,36rem)]"
             initial={
@@ -658,7 +781,7 @@ export function WhimHomeShell() {
             }}
           >
             <motion.div
-              className="relative mx-auto h-[min(46dvh,320px)] w-full min-h-[min(22dvh,160px)] max-h-[min(52dvh,380px)] overflow-visible sm:h-[min(50dvh,360px)] sm:min-h-[min(24dvh,180px)] sm:max-h-[min(56dvh,420px)]"
+              className="relative mx-auto h-[min(24dvh,168px)] w-full min-h-[min(14dvh,100px)] max-h-[min(30dvh,228px)] overflow-visible sm:h-[min(26dvh,188px)] sm:min-h-[min(15dvh,108px)] sm:max-h-[min(32dvh,248px)]"
               animate={
                 illusFloating && !reduceMotion
                   ? {
@@ -842,10 +965,14 @@ export function WhimHomeShell() {
                     >
                       <Link
                         href="/history"
-                        className="inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-full bg-[#1A1A1A] px-8 py-3.5 font-sans text-sm font-medium text-white transition-transform active:scale-[0.98] sm:px-10 sm:text-base"
+                        className="inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-full border-2 border-[#1A1A1A] bg-white px-8 py-3.5 font-sans text-sm font-semibold text-[#1A1A1A] shadow-[0_6px_20px_rgba(0,0,0,0.12)] transition-transform active:scale-[0.98] sm:px-10 sm:text-base"
                       >
                         View today&apos;s reflection
-                        <ArrowRight className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                        <ArrowRight
+                          className="size-4 shrink-0 text-[#1A1A1A]"
+                          strokeWidth={2.5}
+                          aria-hidden
+                        />
                       </Link>
                     </motion.div>
                   </motion.div>

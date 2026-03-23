@@ -1,8 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
 
 import { ReflectionDrawer } from "@/components/reflection-drawer";
+import { whimToastAboveNavBottomClass } from "@/components/whim-bottom-nav";
 import { WhimHomeShell } from "@/components/whim-home-shell";
 import { WhimSuccessTransition } from "@/components/whim-success-transition";
 import { useWhim } from "@/context/WhimContext";
@@ -20,8 +22,10 @@ export default function Home() {
   return (
     <div
       className={cn(
-        "relative flex min-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-hidden",
-        doneHome ? "bg-whim-sunset" : "bg-whim-sky",
+        "relative flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-hidden",
+        doneHome
+          ? "bg-gradient-to-b from-whim-night-top via-whim-night-mid to-whim-night"
+          : "bg-whim-sky",
       )}
     >
       <WhimHomeShell />
@@ -45,13 +49,24 @@ export default function Home() {
           <motion.div
             key="saved-toast"
             role="status"
-            className="pointer-events-none fixed bottom-[max(5.5rem,calc(env(safe-area-inset-bottom)+4.75rem))] left-1/2 z-[60] w-[min(calc(100vw-1.5rem),32rem)] -translate-x-1/2 rounded-2xl bg-[#1A1A1A] px-5 py-3.5 text-center font-sans text-sm font-medium text-white shadow-lg"
-            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            className={cn(
+              "pointer-events-none fixed left-1/2 z-[60] w-[min(calc(100vw-1.5rem),22rem)] -translate-x-1/2 rounded-2xl px-5 py-3.5 font-sans text-sm font-semibold text-white shadow-[0_12px_40px_rgba(27,107,27,0.45),0_0_0_1px_rgba(255,255,255,0.22)_inset,0_2px_12px_rgba(0,0,0,0.12)] ring-2 ring-white/30",
+              whimToastAboveNavBottomClass,
+              "bg-gradient-to-br from-[#3fcb4a] via-[#2a9e36] to-[#1B6B1B]",
+            )}
+            initial={{ opacity: 0, y: 16, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 380, damping: 28 }}
+            exit={{ opacity: 0, y: 10, scale: 0.96 }}
+            transition={{ type: "spring", stiffness: 420, damping: 28 }}
           >
-            Today’s whim completed.
+            <span className="flex items-center justify-center gap-2.5 text-center tracking-tight drop-shadow-sm">
+              <Sparkles
+                className="size-[1.05rem] shrink-0 text-white/95"
+                strokeWidth={2.25}
+                aria-hidden
+              />
+              Today&apos;s whim completed
+            </span>
           </motion.div>
         ) : null}
       </AnimatePresence>

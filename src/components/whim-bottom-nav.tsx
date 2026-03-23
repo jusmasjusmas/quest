@@ -9,11 +9,18 @@ import { cn } from "@/lib/utils";
 const ACTIVE_ICON = "#2B621F";
 
 /**
- * Bottom padding for `WhimHomeShell` main column: clears the fixed nav pill plus a comfortable gap
- * from the primary CTAs to the top of the bar (join / active / done states).
+ * Bottom padding so home CTAs sit ~12px above the top of the fixed nav pill.
+ * Nav offset from bottom: 1rem + safe-area; ~5.875rem ≈ nav chrome (icons + labels + padding).
  */
 export const whimHomeShellPaddingBottomClass =
-  "pb-[max(7.25rem,calc(1rem+env(safe-area-inset-bottom)+5.75rem+44px))]";
+  "pb-[calc(1rem+env(safe-area-inset-bottom)+5.875rem+12px)]";
+
+/**
+ * `bottom` offset for fixed UI (e.g. completion toast) so it sits just above the nav pill.
+ * Matches nav stack: 1rem + safe-area + ~5.875rem chrome + gap.
+ */
+export const whimToastAboveNavBottomClass =
+  "bottom-[calc(1rem+env(safe-area-inset-bottom)+5.875rem+0.75rem)]";
 
 export type WhimNavTab = "history" | "whim" | "profile";
 
