@@ -237,11 +237,6 @@ export function ReflectionDrawer() {
     setAttachmentPhotoUrl(null);
     setFeelingSketchUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    try {
-      sessionStorage.setItem("whim-history-celebrate-at", savedAt);
-    } catch {
-      /* private mode */
-    }
     router.push(`/history?focus=${encodeURIComponent(savedAt)}`);
   }, [
     attachmentPhotoUrl,

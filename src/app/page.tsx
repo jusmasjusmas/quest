@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <div
       className={cn(
-        "relative flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-hidden",
+        "relative flex h-dvh max-h-dvh min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-hidden overscroll-none",
         doneHome
           ? "bg-gradient-to-b from-whim-night-top via-whim-night-mid to-whim-night"
           : successTransition
