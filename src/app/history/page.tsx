@@ -16,7 +16,6 @@ import {
   type WheelEvent,
 } from "react";
 
-import { WhimBottomNav } from "@/components/whim-bottom-nav";
 import { WhimPaperCard } from "@/components/whim-paper-card";
 import { getWhimForDate } from "@/data/whims";
 import { cn } from "@/lib/utils";
@@ -262,8 +261,6 @@ function HistoryPageContent() {
           ) : null}
         </div>
       )}
-
-      <WhimBottomNav active="history" />
     </div>
   );
 }

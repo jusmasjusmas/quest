@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Instrument_Sans, Instrument_Serif } from "next/font/google";
 import "./globals.css";
+import { WhimAppShell } from "@/components/whim-app-shell";
 import { WhimProviders } from "@/components/whim-providers";
 import { cn } from "@/lib/utils";
 
@@ -69,9 +70,9 @@ export default function RootLayout({
           <div
             id="whim-app-root"
             data-whim-chrome="day"
-            className="flex min-h-safari-page-plus min-h-0 min-w-0 flex-1 flex-col overflow-x-visible bg-whim-sky"
+            className="flex min-h-safari-page-plus min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden bg-whim-sky"
           >
-            {children}
+            <WhimAppShell>{children}</WhimAppShell>
           </div>
         </WhimProviders>
       </body>

@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight, Sparkles, Trash2, UserRound } from "lucide-r
 import Link from "next/link";
 import { useCallback, useEffect, useId, useState } from "react";
 
-import { WhimBottomNav } from "@/components/whim-bottom-nav";
 import {
   loadCustomWhims,
   loadNotificationSettings,
@@ -205,8 +204,6 @@ export default function ProfileSettingsPage() {
         </section>
         </div>
       </main>
-
-      <WhimBottomNav active="profile" />
     </div>
   );
 }

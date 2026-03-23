@@ -10,7 +10,6 @@ import {
   ProfileStatsModal,
   type ProfileStatsDetail,
 } from "@/components/profile-stats-modal";
-import { WhimBottomNav } from "@/components/whim-bottom-nav";
 import { WhimPaperCard } from "@/components/whim-paper-card";
 import { useWhim } from "@/context/WhimContext";
 import { cn } from "@/lib/utils";
@@ -265,8 +264,6 @@ export default function ProfilePage() {
         </section>
         </div>
       </main>
-
-      <WhimBottomNav active="profile" />
     </div>
   );
 }

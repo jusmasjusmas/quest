@@ -4,7 +4,6 @@ import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { WhimBottomNav } from "@/components/whim-bottom-nav";
 import { useWhim } from "@/context/WhimContext";
 
 export default function AccountSettingsPage() {
@@ -79,8 +78,6 @@ export default function AccountSettingsPage() {
         </section>
         </div>
       </main>
-
-      <WhimBottomNav active="profile" />
     </div>
   );
 }

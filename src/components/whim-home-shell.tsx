@@ -11,10 +11,7 @@ import {
 import { ArrowRight, BookOpen, X } from "lucide-react";
 import { useEffect, useId, useLayoutEffect, useMemo, useState } from "react";
 
-import {
-  WhimBottomNav,
-  whimHomeShellPaddingBottomClass,
-} from "@/components/whim-bottom-nav";
+import { whimHomeShellPaddingBottomClass } from "@/components/whim-bottom-nav";
 import { FitOneLineWhimText } from "@/components/fit-one-line-whim-text";
 import { WhimGuideHelp } from "@/components/whim-guide-modal";
 import { WhimPaperCard } from "@/components/whim-paper-card";
@@ -579,7 +576,9 @@ export function WhimHomeShell() {
                   : entrance.hey
               }
             >
-              Hey, {profile.name}.
+              {copyMode === "doneToday"
+                ? "Great job today"
+                : `Hey, ${profile.name}.`}
             </motion.p>
           </AnimatePresence>
           <motion.div
@@ -689,17 +688,9 @@ export function WhimHomeShell() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={entrance.whim}
                 >
-                  <h1 className="max-w-[20ch] min-w-0 font-serif text-[1.85rem] font-bold leading-[1.08] tracking-tight text-white sm:max-w-[24ch] sm:text-[2.1rem]">
-                    Great job today
+                  <h1 className="max-w-[min(100%,22ch)] min-w-0 font-serif text-[1.85rem] font-bold leading-[1.08] tracking-tight text-white sm:max-w-[28ch] sm:text-[2.1rem]">
+                    Today&apos;s whim is in the books
                   </h1>
-                  <p
-                    className={cn(
-                      HOME_HEADLINE_SUBTEXT,
-                      "mt-1.5 max-w-[30ch] text-white/75",
-                    )}
-                  >
-                    Today&apos;s whim is in the books.
-                  </p>
                   <div className="mt-3 sm:mt-4">
                     <WhimPaperCard
                       innerClassName="rounded-t-[1.35rem] px-5 pb-4 pt-4 sm:px-6 sm:pb-5 sm:pt-5"
@@ -946,8 +937,6 @@ export function WhimHomeShell() {
 
         </div>
       </div>
-
-      <WhimBottomNav active="whim" />
 
       <AnimatePresence>
         {passConfirmOpen ? (
