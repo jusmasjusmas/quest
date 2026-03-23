@@ -5,10 +5,31 @@ export type MoodId =
   | "creative"
   | "calm"
   | "grateful"
-  | "buzzed"
+  | "energized"
   | "hopeful"
   | "tender"
   | "drawn";
+
+const MOOD_IDS = new Set<string>([
+  "neutral",
+  "good",
+  "great",
+  "creative",
+  "calm",
+  "grateful",
+  "energized",
+  "hopeful",
+  "tender",
+  "drawn",
+]);
+
+/** Maps legacy stored ids; normalizes JSON from localStorage. */
+export function coerceMoodId(raw: unknown): MoodId | null {
+  if (typeof raw !== "string") return null;
+  if (raw === "buzzed") return "energized";
+  if (MOOD_IDS.has(raw)) return raw as MoodId;
+  return null;
+}
 
 export type WhimReflection = {
   whimTitle: string;
@@ -53,7 +74,7 @@ export function moodEmoji(mood: MoodId | null): string {
     creative: "🎨",
     calm: "😌",
     grateful: "🙏",
-    buzzed: "⚡",
+    energized: "⚡",
     hopeful: "🌟",
     tender: "🤗",
     drawn: "✏️",
@@ -70,9 +91,9 @@ export function moodFeelingText(mood: MoodId | null): string {
     creative: "So inspired.",
     calm: "Peaceful and grounded.",
     grateful: "Full of gratitude.",
-    buzzed: "Electric — I felt switched on.",
-    hopeful: "Quietly optimistic, like something good is coming.",
-    tender: "Soft and human — it hit me in the heart.",
+    energized: "I felt electric.",
+    hopeful: "Something good is coming.",
+    tender: "It hit me in the heart.",
     drawn: "Hard to put into words, so I drew it instead.",
   };
   return map[mood];
@@ -87,12 +108,13 @@ function migrateLegacyToV2(): WhimReflectionV2[] {
       if (Array.isArray(arr)) {
         for (const r of arr) {
           if (!r?.savedAt) continue;
+          const mood = coerceMoodId(r.mood);
           out.push({
             whimId: "legacy",
             whimText: r.whimTitle ?? "Today's whim",
             date: r.savedAt,
-            feeling: r.mood ?? null,
-            feelingText: moodFeelingText(r.mood ?? null),
+            feeling: mood,
+            feelingText: moodFeelingText(mood),
             note: r.note ?? "",
             photoUrl: r.photoDataUrl ?? null,
             sketchUrl: r.sketchDataUrl ?? undefined,
@@ -104,12 +126,13 @@ function migrateLegacyToV2(): WhimReflectionV2[] {
       if (oneRaw) {
         const r = JSON.parse(oneRaw) as WhimReflection;
         if (r?.savedAt) {
+          const mood = coerceMoodId(r.mood);
           out.push({
             whimId: "legacy",
             whimText: r.whimTitle ?? "Today's whim",
             date: r.savedAt,
-            feeling: r.mood ?? null,
-            feelingText: moodFeelingText(r.mood ?? null),
+            feeling: mood,
+            feelingText: moodFeelingText(mood),
             note: r.note ?? "",
             photoUrl: r.photoDataUrl ?? null,
             sketchUrl: r.sketchDataUrl ?? undefined,
@@ -129,7 +152,17 @@ export function loadReflectionsV2(): WhimReflectionV2[] {
     const raw = localStorage.getItem(REFLECTIONS_V2_KEY);
     if (raw) {
       const arr = JSON.parse(raw) as WhimReflectionV2[];
-      if (Array.isArray(arr) && arr.length > 0) return arr;
+      if (Array.isArray(arr) && arr.length > 0) {
+        return arr.map((row) => {
+          const feeling = coerceMoodId(row.feeling);
+          return {
+            ...row,
+            feeling,
+            feelingText:
+              feeling != null ? moodFeelingText(feeling) : row.feelingText,
+          };
+        });
+      }
     }
     const migrated = migrateLegacyToV2();
     if (migrated.length > 0) {

@@ -372,7 +372,7 @@ export function WhimProvider({ children }: { children: React.ReactNode }) {
         setWhimState("idle");
         setJoinedAtMs(null);
         completedTimerRef.current = null;
-      }, 1600);
+      }, 3000);
       return savedAt;
     },
     [currentWhim.id, currentWhim.text],

@@ -58,7 +58,7 @@ function NightSkyDecor({ visible }: { visible: boolean }) {
         reduceMotion ? (
           <span
             key={i}
-            className="absolute rounded-full bg-[#fde68a] shadow-[0_0_5px_rgba(253,224,138,0.95),0_0_12px_rgba(250,204,21,0.35)]"
+            className="absolute rounded-full bg-[#fde047] shadow-[0_0_6px_rgba(250,204,21,0.95),0_0_14px_rgba(234,179,8,0.5)]"
             style={{
               left: `${s.x}%`,
               top: `${s.y}%`,
@@ -70,7 +70,7 @@ function NightSkyDecor({ visible }: { visible: boolean }) {
         ) : (
           <motion.span
             key={i}
-            className="absolute rounded-full bg-[#fde68a] shadow-[0_0_5px_rgba(253,224,138,0.95),0_0_12px_rgba(250,204,21,0.35)]"
+            className="absolute rounded-full bg-[#fde047] shadow-[0_0_6px_rgba(250,204,21,0.95),0_0_14px_rgba(234,179,8,0.5)]"
             style={{
               left: `${s.x}%`,
               top: `${s.y}%`,
@@ -536,10 +536,10 @@ export function WhimHomeShell() {
   return (
     <div
       className={cn(
-        "relative flex h-full min-h-0 max-h-full w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-y-hidden text-[#1A1A1A]",
+        "relative flex h-full min-h-0 max-h-full w-full min-w-0 flex-1 flex-col overflow-x-visible overflow-y-hidden",
         copyMode === "doneToday"
-          ? "bg-gradient-to-b from-whim-night-top via-whim-night-mid to-whim-night"
-          : "bg-whim-sky",
+          ? "bg-gradient-to-b from-whim-night-top via-whim-night-mid to-whim-night text-white"
+          : "bg-whim-sky text-[#1A1A1A]",
       )}
     >
       <NightSkyDecor visible={copyMode === "doneToday"} />
@@ -702,7 +702,7 @@ export function WhimHomeShell() {
                     >
                       <FitOneLineWhimText
                         text={currentWhim.text}
-                        className="text-[#1A1A1A]/55 line-through decoration-[#1A1A1A]/40 decoration-2"
+                        className="text-[#1A1A1A]/45 line-through decoration-[#1A1A1A]/30 decoration-2"
                       />
                     </WhimPaperCard>
                   </div>
@@ -734,7 +734,7 @@ export function WhimHomeShell() {
             }}
           >
             <motion.div
-              className="relative mx-auto h-[min(50dvh,300px)] w-full min-h-[min(28dvh,168px)] max-h-[min(62dvh,420px)] overflow-visible sm:h-[min(54dvh,340px)] sm:min-h-[min(30dvh,188px)] sm:max-h-[min(68dvh,460px)]"
+              className="relative mx-auto h-[min(45dvh,270px)] w-full min-h-[min(25dvh,151px)] max-h-[min(56dvh,378px)] overflow-visible sm:h-[min(49dvh,306px)] sm:min-h-[min(27dvh,169px)] sm:max-h-[min(61dvh,414px)]"
               animate={
                 illusFloating && !reduceMotion
                   ? {
@@ -767,7 +767,7 @@ export function WhimHomeShell() {
                 alt=""
                 fill
                 className="object-contain object-bottom drop-shadow-md"
-                sizes="(max-width: 640px) 96vw, 38rem"
+                sizes="(max-width: 640px) 86vw, 34rem"
                 priority
               />
             </motion.div>

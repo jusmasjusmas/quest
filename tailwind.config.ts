@@ -8,10 +8,10 @@ export default {
         "whim-sky": "#E0F4FF",
         /** Home “great job today” — very light warm amber / sunset wash. */
         "whim-sunset": "#FFF5E8",
-        /** Done-for-today night sky (deep blue from whim-sky family). */
-        "whim-night": "#0c2238",
-        "whim-night-mid": "#132f4a",
-        "whim-night-top": "#1a3d5c",
+        /** Done-for-today night sky — slightly lighter deep blue. */
+        "whim-night": "#153a56",
+        "whim-night-mid": "#1f4a6b",
+        "whim-night-top": "#2a5c82",
       },
       fontFamily: {
         sans: [

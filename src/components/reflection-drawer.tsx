@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -30,20 +30,20 @@ const REFLECTION_SHEET_BG = {
     "radial-gradient(circle at 20% 10%, rgba(255,255,255,0.65) 0%, transparent 42%), radial-gradient(circle at 80% 90%, rgba(0,0,0,0.03) 0%, transparent 35%)",
 } as const;
 
-/** Clears fixed `WhimBottomNav`; nudged up so the action row isn’t flush to the viewport edge. */
+/** Clears fixed `WhimBottomNav`; higher = sheet opens farther up (more of the form, incl. photo, visible). */
 const reflectionDrawerBottom =
-  "bottom-[max(6.35rem,calc(env(safe-area-inset-bottom)+5.65rem))]";
+  "bottom-[max(7.35rem,calc(env(safe-area-inset-bottom)+6.65rem))]";
 
 const MOODS: { id: MoodId; emoji: string; menuLabel: string }[] = [
   { id: "neutral", emoji: "😐", menuLabel: "Okay" },
   { id: "good", emoji: "🙂", menuLabel: "Good" },
   { id: "great", emoji: "😁", menuLabel: "Great" },
-  { id: "creative", emoji: "🎨", menuLabel: "Creative" },
+  { id: "tender", emoji: "🤗", menuLabel: "Tender" },
   { id: "calm", emoji: "😌", menuLabel: "Calm" },
   { id: "grateful", emoji: "🙏", menuLabel: "Grateful" },
-  { id: "buzzed", emoji: "⚡", menuLabel: "Buzzed" },
+  { id: "energized", emoji: "⚡", menuLabel: "Energized" },
   { id: "hopeful", emoji: "🌟", menuLabel: "Hopeful" },
-  { id: "tender", emoji: "🤗", menuLabel: "Tender" },
+  { id: "creative", emoji: "🎨", menuLabel: "Creative" },
   { id: "drawn", emoji: "✏️", menuLabel: "Sketch" },
 ];
 
@@ -237,7 +237,10 @@ export function ReflectionDrawer() {
     setAttachmentPhotoUrl(null);
     setFeelingSketchUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    router.push(`/history?focus=${encodeURIComponent(savedAt)}`);
+    // Let home completion toast show (~3s) before navigating away.
+    window.setTimeout(() => {
+      router.push(`/history?focus=${encodeURIComponent(savedAt)}`);
+    }, 3200);
   }, [
     attachmentPhotoUrl,
     feelingSketchUrl,
@@ -246,29 +249,6 @@ export function ReflectionDrawer() {
     saveReflection,
     selectedMood,
   ]);
-
-  const handleShare = useCallback(async () => {
-    const whimTitle = currentWhim.text;
-    const text =
-      noteText.trim() ||
-      `On a whim I ${whimTitle.toLowerCase().replace(/\.$/, "")}.`;
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: "Whims reflection",
-          text,
-        });
-      } catch (e) {
-        if (e instanceof Error && e.name !== "AbortError") {
-          console.warn(e);
-        }
-      }
-      return;
-    }
-    window.alert(
-      "Native share isn’t available in this browser. For the hackathon, copy your notes or try a mobile device.",
-    );
-  }, [currentWhim.text, noteText]);
 
   const canSave =
     selectedMood != null &&
@@ -295,15 +275,14 @@ export function ReflectionDrawer() {
       >
         <DrawerTitle className="sr-only">Reflect on your whim</DrawerTitle>
         <DrawerDescription className="sr-only">
-          Record how your whim felt, add optional notes or a photo, then save or
-          share.
+          Record how your whim felt, add optional notes or a photo, then save.
         </DrawerDescription>
 
         <div
           className={cn(
             "flex w-full max-w-none flex-col overflow-hidden rounded-t-[1.75rem] border border-b-0 border-zinc-200/70 bg-[#faf8f5] shadow-[0_-16px_48px_rgba(0,0,0,0.18)]",
-            "max-h-[calc(100dvh-max(6.35rem,calc(env(safe-area-inset-bottom)+5.65rem)))]",
-            "h-[min(92dvh,calc(100dvh-max(6.35rem,calc(env(safe-area-inset-bottom)+5.65rem))))]",
+            "max-h-[calc(100dvh-max(7.35rem,calc(env(safe-area-inset-bottom)+6.65rem)))]",
+            "h-[min(92dvh,calc(100dvh-max(7.35rem,calc(env(safe-area-inset-bottom)+6.65rem))))]",
           )}
           style={REFLECTION_SHEET_BG}
         >
@@ -364,7 +343,7 @@ export function ReflectionDrawer() {
             >
               Notes (optional)
             </label>
-            <div className="mt-1.5 rounded-xl border border-zinc-300/80 bg-[#e8eaee] px-4 py-3.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] sm:px-5 sm:py-4">
+            <div className="mt-1.5 rounded-xl border border-zinc-200/85 bg-[#f5f3ef] px-4 py-3.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.025)] sm:px-5 sm:py-4">
               <textarea
                 id="reflection-notes"
                 value={noteText}
@@ -428,10 +407,12 @@ export function ReflectionDrawer() {
             <div className="flex w-full gap-2.5 sm:gap-3">
               <button
                 type="button"
-                onClick={handleShare}
-                className="inline-flex min-h-[2.85rem] flex-1 items-center justify-center rounded-full border border-[#1A1A1A] bg-white px-3 py-2.5 font-sans text-sm font-medium text-[#1A1A1A] transition-transform active:scale-[0.98] sm:min-h-[3.1rem] sm:px-4 sm:py-3"
+                onClick={() => setReflectingOpen(false)}
+                aria-label="Close reflection"
+                className="inline-flex min-h-[2.85rem] flex-1 items-center justify-center gap-2 rounded-full border border-[#1A1A1A] bg-white px-3 py-2.5 font-sans text-sm font-medium text-[#1A1A1A] transition-transform active:scale-[0.98] sm:min-h-[3.1rem] sm:px-4 sm:py-3"
               >
-                Share ×
+                <X className="size-4 shrink-0" strokeWidth={2.25} aria-hidden />
+                Close
               </button>
               <button
                 type="button"
@@ -478,10 +459,10 @@ function MoodButton({
           : "w-[4.25rem] gap-1 py-2.5",
         isDraw &&
           !selected &&
-          "border-dashed border-violet-400/80 bg-gradient-to-b from-violet-50/70 to-indigo-50/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]",
+          "border-dashed border-violet-300/55 bg-gradient-to-b from-violet-50/40 to-stone-50/88 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]",
         isDraw &&
           selected &&
-          "border-solid border-violet-500 bg-violet-100/85 shadow-md ring-2 ring-violet-300/35",
+          "border-solid border-violet-400/55 bg-violet-50/95 shadow-sm ring-1 ring-violet-200/40",
         !isDraw && !selected && "border-transparent bg-white/60",
         !isDraw &&
           selected &&
@@ -499,7 +480,7 @@ function MoodButton({
         className={cn(
           "font-sans font-medium",
           isDraw
-            ? "text-[0.55rem] font-semibold text-violet-950/80 sm:text-[0.58rem]"
+            ? "text-[0.55rem] font-semibold text-violet-800/72 sm:text-[0.58rem]"
             : "text-[#1A1A1A]/70",
           dense && !isDraw ? "text-[0.58rem] sm:text-[0.6rem]" : null,
           dense && isDraw ? "text-[0.52rem] sm:text-[0.55rem]" : null,

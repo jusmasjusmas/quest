@@ -109,7 +109,7 @@ export default function ProfilePage() {
       </header>
 
       <main className="px-6">
-        <div className="flex flex-col space-y-10 pb-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))]">
+        <div className="flex flex-col space-y-10 pb-[calc(1rem+env(safe-area-inset-bottom)+5.875rem+12px+1.75rem)]">
         <section className="text-center">
           <h1 className="font-serif text-4xl italic leading-tight text-[#1A1A1A]">
             Hey, {profile.name}.
@@ -216,14 +216,17 @@ export default function ProfilePage() {
             </div>
             <div className="space-y-4 px-6 py-6">
               <p className="font-sans text-[1.05rem] font-normal leading-relaxed tracking-[-0.02em] text-[#1A1A1A]/90">
-                Whims is built on a simple idea: the best thing for your head and
-                heart is often something small, for you or someone else. No
-                leaderboards, no selling your data. Just one shared whim a day and
-                a moment to reflect when you&apos;re done.
+                Whims is one shared, doable idea per day—kind or creative—that
+                everyone gets together. You join when you want, pass when you
+                don&apos;t, and reflect in a few taps when you&apos;re done. It
+                all lives on your device: no feed, no scores, no ads, and we
+                don&apos;t sell your data.
               </p>
               <p className="border-l-2 border-[#1B6B1B]/35 pl-4 font-sans text-[1.05rem] font-normal leading-relaxed tracking-[-0.02em] text-[#1A1A1A]/90">
-                We believe tiny, kind actions add up. Whims is here to make them
-                easy to notice and easy to remember.
+                It works because the bar stays low (one small action), the rhythm
+                is steady (every day), and a quick reflection makes the moment
+                stick—so you&apos;re more likely to do it again and actually
+                remember it later.
               </p>
             </div>
           </WhimPaperCard>
