@@ -787,7 +787,7 @@ export function WhimHomeShell() {
       <div className="relative z-[2] flex min-h-0 min-w-0 flex-1 flex-col items-stretch justify-end overflow-visible px-1 pb-1 pt-4 sm:px-2 sm:pb-2 sm:pt-6">
         <div className="relative z-[2] flex min-h-0 w-full flex-1 flex-col items-stretch justify-end -translate-y-3">
         <motion.div
-          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,19.5rem)] shrink-0 translate-y-1 sm:max-w-[min(100vw-1rem,21.5rem)] sm:translate-y-1.5"
+          className="pointer-events-none relative z-[2] mx-auto w-full max-w-[min(100vw-0.5rem,21.25rem)] shrink-0 translate-y-1 sm:max-w-[min(100vw-1rem,23.5rem)] sm:translate-y-1.5"
           initial={
             entrance.instant
               ? { opacity: 1, y: 0 }
@@ -800,7 +800,7 @@ export function WhimHomeShell() {
           }}
         >
           <motion.div
-            className="relative mx-auto h-[min(23dvh,186px)] w-full min-h-[min(14dvh,104px)] overflow-visible sm:h-[min(25dvh,204px)] sm:min-h-[min(15dvh,116px)]"
+            className="relative mx-auto h-[min(27dvh,210px)] w-full min-h-[min(16dvh,118px)] overflow-visible sm:h-[min(29dvh,232px)] sm:min-h-[min(17dvh,128px)]"
             animate={
               illusFloating && !reduceMotion
                 ? {
@@ -833,14 +833,14 @@ export function WhimHomeShell() {
               alt=""
               fill
               className="object-contain object-bottom drop-shadow-md"
-              sizes="(max-width: 640px) 56vw, 14rem"
+              sizes="(max-width: 640px) 62vw, 15.5rem"
               priority
             />
           </motion.div>
         </motion.div>
 
       <motion.p
-        className="pointer-events-none relative z-[5] mt-1 shrink-0 px-6 text-center font-serif text-xl font-normal leading-snug text-white sm:mt-2 sm:px-8 sm:text-2xl"
+        className="pointer-events-none relative z-[5] mt-4 shrink-0 px-6 text-center font-serif text-xl font-normal leading-snug text-white sm:mt-6 sm:px-8 sm:text-2xl"
         style={{ textShadow: "0 1px 2px rgba(0,0,0,0.25)" }}
         initial={fadeUp(entrance.instant)}
         animate={{ opacity: 1, y: 0 }}
