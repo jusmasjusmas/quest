@@ -1,9 +1,11 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useCallback, useState } from "react";
 
 import { AppRouteTransition } from "@/components/app-route-transition";
 import { WhimBottomNav, type WhimNavTab } from "@/components/whim-bottom-nav";
+import { cn } from "@/lib/utils";
 
 function navActive(pathname: string): WhimNavTab {
   const p = (pathname.split("?")[0] || "/").replace(/\/$/, "") || "/";
@@ -14,14 +16,29 @@ function navActive(pathname: string): WhimNavTab {
 }
 
 /**
- * Single fixed bottom nav + animated route layer above it (nav never slides).
+ * Fixed bottom nav + animated route layer; nav hides for the horizontal slide only.
  */
 export function WhimAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [navHiddenForSlide, setNavHiddenForSlide] = useState(false);
+  const onSlideActiveChange = useCallback((active: boolean) => {
+    setNavHiddenForSlide(active);
+  }, []);
+
   return (
     <>
-      <AppRouteTransition>{children}</AppRouteTransition>
-      <WhimBottomNav active={navActive(pathname)} />
+      <AppRouteTransition onSlideActiveChange={onSlideActiveChange}>
+        {children}
+      </AppRouteTransition>
+      <div
+        className={cn(
+          "transition-opacity duration-75",
+          navHiddenForSlide && "pointer-events-none opacity-0",
+        )}
+        aria-hidden={navHiddenForSlide}
+      >
+        <WhimBottomNav active={navActive(pathname)} />
+      </div>
     </>
   );
 }

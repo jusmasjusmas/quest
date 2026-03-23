@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { BookOpen, Flower2, Smile } from "lucide-react";
+import { BookOpen, Home, Smile } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
@@ -43,7 +43,7 @@ export function WhimBottomNav({ active }: { active: WhimNavTab }) {
           label="Whims"
           href="/"
           active={active === "whim"}
-          icon={<Flower2 className={iconStroke} aria-hidden />}
+          icon={<Home className={iconStroke} aria-hidden />}
         />
         <NavItem
           label="Profile"

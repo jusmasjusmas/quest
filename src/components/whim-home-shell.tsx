@@ -852,7 +852,7 @@ export function WhimHomeShell() {
                       type="button"
                       layout
                       onClick={() => setPassConfirmOpen(true)}
-                      className="inline-flex min-h-[3.25rem] min-w-0 shrink-0 basis-[38%] items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-3 py-3.5 font-sans text-sm font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] transition-transform active:scale-[0.98] sm:basis-[36%]"
+                      className="inline-flex min-h-[3.25rem] min-w-0 shrink-0 basis-[38%] items-center justify-center gap-2 rounded-full border border-white bg-transparent px-3 py-3.5 font-sans text-sm font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] transition-transform active:scale-[0.98] sm:basis-[36%]"
                       transition={{
                         layout: {
                           duration: 0.5,
@@ -917,12 +917,12 @@ export function WhimHomeShell() {
                     >
                       <Link
                         href="/history"
-                        className="inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-full border-2 border-[#1A1A1A] bg-white px-8 py-3.5 font-sans text-sm font-semibold !text-black shadow-[0_6px_20px_rgba(0,0,0,0.12)] transition-transform active:scale-[0.98] sm:px-10 sm:text-base"
+                        className="inline-flex min-h-[3.25rem] w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-3.5 font-sans text-sm font-semibold !text-black shadow-[0_6px_20px_rgba(0,0,0,0.12)] transition-transform active:scale-[0.98] sm:px-10 sm:text-base"
                       >
                         View today&apos;s reflection
-                        <ArrowRight
+                        <BookOpen
                           className="size-4 shrink-0 !text-black"
-                          strokeWidth={2.5}
+                          strokeWidth={2.25}
                           aria-hidden
                         />
                       </Link>

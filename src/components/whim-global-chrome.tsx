@@ -9,7 +9,7 @@ import {
   NIGHT_GRADIENT,
   paintRootStack,
   SUCCESS_EDGE_BG,
-  THEME_NIGHT,
+  THEME_NIGHT_TOP,
   THEME_SKY,
   THEME_SUCCESS,
 } from "@/lib/whim-chrome";
@@ -47,8 +47,8 @@ export function WhimGlobalChrome({ children }: { children: React.ReactNode }) {
       meta?.setAttribute("content", THEME_SUCCESS);
       paintedMeta = true;
     } else if (paintNightHome) {
-      paintRootStack(stack, { solid: THEME_NIGHT, image: NIGHT_GRADIENT });
-      meta?.setAttribute("content", THEME_NIGHT);
+      paintRootStack(stack, { solid: THEME_NIGHT_TOP, image: NIGHT_GRADIENT });
+      meta?.setAttribute("content", THEME_NIGHT_TOP);
       paintedMeta = true;
     } else {
       clearRootPaint(stack);

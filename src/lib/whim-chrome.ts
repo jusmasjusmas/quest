@@ -3,7 +3,10 @@ export const NIGHT_GRADIENT =
   "linear-gradient(to bottom, #2a5c82 0%, #1f4a6b 45%, #153a56 100%)";
 
 export const THEME_SKY = "#D4E8E8";
+/** Bottom of night gradient; used where a single dark token is needed. */
 export const THEME_NIGHT = "#153a56";
+/** Top of night gradient — use for theme-color + root solid so Safari/status bar match the visible page top. */
+export const THEME_NIGHT_TOP = "#2a5c82";
 export const SUCCESS_EDGE_BG = "#1B6B1B";
 export const THEME_SUCCESS = "#1B6B1B";
 
