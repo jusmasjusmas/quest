@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarDays, ChevronLeft, ChevronRight, GalleryHorizontal } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -500,6 +500,11 @@ function HistorySnapCarousel({
   );
 }
 
+/** Subtle 2D drift for catalog illustrations (Past Whims hero); scaled down vs home. */
+const HISTORY_ILLUS_FLOAT_TIMES = [0, 0.22, 0.44, 0.62, 0.84, 1] as const;
+const HISTORY_ILLUS_FLOAT_EASE = [0.4, 0, 0.32, 1] as const;
+const HISTORY_ILLUS_FLOAT_DURATION = 4.35;
+
 function CarouselSlideVisual({
   reflection,
   isActive,
@@ -507,6 +512,7 @@ function CarouselSlideVisual({
   reflection: WhimReflection;
   isActive: boolean;
 }) {
+  const reduceMotion = useReducedMotion() ?? false;
   const dayWhim = getWhimForDate(new Date(reflection.savedAt));
   const photo = reflection.photoDataUrl;
   const sketch = reflection.sketchDataUrl ?? null;
@@ -572,14 +578,49 @@ function CarouselSlideVisual({
           />
         </div>
 
-        <div className="-mt-4 flex w-full justify-center sm:-mt-5">
+        <motion.div
+          className="-mt-4 flex w-full justify-center sm:-mt-5"
+          animate={
+            isActive && !reduceMotion
+              ? {
+                  x: [0, 1.8, -2.1, 1.2, -1.1, 0],
+                  y: [0, -3.6, -1.1, -4.6, -0.75, 0],
+                  rotate: [0, 0.4, -0.2, 0.32, -0.26, 0],
+                }
+              : { x: 0, y: 0, rotate: 0 }
+          }
+          transition={
+            isActive && !reduceMotion
+              ? {
+                  x: {
+                    duration: HISTORY_ILLUS_FLOAT_DURATION,
+                    repeat: Infinity,
+                    ease: HISTORY_ILLUS_FLOAT_EASE,
+                    times: [...HISTORY_ILLUS_FLOAT_TIMES],
+                  },
+                  y: {
+                    duration: HISTORY_ILLUS_FLOAT_DURATION,
+                    repeat: Infinity,
+                    ease: HISTORY_ILLUS_FLOAT_EASE,
+                    times: [...HISTORY_ILLUS_FLOAT_TIMES],
+                  },
+                  rotate: {
+                    duration: HISTORY_ILLUS_FLOAT_DURATION,
+                    repeat: Infinity,
+                    ease: HISTORY_ILLUS_FLOAT_EASE,
+                    times: [...HISTORY_ILLUS_FLOAT_TIMES],
+                  },
+                }
+              : { duration: 0 }
+          }
+        >
           <img
             src={dayWhim.illustration}
             alt=""
             draggable={false}
             className="pointer-events-none max-h-[min(22dvh,200px)] w-[min(84%,220px)] object-contain object-bottom drop-shadow-[0_8px_20px_rgba(0,0,0,0.1)] sm:max-h-[min(24dvh,220px)] sm:w-[min(86%,236px)]"
           />
-        </div>
+        </motion.div>
       </div>
 
       <div className="mt-2 w-full shrink-0 text-center">

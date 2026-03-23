@@ -518,13 +518,26 @@ export function WhimHomeShell() {
 
   const entrance = useHomeEntrance();
   const reduceMotion = useReducedMotion() ?? false;
-  const [illusFloating, setIllusFloating] = useState(
-    () => entrance.instant || reduceMotion,
-  );
+  const [illusFloating, setIllusFloating] = useState(false);
+  const illusDelay = entrance.illus.delay ?? 0;
+  const illusDur = entrance.illus.duration ?? 0;
+
+  useLayoutEffect(() => {
+    if (reduceMotion) {
+      setIllusFloating(false);
+      return;
+    }
+    if (entrance.instant) {
+      setIllusFloating(true);
+    }
+  }, [reduceMotion, entrance.instant]);
 
   useEffect(() => {
-    if (entrance.instant || reduceMotion) setIllusFloating(true);
-  }, [entrance.instant, reduceMotion]);
+    if (reduceMotion || entrance.instant) return;
+    const ms = (illusDelay + illusDur) * 1000 + 120;
+    const id = window.setTimeout(() => setIllusFloating(true), ms);
+    return () => clearTimeout(id);
+  }, [reduceMotion, entrance.instant, illusDelay, illusDur]);
 
   const fadeUp = (instant: boolean) =>
     instant ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 };
@@ -724,34 +737,38 @@ export function WhimHomeShell() {
             }
             animate={{ opacity: 1, y: 0 }}
             transition={entrance.illus}
-            onAnimationComplete={() => {
-              if (!reduceMotion) setIllusFloating(true);
-            }}
           >
             <motion.div
               className="relative mx-auto h-[min(45dvh,270px)] w-full min-h-[min(25dvh,151px)] max-h-[min(56dvh,378px)] overflow-visible sm:h-[min(49dvh,306px)] sm:min-h-[min(27dvh,169px)] sm:max-h-[min(61dvh,414px)]"
               animate={
                 illusFloating && !reduceMotion
                   ? {
-                      y: [0, -3.5, -0.8, -5.5, 0],
-                      rotate: [0, 0.35, 0, -0.25, 0],
+                      x: [0, 2.4, -2.8, 1.6, -1.4, 0],
+                      y: [0, -4.8, -1.4, -6.2, -0.9, 0],
+                      rotate: [0, 0.48, -0.22, 0.38, -0.32, 0],
                     }
-                  : { y: 0, rotate: 0 }
+                  : { x: 0, y: 0, rotate: 0 }
               }
               transition={
                 illusFloating && !reduceMotion
                   ? {
-                      y: {
-                        duration: 3.65,
+                      x: {
+                        duration: 4.35,
                         repeat: Infinity,
-                        ease: [0.4, 0, 0.2, 1],
-                        times: [0, 0.22, 0.48, 0.78, 1],
+                        ease: [0.4, 0, 0.32, 1],
+                        times: [0, 0.22, 0.44, 0.62, 0.84, 1],
+                      },
+                      y: {
+                        duration: 4.35,
+                        repeat: Infinity,
+                        ease: [0.4, 0, 0.32, 1],
+                        times: [0, 0.22, 0.44, 0.62, 0.84, 1],
                       },
                       rotate: {
-                        duration: 3.65,
+                        duration: 4.35,
                         repeat: Infinity,
-                        ease: [0.4, 0, 0.2, 1],
-                        times: [0, 0.22, 0.48, 0.78, 1],
+                        ease: [0.4, 0, 0.32, 1],
+                        times: [0, 0.22, 0.44, 0.62, 0.84, 1],
                       },
                     }
                   : { duration: 0 }
