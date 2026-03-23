@@ -34,6 +34,35 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
 
+/**
+ * Mood emoji with a light sticker treatment: white edge + soft drop shadow + tilt.
+ */
+function HistoryMoodSticker({
+  emoji,
+  className,
+  rotateDeg = -6,
+  size = "lg",
+}: {
+  emoji: string;
+  className?: string;
+  rotateDeg?: number;
+  size?: "lg" | "sm";
+}) {
+  const filter =
+    size === "sm"
+      ? "drop-shadow(0 0 0.35px #fff) drop-shadow(0 0 1px #fff) drop-shadow(0.65px 0 0 #fff) drop-shadow(-0.65px 0 0 #fff) drop-shadow(0 0.65px 0 #fff) drop-shadow(0 -0.65px 0 #fff) drop-shadow(0.05rem 0.07rem 0.09rem rgba(0,0,0,0.2))"
+      : "drop-shadow(0 0 0.5px #fff) drop-shadow(0 0 2px #fff) drop-shadow(1.25px 0 0 #fff) drop-shadow(-1.25px 0 0 #fff) drop-shadow(0 1.25px 0 #fff) drop-shadow(0 -1.25px 0 #fff) drop-shadow(0.1rem 0.12rem 0.16rem rgba(0,0,0,0.22))";
+  return (
+    <span
+      className={cn("inline-block leading-none", className)}
+      style={{ transform: `rotate(${rotateDeg}deg)`, filter }}
+      aria-hidden
+    >
+      {emoji}
+    </span>
+  );
+}
+
 type ViewMode = "carousel" | "calendar";
 
 function HistoryPageFallback() {
@@ -469,12 +498,11 @@ function CarouselSlideVisual({
               ) : null}
             </div>
           </div>
-          <span
-            className="shrink-0 select-none text-[min(13vw,3.1rem)] leading-none drop-shadow-[0_2px_12px_rgba(255,255,255,0.92)] sm:text-[3.35rem]"
-            aria-hidden
-          >
-            {emoji}
-          </span>
+          <HistoryMoodSticker
+            emoji={emoji}
+            rotateDeg={-9}
+            className="shrink-0 select-none text-[min(13vw,3.1rem)] sm:text-[3.35rem]"
+          />
         </div>
 
         <div className="-mt-4 flex w-full justify-center sm:-mt-5">
@@ -687,12 +715,11 @@ function WhimDetailDrawer({
             <p className="min-w-0 font-serif text-xl font-normal leading-snug text-[#1A1A1A] sm:text-[1.35rem]">
               {feeling}
             </p>
-            <span
-              className="shrink-0 text-3xl leading-none drop-shadow-sm sm:text-[2.5rem]"
-              aria-hidden
-            >
-              {emoji}
-            </span>
+            <HistoryMoodSticker
+              emoji={emoji}
+              rotateDeg={8}
+              className="shrink-0 text-3xl sm:text-[2.5rem]"
+            />
           </div>
         </div>
 
@@ -832,9 +859,12 @@ function CalendarPanel({
               </span>
               {has && primary ? (
                 <>
-                  <span className="text-[0.7rem] leading-none sm:text-xs" aria-hidden>
-                    {moodEmoji(primary.mood)}
-                  </span>
+                  <HistoryMoodSticker
+                    emoji={moodEmoji(primary.mood)}
+                    size="sm"
+                    rotateDeg={-5}
+                    className="text-[0.7rem] sm:text-xs"
+                  />
                   <div
                     className={cn(
                       "relative mt-px h-6 w-6 shrink-0 overflow-hidden rounded-md sm:h-7 sm:w-7",

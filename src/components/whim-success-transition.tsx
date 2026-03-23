@@ -129,11 +129,7 @@ export function WhimSuccessTransition({
               {...(textMotion
                 ? { animate: textMotion, transition: textTransition }
                 : {})}
-              className="inline-block origin-center whitespace-nowrap font-serif text-[min(18vw,4.75rem)] italic leading-none text-white drop-shadow-[0_0_36px_rgba(255,255,255,0.55)] drop-shadow-[0_6px_28px_rgba(0,0,0,0.35)] sm:text-[5.75rem] sm:drop-shadow-[0_0_52px_rgba(255,255,255,0.5)] sm:drop-shadow-[0_10px_40px_rgba(0,0,0,0.38)]"
-              style={{
-                textShadow:
-                  "0 0 2px rgba(255,255,255,0.45), 0 2px 20px rgba(0,45,14,0.4)",
-              }}
+              className="inline-block origin-center whitespace-nowrap font-serif text-[min(18vw,4.75rem)] italic leading-none text-white sm:text-[5.75rem]"
             >
               Sweeeeeeeeet
             </motion.span>
@@ -149,7 +145,7 @@ export function WhimSuccessTransition({
           >
             <div className="flex max-w-[min(34ch,100%)] flex-col gap-5 text-left sm:gap-6">
               <motion.p
-                className="font-serif text-[min(8.5vw,2.1rem)] italic leading-snug text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.2)] sm:text-[2.45rem]"
+                className="font-serif text-[min(8.5vw,2.1rem)] italic leading-snug text-white sm:text-[2.45rem]"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.42, delay: 0, ease: easeInOut }}
@@ -157,7 +153,7 @@ export function WhimSuccessTransition({
                 Come back when you&apos;re done.
               </motion.p>
               <motion.p
-                className="font-serif text-[min(8.5vw,2.1rem)] italic leading-snug text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.2)] sm:text-[2.45rem]"
+                className="font-serif text-[min(8.5vw,2.1rem)] italic leading-snug text-white sm:text-[2.45rem]"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
