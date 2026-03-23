@@ -753,19 +753,19 @@ export function WhimHomeShell() {
                 illusFloating && !reduceMotion
                   ? {
                       x: {
-                        duration: 4.35,
+                        duration: 7.5,
                         repeat: Infinity,
                         ease: [0.4, 0, 0.32, 1],
                         times: [0, 0.22, 0.44, 0.62, 0.84, 1],
                       },
                       y: {
-                        duration: 4.35,
+                        duration: 7.5,
                         repeat: Infinity,
                         ease: [0.4, 0, 0.32, 1],
                         times: [0, 0.22, 0.44, 0.62, 0.84, 1],
                       },
                       rotate: {
-                        duration: 4.35,
+                        duration: 7.5,
                         repeat: Infinity,
                         ease: [0.4, 0, 0.32, 1],
                         times: [0, 0.22, 0.44, 0.62, 0.84, 1],

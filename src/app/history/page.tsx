@@ -503,7 +503,7 @@ function HistorySnapCarousel({
 /** Subtle 2D drift for catalog illustrations (Past Whims hero); scaled down vs home. */
 const HISTORY_ILLUS_FLOAT_TIMES = [0, 0.22, 0.44, 0.62, 0.84, 1] as const;
 const HISTORY_ILLUS_FLOAT_EASE = [0.4, 0, 0.32, 1] as const;
-const HISTORY_ILLUS_FLOAT_DURATION = 4.35;
+const HISTORY_ILLUS_FLOAT_DURATION = 7.5;
 
 function CarouselSlideVisual({
   reflection,
