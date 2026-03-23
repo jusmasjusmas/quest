@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import { useLayoutEffect } from "react";
 
 import { ReflectionDrawer } from "@/components/reflection-drawer";
 import { whimToastAboveNavBottomClass } from "@/components/whim-bottom-nav";
@@ -9,6 +10,13 @@ import { WhimHomeShell } from "@/components/whim-home-shell";
 import { WhimSuccessTransition } from "@/components/whim-success-transition";
 import { useWhim } from "@/context/WhimContext";
 import { cn } from "@/lib/utils";
+
+/** Matches `WhimHomeShell` / Tailwind night tokens — paints html/body for Safari safe areas. */
+const NIGHT_EDGE_BG =
+  "linear-gradient(to bottom, #1a3d5c 0%, #132f4a 45%, #0c2238 100%)";
+
+const THEME_SKY = "#D4E8E8";
+const THEME_NIGHT = "#0c2238";
 
 export default function Home() {
   const { whimState, reflectedToday } = useWhim();
@@ -18,6 +26,35 @@ export default function Home() {
     whimState === "reflecting";
   /** Matches `WhimHomeShell` `copyMode === "doneToday"` — reflected, not mid-flow. */
   const doneHome = reflectedToday && !inWhimFlow;
+
+  useLayoutEffect(() => {
+    if (!doneHome) return;
+
+    const html = document.documentElement;
+    const body = document.body;
+    const shell = document.getElementById("whim-app-root");
+    const meta = document.querySelector('meta[name="theme-color"]');
+
+    const prev = {
+      html: html.style.background,
+      body: body.style.background,
+      shell: shell?.style.background ?? "",
+      theme: meta?.getAttribute("content"),
+    };
+
+    html.style.background = NIGHT_EDGE_BG;
+    body.style.background = NIGHT_EDGE_BG;
+    if (shell) shell.style.background = NIGHT_EDGE_BG;
+    meta?.setAttribute("content", THEME_NIGHT);
+
+    return () => {
+      html.style.background = prev.html;
+      body.style.background = prev.body;
+      if (shell) shell.style.background = prev.shell;
+      if (prev.theme != null) meta?.setAttribute("content", prev.theme);
+      else meta?.setAttribute("content", THEME_SKY);
+    };
+  }, [doneHome]);
 
   return (
     <div

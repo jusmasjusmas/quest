@@ -90,53 +90,6 @@ function NightSkyDecor({ visible }: { visible: boolean }) {
           />
         ),
       )}
-      <svg
-        className="pointer-events-none absolute inset-x-0 top-0 h-[min(52dvh,320px)] w-full opacity-[0.6]"
-        viewBox="0 0 100 55"
-        preserveAspectRatio="xMidYMin meet"
-        aria-hidden
-      >
-        {[
-          [12, 18, 2.2],
-          [28, 11, 1.8],
-          [73, 22, 2.4],
-          [88, 14, 1.6],
-          [52, 8, 2],
-          [66, 28, 1.5],
-        ].map(([cx, cy, len], i) => (
-          <line
-            key={`x-${i}`}
-            x1={cx - len}
-            y1={cy}
-            x2={cx + len}
-            y2={cy}
-            stroke="#fef9c3"
-            strokeWidth={0.22}
-            strokeLinecap="round"
-            vectorEffect="nonScalingStroke"
-            opacity={0.7}
-          />
-        ))}
-        {[
-          [18, 16, 2],
-          [44, 9, 1.6],
-          [81, 19, 2.2],
-          [61, 25, 1.4],
-        ].map(([cx, cy, len], i) => (
-          <line
-            key={`y-${i}`}
-            x1={cx}
-            y1={cy - len}
-            x2={cx}
-            y2={cy + len}
-            stroke="#fef9c3"
-            strokeWidth={0.22}
-            strokeLinecap="round"
-            vectorEffect="nonScalingStroke"
-            opacity={0.55}
-          />
-        ))}
-      </svg>
     </div>
   );
 }
@@ -702,7 +655,7 @@ export function WhimHomeShell() {
                 transition={{ duration: 0.45, ease: crossEase }}
               >
                 <div className="mt-1.5 min-w-0 sm:mt-2">
-                  <h1 className="min-w-0 font-serif text-[1.35rem] font-bold leading-snug tracking-tight text-[#1A1A1A] sm:text-[1.5rem]">
+                  <h1 className="min-w-0 font-serif text-[1.85rem] font-bold leading-[1.08] tracking-tight text-[#1A1A1A] sm:text-[2.1rem]">
                     You and{" "}
                     <span className="tabular-nums">{peopleCount}</span> others
                     are on today&apos;s whim together.
@@ -768,7 +721,7 @@ export function WhimHomeShell() {
       >
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col justify-end px-1 sm:px-2">
           <motion.div
-            className="pointer-events-none relative z-[2] mx-auto flex min-h-0 w-full max-w-[min(100vw-0.25rem,34rem)] flex-1 flex-col justify-end sm:max-w-[min(100vw-0.5rem,36rem)]"
+            className="pointer-events-none relative z-[2] mx-auto flex min-h-0 w-full max-w-[min(100vw-0.25rem,44rem)] flex-1 flex-col justify-end -translate-y-5 sm:max-w-[min(100vw-0.5rem,46rem)] sm:-translate-y-9"
             initial={
               entrance.instant
                 ? { opacity: 1, y: 0 }
@@ -781,7 +734,7 @@ export function WhimHomeShell() {
             }}
           >
             <motion.div
-              className="relative mx-auto h-[min(24dvh,168px)] w-full min-h-[min(14dvh,100px)] max-h-[min(30dvh,228px)] overflow-visible sm:h-[min(26dvh,188px)] sm:min-h-[min(15dvh,108px)] sm:max-h-[min(32dvh,248px)]"
+              className="relative mx-auto h-[min(50dvh,300px)] w-full min-h-[min(28dvh,168px)] max-h-[min(62dvh,420px)] overflow-visible sm:h-[min(54dvh,340px)] sm:min-h-[min(30dvh,188px)] sm:max-h-[min(68dvh,460px)]"
               animate={
                 illusFloating && !reduceMotion
                   ? {
@@ -814,7 +767,7 @@ export function WhimHomeShell() {
                 alt=""
                 fill
                 className="object-contain object-bottom drop-shadow-md"
-                sizes="(max-width: 640px) 85vw, 22rem"
+                sizes="(max-width: 640px) 96vw, 38rem"
                 priority
               />
             </motion.div>
@@ -904,7 +857,7 @@ export function WhimHomeShell() {
                       type="button"
                       layout
                       onClick={() => setPassConfirmOpen(true)}
-                      className="inline-flex min-h-[3.25rem] min-w-0 shrink-0 basis-[38%] items-center justify-center gap-2 rounded-full border border-[#1A1A1A] bg-transparent px-3 py-3.5 font-sans text-sm font-medium text-[#1A1A1A] transition-transform active:scale-[0.98] sm:basis-[36%]"
+                      className="inline-flex min-h-[3.25rem] min-w-0 shrink-0 basis-[38%] items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-3 py-3.5 font-sans text-sm font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] transition-transform active:scale-[0.98] sm:basis-[36%]"
                       transition={{
                         layout: {
                           duration: 0.5,
@@ -914,7 +867,11 @@ export function WhimHomeShell() {
                       }}
                     >
                       Pass today
-                      <X className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                      <X
+                        className="size-4 shrink-0 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]"
+                        strokeWidth={2.5}
+                        aria-hidden
+                      />
                     </motion.button>
                     <motion.button
                       type="button"

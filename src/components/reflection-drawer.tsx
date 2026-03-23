@@ -30,9 +30,9 @@ const REFLECTION_SHEET_BG = {
     "radial-gradient(circle at 20% 10%, rgba(255,255,255,0.65) 0%, transparent 42%), radial-gradient(circle at 80% 90%, rgba(0,0,0,0.03) 0%, transparent 35%)",
 } as const;
 
-/** Clears fixed `WhimBottomNav`; same as history detail drawer. */
+/** Clears fixed `WhimBottomNav`; nudged up so the action row isn’t flush to the viewport edge. */
 const reflectionDrawerBottom =
-  "bottom-[max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))]";
+  "bottom-[max(6.35rem,calc(env(safe-area-inset-bottom)+5.65rem))]";
 
 const MOODS: { id: MoodId; emoji: string; menuLabel: string }[] = [
   { id: "neutral", emoji: "😐", menuLabel: "Okay" },
@@ -41,7 +41,10 @@ const MOODS: { id: MoodId; emoji: string; menuLabel: string }[] = [
   { id: "creative", emoji: "🎨", menuLabel: "Creative" },
   { id: "calm", emoji: "😌", menuLabel: "Calm" },
   { id: "grateful", emoji: "🙏", menuLabel: "Grateful" },
-  { id: "drawn", emoji: "✏️", menuLabel: "Draw" },
+  { id: "buzzed", emoji: "⚡", menuLabel: "Buzzed" },
+  { id: "hopeful", emoji: "🌟", menuLabel: "Hopeful" },
+  { id: "tender", emoji: "🤗", menuLabel: "Tender" },
+  { id: "drawn", emoji: "✏️", menuLabel: "Sketch" },
 ];
 
 /** Compact canvas so the full reflection form fits on one screen with the drawer nearly full-height. */
@@ -299,8 +302,8 @@ export function ReflectionDrawer() {
         <div
           className={cn(
             "flex w-full max-w-none flex-col overflow-hidden rounded-t-[1.75rem] border border-b-0 border-zinc-200/70 bg-[#faf8f5] shadow-[0_-16px_48px_rgba(0,0,0,0.18)]",
-            "max-h-[calc(100dvh-max(5.75rem,calc(env(safe-area-inset-bottom)+5rem)))]",
-            "h-[min(92dvh,calc(100dvh-max(5.75rem,calc(env(safe-area-inset-bottom)+5rem))))]",
+            "max-h-[calc(100dvh-max(6.35rem,calc(env(safe-area-inset-bottom)+5.65rem)))]",
+            "h-[min(92dvh,calc(100dvh-max(6.35rem,calc(env(safe-area-inset-bottom)+5.65rem))))]",
           )}
           style={REFLECTION_SHEET_BG}
         >
@@ -335,9 +338,8 @@ export function ReflectionDrawer() {
                   dense
                   emoji={emoji}
                   menuLabel={menuLabel}
-                  isNeutral={id === "neutral"}
+                  isDraw={id === "drawn"}
                   selected={selectedMood === id}
-                  selectedMood={selectedMood}
                   onSelect={() => {
                     setSelectedMood(id);
                     if (id !== "drawn") setFeelingSketchUrl(null);
@@ -362,24 +364,26 @@ export function ReflectionDrawer() {
             >
               Notes (optional)
             </label>
-            <textarea
-              id="reflection-notes"
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-              placeholder={currentWhim.notesPlaceholder}
-              rows={3}
-              className="mt-1.5 w-full resize-none bg-transparent font-serif text-sm leading-relaxed text-[#1A1A1A] placeholder:text-zinc-400 focus:outline-none focus:ring-0 sm:text-base"
-            />
+            <div className="mt-1.5 rounded-xl border border-zinc-300/80 bg-[#e8eaee] px-4 py-3.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] sm:px-5 sm:py-4">
+              <textarea
+                id="reflection-notes"
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder={currentWhim.notesPlaceholder}
+                rows={3}
+                className="min-h-[4.75rem] w-full resize-none bg-transparent font-serif text-sm leading-relaxed text-[#1A1A1A] placeholder:text-zinc-500/90 focus:outline-none focus:ring-0 sm:min-h-[5rem] sm:text-base"
+              />
+            </div>
 
             <p className="mt-3 font-serif text-xs italic leading-snug text-[#1A1A1A]/85 sm:mt-4">
               Add a photo (Optional)
             </p>
-            <div className="mt-1.5 w-full">
+            <div className="mt-1.5 flex w-full">
               {attachmentPhotoUrl ? (
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="relative aspect-[4/3] w-full max-w-full overflow-hidden rounded-xl border border-zinc-200/90 bg-zinc-100/60 text-left shadow-md ring-1 ring-black/[0.06] transition-colors hover:border-zinc-300 hover:bg-zinc-100/80"
+                  className="relative h-[5.25rem] w-[7rem] shrink-0 overflow-hidden rounded-xl border border-zinc-200/90 bg-zinc-100/60 text-left shadow-md ring-1 ring-black/[0.06] transition-colors hover:border-zinc-300 hover:bg-zinc-100/80 sm:h-[5.5rem] sm:w-[7.35rem]"
                 >
                   <Image
                     src={attachmentPhotoUrl}
@@ -387,23 +391,23 @@ export function ReflectionDrawer() {
                     fill
                     unoptimized
                     className="object-cover"
-                    sizes="(max-width: 384px) 100vw, 384px"
+                    sizes="120px"
                   />
-                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-3 py-2.5 pt-8 font-sans text-[0.7rem] font-medium text-white sm:text-xs">
-                    Tap to choose a different photo
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-1.5 py-1 pt-5 text-center font-sans text-[0.55rem] font-medium leading-tight text-white sm:text-[0.6rem]">
+                    Tap to change
                   </span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex aspect-[4/3] w-full max-w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-zinc-300 bg-zinc-100/60 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100 sm:gap-1.5"
+                  className="flex h-[5.25rem] w-[7rem] shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-dashed border-zinc-300 bg-zinc-100/70 text-zinc-500 transition-colors hover:border-zinc-400 hover:bg-zinc-100 sm:h-[5.5rem] sm:w-[7.35rem]"
                 >
                   <ImagePlus
-                    className="h-8 w-8 stroke-[1.25] sm:h-9 sm:w-9"
+                    className="h-5 w-5 stroke-[1.35] sm:h-5 sm:w-5"
                     aria-hidden
                   />
-                  <span className="font-sans text-[0.75rem] font-medium sm:text-sm">
+                  <span className="px-1 text-center font-sans text-[0.65rem] font-medium leading-tight sm:text-[0.7rem]">
                     Select file
                   </span>
                 </button>
@@ -420,7 +424,7 @@ export function ReflectionDrawer() {
             </div>
             </div>
 
-          <div className="shrink-0 border-t border-zinc-200/80 bg-[#faf8f5] px-6 pb-3 pt-3">
+          <div className="shrink-0 border-t border-zinc-200/80 bg-[#faf8f5] px-6 pb-[max(1.5rem,calc(1rem+env(safe-area-inset-bottom)))] pt-4 sm:pb-[max(1.75rem,calc(1.15rem+env(safe-area-inset-bottom)))] sm:pt-4">
             <div className="flex w-full gap-2.5 sm:gap-3">
               <button
                 type="button"
@@ -449,22 +453,18 @@ export function ReflectionDrawer() {
 function MoodButton({
   emoji,
   menuLabel,
-  isNeutral,
+  isDraw,
   selected,
-  selectedMood,
   onSelect,
   dense = false,
 }: {
   emoji: string;
   menuLabel: string;
-  isNeutral: boolean;
+  isDraw: boolean;
   selected: boolean;
-  selectedMood: MoodId | null;
   onSelect: () => void;
   dense?: boolean;
 }) {
-  const none = selectedMood === null;
-
   return (
     <motion.button
       type="button"
@@ -476,18 +476,14 @@ function MoodButton({
         dense
           ? "w-[3.55rem] gap-0.5 py-1.5 sm:w-[3.7rem] sm:py-2"
           : "w-[4.25rem] gap-1 py-2.5",
-        isNeutral &&
-          none &&
-          "border-dashed border-amber-500/80 bg-transparent",
-        isNeutral &&
-          !none &&
+        isDraw &&
           !selected &&
-          "border-dashed border-zinc-300 bg-transparent",
-        isNeutral &&
+          "border-dashed border-violet-400/80 bg-gradient-to-b from-violet-50/70 to-indigo-50/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]",
+        isDraw &&
           selected &&
-          "border-dashed border-amber-600/90 bg-amber-50/50 shadow-sm",
-        !isNeutral && !selected && "border-transparent bg-white/60",
-        !isNeutral &&
+          "border-solid border-violet-500 bg-violet-100/85 shadow-md ring-2 ring-violet-300/35",
+        !isDraw && !selected && "border-transparent bg-white/60",
+        !isDraw &&
           selected &&
           "border-solid border-amber-400/90 bg-amber-50/60 shadow-sm",
       )}
@@ -501,8 +497,13 @@ function MoodButton({
       </span>
       <span
         className={cn(
-          "font-sans font-medium text-[#1A1A1A]/70",
-          dense ? "text-[0.58rem] sm:text-[0.6rem]" : "text-[0.65rem]",
+          "font-sans font-medium",
+          isDraw
+            ? "text-[0.55rem] font-semibold text-violet-950/80 sm:text-[0.58rem]"
+            : "text-[#1A1A1A]/70",
+          dense && !isDraw ? "text-[0.58rem] sm:text-[0.6rem]" : null,
+          dense && isDraw ? "text-[0.52rem] sm:text-[0.55rem]" : null,
+          !dense && !isDraw ? "text-[0.65rem]" : null,
         )}
       >
         {menuLabel}

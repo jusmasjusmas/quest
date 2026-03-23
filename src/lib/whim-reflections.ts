@@ -5,6 +5,9 @@ export type MoodId =
   | "creative"
   | "calm"
   | "grateful"
+  | "buzzed"
+  | "hopeful"
+  | "tender"
   | "drawn";
 
 export type WhimReflection = {
@@ -50,6 +53,9 @@ export function moodEmoji(mood: MoodId | null): string {
     creative: "🎨",
     calm: "😌",
     grateful: "🙏",
+    buzzed: "⚡",
+    hopeful: "🌟",
+    tender: "🤗",
     drawn: "✏️",
   };
   return map[mood];
@@ -64,6 +70,9 @@ export function moodFeelingText(mood: MoodId | null): string {
     creative: "So inspired.",
     calm: "Peaceful and grounded.",
     grateful: "Full of gratitude.",
+    buzzed: "Electric — I felt switched on.",
+    hopeful: "Quietly optimistic, like something good is coming.",
+    tender: "Soft and human — it hit me in the heart.",
     drawn: "Hard to put into words, so I drew it instead.",
   };
   return map[mood];

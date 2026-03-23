@@ -5,7 +5,7 @@ import {
   useAnimationControls,
   useReducedMotion,
 } from "framer-motion";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { WHIM_SUCCESS_SWEEP_DURATION_SEC } from "@/lib/whim-success-timing";
 
@@ -37,127 +37,6 @@ function sweepEndX(textWidth: number) {
 type WhimSuccessTransitionProps = {
   onComplete: () => void;
 };
-
-function SuccessBackdrop({ reducedMotion }: { reducedMotion: boolean }) {
-  return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-[#3a9d42] via-[#228b2a] to-[#0d3d12]"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-black/[0.22] via-transparent to-white/[0.08]"
-        aria-hidden
-      />
-
-      {!reducedMotion ? (
-        <>
-          <motion.div
-            className="absolute -left-[25%] top-[5%] h-[60%] w-[85%] rounded-full bg-[radial-gradient(circle,rgba(255,252,245,0.42)_0%,transparent_68%)] blur-3xl"
-            initial={{ opacity: 0.4 }}
-            animate={{
-              opacity: [0.32, 0.52, 0.36, 0.48, 0.32],
-              scale: [1, 1.06, 1.02, 1.08, 1],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            aria-hidden
-          />
-          <motion.div
-            className="absolute -right-[20%] bottom-0 h-[55%] w-[75%] rounded-full bg-[radial-gradient(circle,rgba(186,255,210,0.28)_0%,transparent_62%)] blur-3xl"
-            animate={{
-              opacity: [0.22, 0.4, 0.26, 0.38, 0.22],
-              x: [0, 12, -6, 0],
-            }}
-            transition={{
-              duration: 8.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.6,
-            }}
-            aria-hidden
-          />
-          <motion.div
-            className="absolute left-[15%] top-[40%] h-[35%] w-[70%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.12)_0%,transparent_55%)] blur-2xl"
-            animate={{ opacity: [0.15, 0.32, 0.18] }}
-            transition={{
-              duration: 5.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.2,
-            }}
-            aria-hidden
-          />
-        </>
-      ) : null}
-
-      <div
-        className="absolute inset-x-[-10%] top-[32%] h-[36%] bg-gradient-to-r from-transparent via-white/[0.09] to-transparent blur-md"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_95%_80%_at_50%_42%,transparent_0%,rgba(0,28,8,0.5)_78%,rgba(0,18,6,0.72)_100%)]"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-        }}
-        aria-hidden
-      />
-    </div>
-  );
-}
-
-function SuccessSparkles({ reducedMotion }: { reducedMotion: boolean }) {
-  const spots = useMemo(
-    () =>
-      Array.from({ length: 14 }, (_, i) => ({
-        left: `${10 + ((i * 17) % 78)}%`,
-        top: `${8 + ((i * 23) % 72)}%`,
-        delay: (i % 7) * 0.22,
-        size: 2 + (i % 4),
-      })),
-    [],
-  );
-
-  if (reducedMotion) return null;
-
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 z-[1] overflow-hidden"
-      aria-hidden
-    >
-      {spots.map((s, i) => (
-        <motion.span
-          key={i}
-          className="absolute rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.85)]"
-          style={{
-            left: s.left,
-            top: s.top,
-            width: s.size,
-            height: s.size,
-          }}
-          initial={{ opacity: 0, scale: 0.4 }}
-          animate={{
-            opacity: [0, 0.85, 0.35, 0.9, 0.2],
-            scale: [0.4, 1.15, 0.75, 1, 0.5],
-          }}
-          transition={{
-            duration: 3.2 + (i % 5) * 0.35,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: s.delay,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 export function WhimSuccessTransition({
   onComplete,
@@ -239,9 +118,6 @@ export function WhimSuccessTransition({
       transition={{ duration: 0.45, ease: easeInOut }}
     >
       <div className="relative flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden">
-        <SuccessBackdrop reducedMotion={reduceMotion} />
-        <SuccessSparkles reducedMotion={reduceMotion} />
-
         <div className="pointer-events-none absolute inset-0 z-[2] flex w-full min-w-0 flex-col justify-center overflow-hidden">
           <motion.span
             animate={xControl}
