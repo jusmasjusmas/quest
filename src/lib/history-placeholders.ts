@@ -29,11 +29,11 @@ const PLACEHOLDER_NOTE_BY_WHIM_ID: Record<number, string> = {
   1: "Grabbed a small bouquet for a friend who’s been stressed. She put them by her laptop and said it shifted her whole afternoon.",
   2: "Ten minutes down a side street I’d only ever driven past. Found a mural I never knew was there.",
   3: "Texted someone I hadn’t talked to in weeks. We picked up like no time had passed—lots of exclamation points.",
-  4: "Made scrambled eggs with whatever was in the fridge. Ate them standing at the counter. Felt oddly accomplished.",
+  4: "Tried a dish I’d never made from scratch—messy kitchen, but it actually tasted good.",
   5: "Told my coworker I admire how calm they stay in messy meetings. They said nobody had put it that way before.",
   6: "Complimented someone’s work on a small project. They lit up—I forget how rare it is to say it out loud.",
   7: "Said something genuine about a stranger’s dog sweater. Got a laugh and a wave. Cheap joy, high return.",
-  8: "Jotted down one thing I learned about sleep this week—obvious in hindsight, but I needed it on paper.",
+  8: "Listed a handful of things I picked up lately—turns out most of them were tiny habits, not big facts.",
 };
 
 const DEMO_DAYS: DemoDay[] = [

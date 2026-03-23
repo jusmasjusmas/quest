@@ -13,7 +13,7 @@ export type Whim = {
 export const WHIMS: Whim[] = [
   {
     id: 1,
-    text: "Let's give a friend some flowers today.",
+    text: "Give a friend some flowers today.",
     shortText: "Flowers for a friend",
     type: "outward",
     illustration: "/illustrations/flower.png",
@@ -22,17 +22,17 @@ export const WHIMS: Whim[] = [
   },
   {
     id: 2,
-    text: "Take a 10-minute walk somewhere you've never been.",
-    shortText: "Walk somewhere new",
+    text: "Take a short walk around a new area.",
+    shortText: "Walk a new area",
     type: "inward",
     illustration: "/illustrations/walk.png",
     notesPlaceholder:
-      "e.g. Where you walked and anything new you noticed along the way.",
+      "e.g. Where you walked and what felt different about the route.",
   },
   {
     id: 3,
-    text: "Text someone you haven't talked to in 2 weeks.",
-    shortText: "Text someone missed",
+    text: "Text someone you haven't talked to in a while.",
+    shortText: "Text someone you miss",
     type: "outward",
     illustration: "/illustrations/phone.png",
     notesPlaceholder:
@@ -40,12 +40,12 @@ export const WHIMS: Whim[] = [
   },
   {
     id: 4,
-    text: "Cook something from scratch, even if it's just eggs.",
-    shortText: "Cook from scratch",
+    text: "Cook something new from scratch.",
+    shortText: "Cook something new",
     type: "inward",
     illustration: "/illustrations/cook.png",
     notesPlaceholder:
-      "e.g. What you cooked, whether it worked out, and how it tasted.",
+      "e.g. What you made, whether it worked out, and how it tasted.",
   },
   {
     id: 5,
@@ -76,18 +76,14 @@ export const WHIMS: Whim[] = [
   },
   {
     id: 8,
-    text: "Write down one thing you learned this week that you didn't know last month.",
-    shortText: "One thing you learned",
+    text: "Make a list of new things you learned recently.",
+    shortText: "List what you learned",
     type: "inward",
     illustration: "/illustrations/writing.png",
     notesPlaceholder:
-      "e.g. What you learned, where you heard it, and why it stuck with you.",
+      "e.g. A few items on your list and which one surprised you most.",
   },
 ];
-
-function dateSeedLocal(d: Date): number {
-  return d.getFullYear() * 10_000 + (d.getMonth() + 1) * 100 + d.getDate();
-}
 
 function hashSeed(seed: number): number {
   let h = Math.imul(seed, 0x9e37_79b9) | 0;
@@ -97,21 +93,41 @@ function hashSeed(seed: number): number {
   return Math.abs(h);
 }
 
-function isSameLocalCalendarDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
+/**
+ * Stable shuffle of WHIMS indices 0..7. Each calendar day maps to the next
+ * slot (mod 8), so no whim repeats on back-to-back days; over every 8-day
+ * window each catalog entry appears exactly once.
+ */
+const WHIM_SLOT_ORDER: number[] = (() => {
+  const a = [0, 1, 2, 3, 4, 5, 6, 7];
+  let s = hashSeed(42_069);
+  for (let i = 7; i > 0; i--) {
+    s = hashSeed(s ^ i * 0xcafe);
+    const j = s % (i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+})();
+
+/** Local calendar day as a UTC-day count (noon avoids DST edge cases). */
+function localCalendarDayNumber(d: Date): number {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0, 0);
+  return Math.floor(x.getTime() / 86_400_000);
+}
+
+function isMarch23Local(d: Date): boolean {
+  return d.getMonth() === 2 && d.getDate() === 23;
 }
 
 /** Same whim for everyone on a given local calendar day. */
 export function getWhimForDate(date: Date): Whim {
-  const today = new Date();
-  if (isSameLocalCalendarDay(date, today)) {
+  if (isMarch23Local(date)) {
     const cook = WHIMS.find((w) => w.id === 4);
     if (cook) return cook;
   }
-  const idx = hashSeed(dateSeedLocal(date)) % WHIMS.length;
+  const slot =
+    ((localCalendarDayNumber(date) % WHIMS.length) + WHIMS.length) %
+    WHIMS.length;
+  const idx = WHIM_SLOT_ORDER[slot]!;
   return WHIMS[idx]!;
 }
