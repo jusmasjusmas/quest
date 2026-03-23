@@ -97,8 +97,21 @@ function hashSeed(seed: number): number {
   return Math.abs(h);
 }
 
+function isSameLocalCalendarDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
 /** Same whim for everyone on a given local calendar day. */
 export function getWhimForDate(date: Date): Whim {
+  const today = new Date();
+  if (isSameLocalCalendarDay(date, today)) {
+    const cook = WHIMS.find((w) => w.id === 4);
+    if (cook) return cook;
+  }
   const idx = hashSeed(dateSeedLocal(date)) % WHIMS.length;
   return WHIMS[idx]!;
 }

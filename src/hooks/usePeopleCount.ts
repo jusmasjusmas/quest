@@ -26,6 +26,12 @@ const TICK_DELAY_MAX = 88_000;
 const COUNT_FLOOR = 520;
 const COUNT_CEIL = 720;
 
+/** Initial 0 → target: keep snappy (~1.75–3.25s for ~540–700). */
+const INITIAL_COUNT_DURATION_MIN_S = 1.75;
+const INITIAL_COUNT_DURATION_MAX_S = 3.25;
+const INITIAL_COUNT_DURATION_PER_UNIT = 0.0035;
+const INITIAL_COUNT_DURATION_BASE_S = 0.85;
+
 /**
  * Simulates a live “others doing this whim” count: starts at 0 and counts up to the
  * first target, then eases on small random ticks.
@@ -52,7 +58,14 @@ export function usePeopleCount(): number {
       count.set(target);
       return;
     }
-    const duration = Math.min(6.2, Math.max(3.8, 2.4 + target * 0.006));
+    const duration = Math.min(
+      INITIAL_COUNT_DURATION_MAX_S,
+      Math.max(
+        INITIAL_COUNT_DURATION_MIN_S,
+        INITIAL_COUNT_DURATION_BASE_S +
+          target * INITIAL_COUNT_DURATION_PER_UNIT,
+      ),
+    );
     const c = animate(count, target, {
       type: "tween",
       duration,

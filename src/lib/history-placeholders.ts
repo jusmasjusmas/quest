@@ -18,6 +18,10 @@ type DemoDay = {
   photoSeed: string | null;
   /** Use this catalog whim instead of `getWhimForDate` (e.g. skip compliment on recent days). */
   whimIdOverride?: number;
+  /** Local path (e.g. `/photos/foo.jpg`) when set; takes precedence over `photoSeed`. */
+  photoUrlOverride?: string | null;
+  /** Replaces `PLACEHOLDER_NOTE_BY_WHIM_ID` for this slot. */
+  noteOverride?: string;
 };
 
 /** Demo Past Whims copy is chosen from the whim for that calendar day (`getWhimForDate`). */
@@ -33,8 +37,24 @@ const PLACEHOLDER_NOTE_BY_WHIM_ID: Record<number, string> = {
 };
 
 const DEMO_DAYS: DemoDay[] = [
-  { daysAgo: 1, mood: "good", photoSeed: "whimph-01", whimIdOverride: 2 },
-  { daysAgo: 2, mood: "great", photoSeed: "whimph-02", whimIdOverride: 4 },
+  {
+    daysAgo: 1,
+    mood: "good",
+    photoSeed: null,
+    whimIdOverride: 3,
+    photoUrlOverride: "/photos/coffee.jpg",
+    noteOverride:
+      "I hit up my boy Tyson and we got some chai for the first time in a whileeee. Hope we stay friends",
+  },
+  {
+    daysAgo: 2,
+    mood: "great",
+    photoSeed: null,
+    whimIdOverride: 1,
+    photoUrlOverride: "/photos/flowers.jpg",
+    noteOverride:
+      "Stopped by the bodega and grabbed flowers for Maya 🌷💐 She was so surprised — best $12 ever 😊",
+  },
   { daysAgo: 3, mood: "neutral", photoSeed: null },
   { daysAgo: 5, mood: "grateful", photoSeed: "whimph-03" },
   { daysAgo: 6, mood: "calm", photoSeed: null },
@@ -73,10 +93,14 @@ export function mergeWithPlaceholderReflections(
       slot.whimIdOverride != null
         ? (WHIMS.find((w) => w.id === slot.whimIdOverride) ?? getWhimForDate(dt))
         : getWhimForDate(dt);
-    const photoUrl = slot.photoSeed
-      ? `https://picsum.photos/seed/${slot.photoSeed}/480/480`
-      : null;
+    const photoUrl =
+      slot.photoUrlOverride !== undefined
+        ? slot.photoUrlOverride
+        : slot.photoSeed
+          ? `https://picsum.photos/seed/${slot.photoSeed}/480/480`
+          : null;
     const note =
+      slot.noteOverride ??
       PLACEHOLDER_NOTE_BY_WHIM_ID[whim.id] ??
       "Showed up for today’s whim. Glad I did.";
 
